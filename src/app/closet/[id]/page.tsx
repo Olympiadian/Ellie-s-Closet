@@ -5,11 +5,15 @@ import { AppShell } from "@/components/app-shell";
 import { GarmentVisual } from "@/components/garment-visual";
 import { clothingItems, getClothingItem, outfits } from "@/lib/sample-data";
 
+type ItemDetailPageProps = {
+  params: Promise<{ id: string }>;
+};
+
 export function generateStaticParams() {
   return clothingItems.map((item) => ({ id: item.id }));
 }
 
-export async function generateMetadata({ params }: PageProps<"/closet/[id]">): Promise<Metadata> {
+export async function generateMetadata({ params }: ItemDetailPageProps): Promise<Metadata> {
   const { id } = await params;
   const item = getClothingItem(id);
 
@@ -21,7 +25,7 @@ export async function generateMetadata({ params }: PageProps<"/closet/[id]">): P
     : { title: "Piece not found" };
 }
 
-export default async function ItemDetailPage({ params }: PageProps<"/closet/[id]">) {
+export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
   const { id } = await params;
   const item = getClothingItem(id);
   if (!item) notFound();
