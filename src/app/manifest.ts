@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "A private visual wardrobe and outfit composition tool.",
     start_url: "/wall",
     display: "standalone",
-    background_color: "#e9e3d8",
-    theme_color: "#181612",
+    background_color: "#5b2969",
+    theme_color: "#5b2969",
     orientation: "any",
     icons: [
       {

@@ -1,7 +1,32 @@
 import type { Metadata, Viewport } from "next";
+import localFont from "next/font/local";
 import type { ReactNode } from "react";
 import { ServiceWorkerRegistration } from "@/components/service-worker-registration";
 import "./globals.css";
+
+const hurricane = localFont({
+  display: "swap",
+  src: "./fonts/hurricane-regular.ttf",
+  variable: "--font-hurricane",
+  weight: "400",
+});
+
+const geistMono = localFont({
+  display: "swap",
+  src: [
+    {
+      path: "./fonts/geist-mono-regular.ttf",
+      style: "normal",
+      weight: "400",
+    },
+    {
+      path: "./fonts/geist-mono-medium.ttf",
+      style: "normal",
+      weight: "500",
+    },
+  ],
+  variable: "--font-geist-mono",
+});
 
 function getMetadataBase() {
   const configuredUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
@@ -47,13 +72,13 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#181612",
+  themeColor: "#5b2969",
   colorScheme: "light",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${hurricane.variable} ${geistMono.variable}`}>
       <body>
         {children}
         <ServiceWorkerRegistration />
