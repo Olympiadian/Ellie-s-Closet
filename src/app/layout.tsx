@@ -1,0 +1,52 @@
+import type { Metadata, Viewport } from "next";
+import { ServiceWorkerRegistration } from "@/components/service-worker-registration";
+import "./globals.css";
+
+export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  title: {
+    default: "The Wall",
+    template: "%s · The Wall",
+  },
+  description: "A private visual wardrobe and outfit composition tool.",
+  applicationName: "The Wall",
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/icon", type: "image/png", sizes: "512x512" },
+    ],
+    apple: [{ url: "/apple-icon", type: "image/png", sizes: "180x180" }],
+  },
+  openGraph: {
+    title: "The Wall",
+    description: "A private visual wardrobe and outfit composition tool.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "The Wall",
+    description: "A private visual wardrobe and outfit composition tool.",
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "The Wall",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#181612",
+  colorScheme: "light",
+};
+
+export default function RootLayout({ children }: LayoutProps<"/">) {
+  return (
+    <html lang="en">
+      <body>
+        {children}
+        <ServiceWorkerRegistration />
+      </body>
+    </html>
+  );
+}

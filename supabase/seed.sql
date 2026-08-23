@@ -1,0 +1,3 @@
+-- Sample wardrobe data lives in src/lib/sample-data.ts so the interface can
+-- run before a private Supabase user exists. Add database seed records only
+-- after creating the trusted owner account, because every record is owner-scoped.
