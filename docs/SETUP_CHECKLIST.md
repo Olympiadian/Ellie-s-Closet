@@ -4,8 +4,8 @@ This file lists the accounts, links, values, and physical setup needed to turn t
 
 ## 1. GitHub
 
-- Target repository: `Olympiadian/ellie-s-closet`
-- Repository URL: <https://github.com/Olympiadian/ellie-s-closet>
+- Target repository: `Olympiadian/Ellie-s-Closet`
+- Repository URL: <https://github.com/Olympiadian/Ellie-s-Closet>
 - Give the connected GitHub app read/write access to this repository.
 - Keep the default branch named `main`.
 - Never commit `.env.local`, API keys, passwords, or service-role keys.
@@ -47,7 +47,7 @@ Choose an image-capable model that supports Structured Outputs. The key must rem
 
 After the GitHub repository contains the app, import it at:
 
-<https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FOlympiadian%2Fellie-s-closet>
+<https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FOlympiadian%2FEllie-s-Closet>
 
 Use the repository root as the project root and add every value from `.env.example`. Set:
 
