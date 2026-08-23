@@ -30,9 +30,13 @@ const geistMono = localFont({
 
 function getMetadataBase() {
   const configuredUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  const siteUrl =
+    process.env.VERCEL && (!configuredUrl || configuredUrl.includes("localhost"))
+      ? "https://www.elliecloset.com"
+      : configuredUrl || "http://localhost:3000";
 
   try {
-    return new URL(configuredUrl || "http://localhost:3000");
+    return new URL(siteUrl);
   } catch {
     return new URL("http://localhost:3000");
   }
