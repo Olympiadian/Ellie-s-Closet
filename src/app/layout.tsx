@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import type { ReactNode } from "react";
+import { MobileRouteGuard } from "@/components/mobile/mobile-route-guard";
 import { ServiceWorkerRegistration } from "@/components/service-worker-registration";
 import "./globals.css";
 
@@ -28,6 +29,13 @@ const geistMono = localFont({
   variable: "--font-geist-mono",
 });
 
+const funnelDisplay = localFont({
+  display: "swap",
+  src: "./fonts/funnel-display-variable.ttf",
+  variable: "--font-funnel-display",
+  weight: "300 800",
+});
+
 function getMetadataBase() {
   const configuredUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
   const siteUrl =
@@ -49,7 +57,7 @@ export const metadata: Metadata = {
     template: "%s · The Wall",
   },
   description: "A private visual wardrobe and outfit composition tool.",
-  applicationName: "The Wall",
+  applicationName: "Ellie's Closet",
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [
@@ -73,7 +81,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "The Wall",
+    title: "Ellie's Closet",
   },
 };
 
@@ -84,8 +92,12 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${hurricane.variable} ${geistMono.variable}`}>
+    <html
+      lang="en"
+      className={`${hurricane.variable} ${geistMono.variable} ${funnelDisplay.variable}`}
+    >
       <body>
+        <MobileRouteGuard />
         {children}
         <ServiceWorkerRegistration />
       </body>

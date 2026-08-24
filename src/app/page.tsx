@@ -1,5 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
+import { MobileHome } from "@/components/mobile/mobile-home";
 
 export const dynamic = "force-dynamic";
 
@@ -87,61 +87,58 @@ export default function Home() {
   const now = new Date();
 
   return (
-    <main className="home-dashboard">
-      <Image
-        src="/images/mountain-lakeshore-geyser.png"
-        alt=""
-        className="home-dashboard__scene"
-        fill
-        priority
-        sizes="100vw"
-      />
-      <div className="home-dashboard__tone" aria-hidden="true" />
-      <div className="home-dashboard__glass-rail" aria-hidden="true" />
-      <div className="home-dashboard__glass-dock" aria-hidden="true" />
+    <main className="home-page">
+      <MobileHome />
 
-      <section className="home-dashboard__greeting" aria-labelledby="home-greeting">
-        <h1 id="home-greeting">{getGreeting(now)}, Ellie</h1>
-        <p>{getDateLabel(now)}</p>
-        <div className="home-dashboard__weather-summary" aria-label="Sunny weather">
-          <SunIcon />
-          <span>Sunny</span>
-        </div>
-      </section>
+      <div className="home-dashboard">
+        <div className="home-dashboard__scene" aria-hidden="true" />
+        <div className="home-dashboard__tone" aria-hidden="true" />
+        <div className="home-dashboard__glass-rail" aria-hidden="true" />
+        <div className="home-dashboard__glass-dock" aria-hidden="true" />
 
-      <section className="home-dashboard__stats" aria-label="Weather details">
-        <article className="home-dashboard__metric" aria-label="High 107 degrees, low 88 degrees">
-          <span className="home-dashboard__metric-label">temp</span>
-          <strong>107°</strong>
-          <WeatherBars widths={Array(12).fill(39)} />
-          <b>88°</b>
-        </article>
+        <section className="home-dashboard__greeting" aria-labelledby="home-greeting">
+          <h1 id="home-greeting">{getGreeting(now)}, Ellie</h1>
+          <p>{getDateLabel(now)}</p>
+          <div className="home-dashboard__weather-summary" aria-label="Sunny weather">
+            <SunIcon />
+            <span>Sunny</span>
+          </div>
+        </section>
 
-        <article className="home-dashboard__metric" aria-label="UV index 11">
-          <span className="home-dashboard__metric-label">uv</span>
-          <strong>11</strong>
-          <WeatherBars widths={uvBarWidths} />
-          <span className="home-dashboard__check">
-            <CheckIcon />
-          </span>
-        </article>
-      </section>
+        <section className="home-dashboard__stats" aria-label="Weather details">
+          <article className="home-dashboard__metric" aria-label="High 107 degrees, low 88 degrees">
+            <span className="home-dashboard__metric-label">temp</span>
+            <strong>107°</strong>
+            <WeatherBars widths={Array(12).fill(39)} />
+            <b>88°</b>
+          </article>
 
-      <nav className="home-dashboard__primary-nav" aria-label="Primary navigation">
-        {primaryNavigation.map((item) => (
-          <Link href={item.href} key={item.label}>
-            {item.label}
-          </Link>
-        ))}
-      </nav>
+          <article className="home-dashboard__metric" aria-label="UV index 11">
+            <span className="home-dashboard__metric-label">uv</span>
+            <strong>11</strong>
+            <WeatherBars widths={uvBarWidths} />
+            <span className="home-dashboard__check">
+              <CheckIcon />
+            </span>
+          </article>
+        </section>
 
-      <nav className="home-dashboard__secondary-nav" aria-label="Quick navigation">
-        {secondaryNavigation.map((item) => (
-          <Link href={item.href} key={item.label}>
-            {item.label}
-          </Link>
-        ))}
-      </nav>
+        <nav className="home-dashboard__primary-nav" aria-label="Primary navigation">
+          {primaryNavigation.map((item) => (
+            <Link href={item.href} key={item.label}>
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+
+        <nav className="home-dashboard__secondary-nav" aria-label="Quick navigation">
+          {secondaryNavigation.map((item) => (
+            <Link href={item.href} key={item.label}>
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+      </div>
     </main>
   );
 }

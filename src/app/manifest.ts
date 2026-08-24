@@ -2,10 +2,11 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "The Wall — Private Closet",
-    short_name: "The Wall",
+    name: "Ellie's Closet",
+    short_name: "Ellie's Closet",
     description: "A private visual wardrobe and outfit composition tool.",
-    start_url: "/wall",
+    start_url: "/",
+    scope: "/",
     display: "standalone",
     background_color: "#5b2969",
     theme_color: "#5b2969",
