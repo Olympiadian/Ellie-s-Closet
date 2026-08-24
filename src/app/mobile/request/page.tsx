@@ -11,8 +11,8 @@ export default function MobileRequestPage() {
   return (
     <MobilePageShell
       eyebrow="Request feature"
-      title="What should change?"
-      description="Ask for anything you would like added, removed, fixed, or improved."
+      title="Request a change"
+      description="Share what you would like added, removed, fixed, or improved."
     >
       <MobileRequestForm />
     </MobilePageShell>

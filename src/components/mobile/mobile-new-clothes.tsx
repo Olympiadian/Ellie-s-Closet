@@ -126,9 +126,11 @@ export function MobileNewClothes() {
                   <small>Add item</small>
                 </span>
               )}
-              <span className="mobile-slot-grid__status">
-                {isComplete ? "Ready" : hasStarted ? "Needs both sides" : "Empty"}
-              </span>
+              {hasStarted ? (
+                <span className="mobile-slot-grid__status">
+                  {isComplete ? "Ready" : "Add the other side"}
+                </span>
+              ) : null}
             </button>
           );
         })}

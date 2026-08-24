@@ -80,13 +80,13 @@ export const metadata: Metadata = {
   },
   appleWebApp: {
     capable: true,
-    statusBarStyle: "black-translucent",
+    statusBarStyle: "default",
     title: "Ellie's Closet",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#5b2969",
+  themeColor: "#e9e6da",
   colorScheme: "light",
 };
 

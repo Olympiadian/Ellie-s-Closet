@@ -38,8 +38,8 @@ export default function MobileDatabasePage() {
   return (
     <MobilePageShell
       eyebrow="Database check"
-      title="Clean up the details"
-      description="Review clothes as text and fix anything missing or uncertain."
+      title="Review clothes"
+      description="Fix any missing or uncertain details."
     >
       <MobileDatabase initialRecords={records} />
     </MobilePageShell>
