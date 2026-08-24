@@ -2195,7 +2195,7 @@ a {
   min-height: 26px;
   margin: 0;
   font-family: var(--font-geist-mono), monospace;
-  font-size: clamp(16px, 1.4vw, 20px);
+  font-size: clamp(14px, 1.2vw, 18px);
   font-weight: 400;
   letter-spacing: -0.025em;
   line-height: 1.3;
@@ -2206,17 +2206,16 @@ a {
 .closet-loader {
   width: 80px;
   aspect-ratio: 1;
-  border: 10px solid #000;
+  border: 0;
   box-sizing: border-box;
   background:
-    radial-gradient(farthest-side, #fff 98%, #0000) 50% / 20px 20px,
-    radial-gradient(farthest-side, #fff 98%, #0000) 50% / 20px 20px,
-    radial-gradient(farthest-side, #fff 98%, #0000) 50% / 20px 20px,
-    radial-gradient(farthest-side, #fff 98%, #0000) 50% / 20px 20px,
-    radial-gradient(farthest-side, #fff 98%, #0000) 50% / 20px 20px,
-    linear-gradient(#fff 0 0) 50% / 100% 10px,
-    linear-gradient(#fff 0 0) 50% / 10px 100%,
-    #000;
+    radial-gradient(farthest-side, #808080 98%, #0000) 50% / 20px 20px,
+    radial-gradient(farthest-side, #808080 98%, #0000) 50% / 20px 20px,
+    radial-gradient(farthest-side, #808080 98%, #0000) 50% / 20px 20px,
+    radial-gradient(farthest-side, #808080 98%, #0000) 50% / 20px 20px,
+    radial-gradient(farthest-side, #808080 98%, #0000) 50% / 20px 20px,
+    linear-gradient(#808080 0 0) 50% / 100% 10px,
+    linear-gradient(#808080 0 0) 50% / 10px 100%;
   background-repeat: no-repeat;
   filter: blur(4px) contrast(10);
   animation: closet-loader-motion 0.8s infinite;
