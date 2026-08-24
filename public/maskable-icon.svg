@@ -1,5 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="The Wall">
-  <rect width="512" height="512" fill="#191714"/>
-  <circle cx="256" cy="256" r="166" fill="none" stroke="#625b52" stroke-width="8"/>
-  <path d="M126 142h59l42 228 29-124 29 124 42-228h59l-66 252h-57l-7-35-7 35h-57l-66-252Z" fill="#f5f1e9"/>
-</svg>

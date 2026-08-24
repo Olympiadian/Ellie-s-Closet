@@ -1,10 +1,18 @@
+/* eslint-disable @next/next/no-img-element */
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { ImageResponse } from "next/og";
 
 export const alt = "The Wall — your wardrobe, in view";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-export default function OpenGraphImage() {
+export default async function OpenGraphImage() {
+  const icon = await readFile(
+    join(process.cwd(), "public", "icons", "ellie-closet-512.png"),
+  );
+  const iconSource = `data:image/png;base64,${icon.toString("base64")}`;
+
   return new ImageResponse(
     (
       <div
@@ -41,20 +49,24 @@ export default function OpenGraphImage() {
         <div
           style={{
             display: "flex",
-            width: 238,
-            height: 390,
+            width: 300,
+            height: 300,
             alignItems: "center",
             justifyContent: "center",
             border: "2px solid rgba(255,255,255,.7)",
-            borderRadius: 54,
-            background: "rgba(255,255,255,.3)",
+            borderRadius: 68,
+            background: "#b076ba",
             boxShadow: "0 32px 60px rgba(49,42,33,.14)",
-            fontFamily: "serif",
-            fontSize: 150,
-            fontStyle: "italic",
+            overflow: "hidden",
           }}
         >
-          W
+          <img
+            src={iconSource}
+            alt=""
+            width="300"
+            height="300"
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          />
         </div>
       </div>
     ),
