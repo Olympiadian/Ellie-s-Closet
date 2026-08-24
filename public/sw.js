@@ -1,5 +1,12 @@
-const CACHE_NAME = "the-wall-shell-v1";
-const SHELL_ROUTES = ["/", "/wall", "/closet", "/build", "/saved"];
+const CACHE_NAME = "the-wall-shell-v2";
+const SHELL_ROUTES = [
+  "/",
+  "/wall",
+  "/closet",
+  "/build",
+  "/saved",
+  "/images/closet-loading-background.png",
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(SHELL_ROUTES)));

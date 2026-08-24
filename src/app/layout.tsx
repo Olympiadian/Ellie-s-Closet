@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import type { ReactNode } from "react";
 import { MobileRouteGuard } from "@/components/mobile/mobile-route-guard";
+import { RouteLoadingScreen } from "@/components/route-loading-screen";
 import { ServiceWorkerRegistration } from "@/components/service-worker-registration";
 import "./globals.css";
 
@@ -98,6 +99,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     >
       <body>
         <MobileRouteGuard />
+        <RouteLoadingScreen />
         {children}
         <ServiceWorkerRegistration />
       </body>
