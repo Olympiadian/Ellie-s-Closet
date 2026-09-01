@@ -57,7 +57,6 @@ function FeedbackIcon() {
   return (
     <svg viewBox="0 0 32 32" aria-hidden="true">
       <path d="M7 7.5h13.5a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H12l-5 3.8V7.5Z" />
-      <circle cx="23.5" cy="7.5" r="2.8" />
     </svg>
   );
 }
