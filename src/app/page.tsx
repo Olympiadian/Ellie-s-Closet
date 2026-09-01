@@ -1,12 +1,28 @@
 import Link from "next/link";
 import { MobileHome } from "@/components/mobile/mobile-home";
+import { clothingItems, outfits } from "@/lib/sample-data";
 
 export const dynamic = "force-dynamic";
 
 const primaryNavigation = [
-  { label: "Closet", href: "/closet" },
-  { label: "Saved", href: "/saved" },
-  { label: "Build Outfit", href: "/build" },
+  {
+    label: "Closet",
+    description: "Explore the main closet",
+    badge: String(clothingItems.length),
+    href: "/closet",
+  },
+  {
+    label: "Saved",
+    description: "Explore saved outfits & items",
+    badge: String(clothingItems.filter((item) => item.favorite).length + outfits.length),
+    href: "/saved",
+  },
+  {
+    label: "Build",
+    description: "Build a collection or outfit",
+    badge: "+",
+    href: "/build",
+  },
 ];
 
 const secondaryNavigation = [
@@ -148,7 +164,13 @@ export default function Home() {
           <nav className="home-dashboard__primary-nav" aria-label="Primary navigation">
             {primaryNavigation.map((item) => (
               <Link href={item.href} key={item.label}>
-                <span>{item.label}</span>
+                <span className="home-dashboard__primary-card-copy">
+                  <span className="home-dashboard__primary-card-title">
+                    <strong>{item.label}</strong>
+                    <b>{item.badge}</b>
+                  </span>
+                  <small>{item.description}</small>
+                </span>
               </Link>
             ))}
           </nav>
