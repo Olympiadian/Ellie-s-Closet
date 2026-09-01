@@ -37,6 +37,20 @@ const funnelDisplay = localFont({
   weight: "300 800",
 });
 
+const instrumentSerif = localFont({
+  display: "swap",
+  src: "./fonts/instrument-serif-regular.ttf",
+  variable: "--font-instrument-serif",
+  weight: "400",
+});
+
+const manrope = localFont({
+  display: "swap",
+  src: "./fonts/manrope-variable.ttf",
+  variable: "--font-manrope",
+  weight: "200 800",
+});
+
 function getMetadataBase() {
   const configuredUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
   const siteUrl =
@@ -95,7 +109,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       lang="en"
-      className={`${hurricane.variable} ${geistMono.variable} ${funnelDisplay.variable}`}
+      className={`${hurricane.variable} ${geistMono.variable} ${funnelDisplay.variable} ${instrumentSerif.variable} ${manrope.variable}`}
     >
       <body>
         <MobileRouteGuard />

@@ -1,4 +1,4 @@
-const CACHE_NAME = "the-wall-shell-v2";
+const CACHE_NAME = "the-wall-shell-v3";
 const SHELL_ROUTES = [
   "/",
   "/wall",
@@ -6,6 +6,7 @@ const SHELL_ROUTES = [
   "/build",
   "/saved",
   "/images/closet-loading-background.png",
+  "/images/home-iridescent-background.webp",
 ];
 
 self.addEventListener("install", (event) => {

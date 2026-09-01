@@ -5,18 +5,16 @@ export const dynamic = "force-dynamic";
 
 const primaryNavigation = [
   { label: "Closet", href: "/closet" },
-  { label: "Build", href: "/build" },
   { label: "Saved", href: "/saved" },
+  { label: "Build Outfit", href: "/build" },
 ];
 
 const secondaryNavigation = [
   { label: "Deals", href: "/closet?view=deals" },
-  { label: "Log", href: "/hub" },
-  { label: "Recent", href: "/closet?sort=recent" },
   { label: "Favorites", href: "/closet?filter=favorites" },
+  { label: "Recent", href: "/closet?sort=recent" },
+  { label: "Log", href: "/hub" },
 ];
-
-const uvBarWidths = [12, 15, 20, 34, 39, 44, 42, 30, 21, 27, 24, 15];
 
 function getGreeting(date: Date) {
   const hour = Number(
@@ -52,34 +50,55 @@ function getDateLabel(date: Date) {
     parts.find((part) => part.type === type)?.value ?? "";
   const day = Number(value("day"));
 
-  return `${value("weekday")}  |  ${value("month")} ${day}${getOrdinal(day)}, ${value("year")}`;
+  return `${value("weekday")}, ${value("month")} ${day}${getOrdinal(day)}, ${value("year")}`;
+}
+
+function FeedbackIcon() {
+  return (
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M7 7.5h13.5a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H12l-5 3.8V7.5Z" />
+      <circle cx="23.5" cy="7.5" r="2.8" />
+    </svg>
+  );
+}
+
+function SettingsIcon() {
+  return (
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M13.5 4.7h5l.8 3a9.7 9.7 0 0 1 2.2 1.3l3-.8 2.5 4.3-2.2 2.1a9.2 9.2 0 0 1 0 2.8l2.2 2.1-2.5 4.3-3-.8a9.7 9.7 0 0 1-2.2 1.3l-.8 3h-5l-.8-3a9.7 9.7 0 0 1-2.2-1.3l-3 .8L5 19.5l2.2-2.1a9.2 9.2 0 0 1 0-2.8L5 12.5l2.5-4.3 3 .8a9.7 9.7 0 0 1 2.2-1.3l.8-3Z" />
+      <circle cx="16" cy="16" r="3.6" />
+    </svg>
+  );
+}
+
+function HelpIcon() {
+  return (
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <circle cx="16" cy="16" r="11" />
+      <path d="M12.9 12.1a3.5 3.5 0 0 1 6.8 1.2c0 2.6-3.7 2.9-3.7 5.4M16 23h.01" />
+    </svg>
+  );
 }
 
 function SunIcon() {
   return (
-    <svg viewBox="0 0 48 48" aria-hidden="true">
-      <circle cx="24" cy="24" r="9" />
-      <path d="M24 3v7M24 38v7M3 24h7M38 24h7M9.2 9.2l5 5M33.8 33.8l5 5M38.8 9.2l-5 5M14.2 33.8l-5 5" />
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="3.5" />
+      <path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M18.7 5.3l-1.4 1.4M6.7 17.3l-1.4 1.4" />
     </svg>
   );
 }
 
-function CheckIcon() {
-  return (
-    <svg viewBox="0 0 48 48" aria-hidden="true">
-      <circle cx="24" cy="24" r="15" />
-      <path d="m17 24 5 5 10-11" />
-    </svg>
-  );
-}
+function TemperatureIcon({ direction }: { direction: "up" | "down" }) {
+  const path =
+    direction === "up"
+      ? "m7 10 5-5 5 5M7 16l5-5 5 5"
+      : "m7 8 5 5 5-5M7 14l5 5 5-5";
 
-function WeatherBars({ widths }: { widths: number[] }) {
   return (
-    <div className="home-dashboard__bars" aria-hidden="true">
-      {widths.map((width, index) => (
-        <span key={`${width}-${index}`} style={{ width }} />
-      ))}
-    </div>
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d={path} />
+    </svg>
   );
 }
 
@@ -91,53 +110,58 @@ export default function Home() {
       <MobileHome />
 
       <div className="home-dashboard">
-        <div className="home-dashboard__scene" aria-hidden="true" />
-        <div className="home-dashboard__tone" aria-hidden="true" />
-        <div className="home-dashboard__glass-rail" aria-hidden="true" />
-        <div className="home-dashboard__glass-dock" aria-hidden="true" />
+        <nav className="home-dashboard__utilities" aria-label="Utilities">
+          <Link href="/mobile/request" aria-label="Request a feature">
+            <FeedbackIcon />
+          </Link>
+          <Link href="/admin" aria-label="Settings">
+            <SettingsIcon />
+          </Link>
+          <Link href="/hub" aria-label="Help">
+            <HelpIcon />
+          </Link>
+        </nav>
 
-        <section className="home-dashboard__greeting" aria-labelledby="home-greeting">
+        <section className="home-dashboard__welcome" aria-labelledby="home-greeting">
           <h1 id="home-greeting">{getGreeting(now)}, Ellie</h1>
-          <p>{getDateLabel(now)}</p>
-          <div className="home-dashboard__weather-summary" aria-label="Sunny weather">
-            <SunIcon />
-            <span>Sunny</span>
+          <div className="home-dashboard__divider" aria-hidden="true" />
+          <div
+            className="home-dashboard__weather"
+            aria-label="Today is sunny with a high of 108 degrees, a low of 78 degrees, and a UV index of 10 between 11 AM and 1 PM"
+          >
+            <span>{getDateLabel(now)}</span>
+            <i aria-hidden="true" />
+            <span className="home-dashboard__weather-item">
+              <SunIcon />
+              Sunny
+            </span>
+            <i aria-hidden="true" />
+            <span className="home-dashboard__temperature">
+              <span><TemperatureIcon direction="up" />108°</span>
+              <span><TemperatureIcon direction="down" />78°</span>
+            </span>
+            <i aria-hidden="true" />
+            <span><strong>UV:</strong>&nbsp; 10 | 11–1pm</span>
           </div>
         </section>
 
-        <section className="home-dashboard__stats" aria-label="Weather details">
-          <article className="home-dashboard__metric" aria-label="High 107 degrees, low 88 degrees">
-            <span className="home-dashboard__metric-label">temp</span>
-            <strong>107°</strong>
-            <WeatherBars widths={Array(12).fill(39)} />
-            <b>88°</b>
-          </article>
+        <section className="home-dashboard__navigation" aria-label="Closet navigation">
+          <nav className="home-dashboard__primary-nav" aria-label="Primary navigation">
+            {primaryNavigation.map((item) => (
+              <Link href={item.href} key={item.label}>
+                <span>{item.label}</span>
+              </Link>
+            ))}
+          </nav>
 
-          <article className="home-dashboard__metric" aria-label="UV index 11">
-            <span className="home-dashboard__metric-label">uv</span>
-            <strong>11</strong>
-            <WeatherBars widths={uvBarWidths} />
-            <span className="home-dashboard__check">
-              <CheckIcon />
-            </span>
-          </article>
+          <nav className="home-dashboard__secondary-nav" aria-label="Quick navigation">
+            {secondaryNavigation.map((item) => (
+              <Link href={item.href} key={item.label}>
+                <span>{item.label}</span>
+              </Link>
+            ))}
+          </nav>
         </section>
-
-        <nav className="home-dashboard__primary-nav" aria-label="Primary navigation">
-          {primaryNavigation.map((item) => (
-            <Link href={item.href} key={item.label}>
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-
-        <nav className="home-dashboard__secondary-nav" aria-label="Quick navigation">
-          {secondaryNavigation.map((item) => (
-            <Link href={item.href} key={item.label}>
-              {item.label}
-            </Link>
-          ))}
-        </nav>
       </div>
     </main>
   );
