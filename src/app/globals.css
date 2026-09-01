@@ -58,7 +58,7 @@ a {
 .home-dashboard__utilities a,
 .home-dashboard__primary-nav a,
 .home-dashboard__secondary-nav a {
-  border: 1px solid rgba(48, 48, 48, 0.33);
+  border: 0;
   border-radius: 12px;
   background: #fff;
   box-shadow: 2px 4px 12px rgba(0, 0, 0, 0.1);
@@ -102,19 +102,12 @@ a {
   line-height: 0.98;
 }
 
-.home-dashboard__divider {
-  width: 100%;
-  height: 1px;
-  margin-top: clamp(15px, 1.65vh, 22px);
-  background: rgba(48, 48, 48, 0.68);
-}
-
 .home-dashboard__weather {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: clamp(15px, 1.75vw, 28px);
-  margin-top: clamp(13px, 1.5vh, 19px);
+  margin-top: clamp(29px, 3.15vh, 42px);
   color: rgba(48, 48, 48, 0.72);
   font-size: clamp(12px, 0.98vw, 16px);
   font-weight: 400;
@@ -2842,7 +2835,7 @@ a {
     gap: 12px;
     padding: 11px 15px 11px 18px;
     border-radius: 12px;
-    border: 1px solid rgba(48, 48, 48, 0.22);
+    border: 0;
     color: #3f403d;
     background: #fff;
     box-shadow: 2px 4px 12px rgba(0, 0, 0, 0.1);

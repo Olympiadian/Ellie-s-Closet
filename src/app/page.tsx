@@ -139,7 +139,6 @@ export default function Home() {
 
         <section className="home-dashboard__welcome" aria-labelledby="home-greeting">
           <h1 id="home-greeting">{getGreeting(now)}, Ellie</h1>
-          <div className="home-dashboard__divider" aria-hidden="true" />
           <div
             className="home-dashboard__weather"
             aria-label="Today is sunny with a high of 108 degrees, a low of 78 degrees, and a UV index of 10 between 11 AM and 1 PM"
