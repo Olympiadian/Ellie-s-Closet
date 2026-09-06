@@ -380,7 +380,8 @@ a {
 }
 
 .closet-browser__mode button.is-active {
-  background: #d2e1f6;
+  color: #fff;
+  background: #696969;
 }
 
 .closet-browser__filters {
@@ -389,7 +390,7 @@ a {
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  gap: clamp(10px, 1.1vw, 20px);
+  gap: clamp(6px, 0.55vw, 10px);
   margin: clamp(19px, 2.2vh, 28px) auto 0;
 }
 
@@ -398,7 +399,7 @@ a {
   min-height: clamp(32px, 2.35vw, 40px);
   padding: 8px clamp(18px, 1.7vw, 30px);
   border: 2px solid transparent;
-  border-radius: 999px;
+  border-radius: 2px;
   background: #fff;
   box-shadow: 2px 4px 12px rgba(0, 0, 0, 0.1);
   text-transform: uppercase;
