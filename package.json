@@ -11,7 +11,8 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:workflows": "node --test tests/workflows.test.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.4",

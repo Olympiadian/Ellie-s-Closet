@@ -5,6 +5,8 @@ import { MobileRouteGuard } from "@/components/mobile/mobile-route-guard";
 import { RouteLoadingScreen } from "@/components/route-loading-screen";
 import { ServiceWorkerRegistration } from "@/components/service-worker-registration";
 import "./globals.css";
+import { WardrobeProvider } from "@/components/wardrobe/provider";
+import "./workflows.css";
 
 const hurricane = localFont({
   display: "swap",
@@ -68,8 +70,8 @@ function getMetadataBase() {
 export const metadata: Metadata = {
   metadataBase: getMetadataBase(),
   title: {
-    default: "The Wall",
-    template: "%s · The Wall",
+    default: "Ellie's Closet",
+    template: "%s · Ellie's Closet",
   },
   description: "A private visual wardrobe and outfit composition tool.",
   applicationName: "Ellie's Closet",
@@ -114,7 +116,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body>
         <MobileRouteGuard />
         <RouteLoadingScreen />
-        {children}
+        <WardrobeProvider>{children}</WardrobeProvider>
         <ServiceWorkerRegistration />
       </body>
     </html>

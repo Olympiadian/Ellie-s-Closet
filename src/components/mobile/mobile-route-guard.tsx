@@ -8,6 +8,10 @@ const allowedPhoneRoutes = new Set([
   "/mobile/new-clothes",
   "/mobile/request",
   "/mobile/database",
+  "/admin",
+  "/connect",
+  "/help",
+  "/settings",
 ]);
 
 const phoneMediaQuery =

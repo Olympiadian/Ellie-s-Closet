@@ -90,7 +90,7 @@ function LoadingScreen() {
     >
       <div className="route-loading-screen__content">
         <p>{message}</p>
-        <div className="closet-loader" aria-hidden="true" />
+        <div className="wc-loading-dots" aria-hidden="true"><span/><span/><span/></div>
       </div>
     </div>
   );

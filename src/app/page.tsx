@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { MobileHome } from "@/components/mobile/mobile-home";
-import { clothingItems, outfits } from "@/lib/sample-data";
+import { HomeCount } from "@/components/wardrobe/home-count";
+import { MessagesButton } from "@/components/wardrobe/messages";
 
 export const dynamic = "force-dynamic";
 
@@ -8,17 +9,17 @@ const primaryNavigation = [
   {
     label: "Closet",
     description: "Explore the main closet",
-    badge: String(clothingItems.length),
+    badge: <HomeCount />,
     href: "/closet",
   },
   {
     label: "Saved",
     description: "Explore saved outfits & items",
-    badge: String(clothingItems.filter((item) => item.favorite).length + outfits.length),
+    badge: <HomeCount saved />,
     href: "/saved",
   },
   {
-    label: "Build",
+    label: "Build Outfit",
     description: "Build a collection or outfit",
     badge: "+",
     href: "/build",
@@ -26,10 +27,11 @@ const primaryNavigation = [
 ];
 
 const secondaryNavigation = [
-  { label: "Deals", href: "/closet?view=deals" },
-  { label: "Favorites", href: "/closet?filter=favorites" },
-  { label: "Recent", href: "/closet?sort=recent" },
-  { label: "Log", href: "/hub" },
+  { label: "Deals", href: "/deals" },
+  { label: "Favorites", href: "/favorites" },
+  { label: "Recent", href: "/recent" },
+  { label: "Log", href: "/log" },
+  { label: "Calendar", href: "/calendar" },
 ];
 
 function getGreeting(date: Date) {
@@ -67,14 +69,6 @@ function getDateLabel(date: Date) {
   const day = Number(value("day"));
 
   return `${value("weekday")}, ${value("month")} ${day}${getOrdinal(day)}, ${value("year")}`;
-}
-
-function FeedbackIcon() {
-  return (
-    <svg viewBox="0 0 32 32" aria-hidden="true">
-      <path d="M7 7.5h13.5a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H12l-5 3.8V7.5Z" />
-    </svg>
-  );
 }
 
 function SettingsIcon() {
@@ -126,13 +120,11 @@ export default function Home() {
 
       <div className="home-dashboard">
         <nav className="home-dashboard__utilities" aria-label="Utilities">
-          <Link href="/mobile/request" aria-label="Request a feature">
-            <FeedbackIcon />
-          </Link>
-          <Link href="/admin" aria-label="Settings">
+          <MessagesButton />
+          <Link href="/settings" aria-label="Settings">
             <SettingsIcon />
           </Link>
-          <Link href="/hub" aria-label="Help">
+          <Link href="/help" aria-label="Help">
             <HelpIcon />
           </Link>
         </nav>

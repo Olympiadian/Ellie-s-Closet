@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { MobileManualLink } from "@/components/wardrobe/home-count";
 import {
   AddClothesIcon,
   DatabaseCheckIcon,
@@ -50,10 +51,7 @@ export function MobileHome() {
         })}
       </nav>
 
-      <p className="mobile-home__manual" aria-label="Full closet manual coming later">
-        Full Ellie&apos;s Closet Manual:
-        <span>Here</span>
-      </p>
+      <MobileManualLink />
     </div>
   );
 }
