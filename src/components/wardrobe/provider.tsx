@@ -47,7 +47,7 @@ export function useWardrobe() {
 export function DataGate({ children }: { children: ReactNode }) {
   const { data, error, loading, locked, refresh } = useWardrobe();
   if (loading) return <p className="wc-empty" role="status">Opening your closet…</p>;
-  if (locked) return <section className="wc-empty"><h2>Your closet, privately.</h2><p>Open your one-time setup link to connect this device.</p><Link className="wc-button" href="/admin">Admin sign in</Link></section>;
+  if (locked) return <section className="wc-empty"><h2>Your closet, privately.</h2><Link className="wc-button" href="/admin">Admin sign in</Link></section>;
   if (error && !data) return <section className="wc-empty" role="alert"><p>{error}</p><button className="wc-button" onClick={() => void refresh()}>Try again</button></section>;
   return <>{error && <p className="wc-notice" role="alert">{error}</p>}{children}</>;
 }
