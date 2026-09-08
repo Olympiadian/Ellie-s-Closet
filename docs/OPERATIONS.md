@@ -13,11 +13,10 @@ Set `SUPABASE_SERVICE_ROLE_KEY`, `ADMIN_PASSWORD`, `CRON_SECRET`, and `OPENAI_AP
 
 ## First use
 
-1. Sign into `/admin` with the configured password.
-2. Under **Setup**, create a single-use device link for each phone/tablet. Open it on that device within 24 hours. Viewer access lasts 180 days; admin access lasts 12 hours.
-3. Mobile **New Clothes** accepts ten front/back pairs. Submitted photos remain private and unpublished.
-4. In admin **Review**, download originals, upload finished PNG/WebP cutouts, edit metadata, optionally request AI suggestions, then publish.
-5. Admin **Messages** schedules notes by Arizona calendar date. **Requests** contains support submissions. **Setup** controls stores, location and the optional manual PDF URL.
+1. Normal wardrobe pages open directly without device pairing. Sign into `/admin` with the configured password for publishing and management.
+2. Mobile **New Clothes** accepts ten front/back pairs. Submitted photos remain unpublished until admin review.
+3. In admin **Review**, download originals, upload finished PNG/WebP cutouts, edit metadata, optionally request AI suggestions, then publish.
+4. Admin **Messages** schedules notes by Arizona calendar date. **Requests** contains support submissions. **Setup** controls stores, location and the optional manual PDF URL.
 
 Published items support favorites, saved items, outfit/collection builds and calendar plans. Mobile remains a companion for uploads, metadata corrections and support.
 

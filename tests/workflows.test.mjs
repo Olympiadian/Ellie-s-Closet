@@ -24,8 +24,8 @@ before(async () => {
   throw new Error(logs);
 }, { timeout: 20000 });
 after(async () => { app?.kill(); if (mock) await mock.close(); });
-test("private APIs reject unauthenticated and cross-origin requests", async () => {
-  await call("/api/closet", undefined, "", 401);
+test("viewer APIs are open while admin and cross-origin requests stay protected", async () => {
+  await call("/api/closet", undefined, "", 200);
   await call("/api/closet", { action: "mark", id: itemId, field: "favorite", value: true }, "", 403, "https://untrusted.example");
   await call("/api/deals", undefined, "", 401);
   await call("/api/session", { action: "login", password: "wrong" }, "", 401);
@@ -87,5 +87,5 @@ test("all pages respond, legacy routes redirect, logout revokes access", async (
   for (const route of ["/", "/closet", "/build", "/saved", "/calendar", "/favorites", "/recent", "/log", "/deals", "/help", "/settings", "/admin", "/mobile/new-clothes", "/mobile/request", "/mobile/database"]) assert.equal((await fetch(origin + route)).status, 200, route);
   assert.equal((await fetch(origin + "/hub", { redirect: "manual" })).status, 307);
   await call("/api/session", { action: "logout" }, viewerCookie);
-  await call("/api/closet", undefined, viewerCookie, 401);
+  await call("/api/closet", undefined, viewerCookie, 200);
 });
