@@ -15,7 +15,7 @@ function itemTopic(item: WardrobeItem) {
   if (item.category === "tops") return "Tops";
   if (item.category === "bottoms") return "Bottoms";
   if (item.category === "shoes") return "Shoes";
-  if (item.tags.some(tag => /underwear|undergarment|lingerie|bra/i.test(tag))) return "Under";
+  if (item.tags.some(tag => /^(underwear|undergarment|lingerie|bra|bralette|underwear set)$/i.test(tag))) return "Under";
   return "Misc.";
 }
 export function ItemDetails({ item, close }: { item: WardrobeItem; close: () => void }) {
