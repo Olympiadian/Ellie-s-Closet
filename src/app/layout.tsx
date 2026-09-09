@@ -3,11 +3,13 @@ import { Inclusive_Sans } from "next/font/google";
 import localFont from "next/font/local";
 import type { ReactNode } from "react";
 import { MobileRouteGuard } from "@/components/mobile/mobile-route-guard";
+import { MotionStage } from "@/components/motion-stage";
 import { RouteLoadingScreen } from "@/components/route-loading-screen";
 import { ServiceWorkerRegistration } from "@/components/service-worker-registration";
 import "./globals.css";
 import { WardrobeProvider } from "@/components/wardrobe/provider";
 import "./workflows.css";
+import "./motion.css";
 
 const hurricane = localFont({
   display: "swap",
@@ -112,12 +114,15 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       lang="en"
+      data-scroll-behavior="smooth"
       className={`${hurricane.variable} ${geistMono.variable} ${funnelDisplay.variable} ${manrope.variable} ${inclusiveSans.variable}`}
     >
       <body>
         <MobileRouteGuard />
         <RouteLoadingScreen />
-        <WardrobeProvider>{children}</WardrobeProvider>
+        <WardrobeProvider>
+          <MotionStage>{children}</MotionStage>
+        </WardrobeProvider>
         <ServiceWorkerRegistration />
       </body>
     </html>

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { CloseIcon } from "@/components/mobile/mobile-icons";
+import { useAnimatedClose } from "@/components/use-animated-close";
 import { clothingCategories } from "@/lib/types";
 
 export type MobileDatabaseIssue =
@@ -33,6 +34,8 @@ export function MobileDatabase({ initialRecords }: DatabaseProps) {
   const [showFlaggedOnly, setShowFlaggedOnly] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [message, setMessage] = useState("");
+  const { isClosing: isEditorClosing, requestClose: closeEditor } =
+    useAnimatedClose(() => setEditingId(null));
 
   const visibleRecords = useMemo(() => {
     const normalized = query.toLowerCase().trim();
@@ -101,7 +104,7 @@ export function MobileDatabase({ initialRecords }: DatabaseProps) {
     );
 
     setMessage(`Saved ${editingRecord.name}. Backend sync will be connected later.`);
-    setEditingId(null);
+    closeEditor();
   }
 
   return (
@@ -175,7 +178,13 @@ export function MobileDatabase({ initialRecords }: DatabaseProps) {
       {message ? <p className="mobile-form-message">{message}</p> : null}
 
       {editingRecord ? (
-        <div className="mobile-sheet-backdrop" role="presentation">
+        <div
+          className={`mobile-sheet-backdrop${isEditorClosing ? " is-closing" : ""}`}
+          role="presentation"
+          onClick={(event) => {
+            if (event.target === event.currentTarget) closeEditor();
+          }}
+        >
           <section
             className="mobile-record-sheet"
             role="dialog"
@@ -188,7 +197,7 @@ export function MobileDatabase({ initialRecords }: DatabaseProps) {
                 <p>Edit information</p>
                 <h2 id="mobile-record-title">{editingRecord.name}</h2>
               </div>
-              <button type="button" onClick={() => setEditingId(null)} aria-label="Close editor">
+              <button type="button" onClick={closeEditor} aria-label="Close editor">
                 <CloseIcon />
               </button>
             </header>

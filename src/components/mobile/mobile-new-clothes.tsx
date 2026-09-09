@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { CameraIcon, CloseIcon } from "@/components/mobile/mobile-icons";
+import { useAnimatedClose } from "@/components/use-animated-close";
 import { uploadPhoto } from "@/lib/api";
 import { DataGate, useWardrobe } from "@/components/wardrobe/provider";
 
@@ -41,8 +42,16 @@ function PhotoPreview({ photo, label }: { photo?: SlotPhoto; label: string }) {
   );
 }
 
-function PhotoSheet({ children, close }: { children: ReactNode; close: () => void }) {
+function PhotoSheet({
+  children,
+  close,
+}: {
+  children: (requestClose: () => void) => ReactNode;
+  close: () => void;
+}) {
   const ref = useRef<HTMLDialogElement>(null);
+  const { isClosing, requestClose } = useAnimatedClose(close);
+
   useEffect(() => {
     const dialog = ref.current;
     const previous = document.activeElement as HTMLElement | null;
@@ -51,7 +60,20 @@ function PhotoSheet({ children, close }: { children: ReactNode; close: () => voi
     document.body.style.overflow = "hidden";
     return () => { dialog?.close(); document.body.style.overflow = overflow; previous?.focus(); };
   }, []);
-  return <dialog ref={ref} className="mobile-photo-sheet mobile-photo-dialog" onCancel={close} aria-labelledby="mobile-photo-sheet-title">{children}</dialog>;
+
+  return (
+    <dialog
+      ref={ref}
+      className={`mobile-photo-sheet mobile-photo-dialog${isClosing ? " is-closing" : ""}`}
+      onCancel={(event) => {
+        event.preventDefault();
+        requestClose();
+      }}
+      aria-labelledby="mobile-photo-sheet-title"
+    >
+      {children(requestClose)}
+    </dialog>
+  );
 }
 
 export function MobileNewClothes() {
@@ -196,45 +218,49 @@ export function MobileNewClothes() {
 
       {activeSlot !== null && selected ? (
         <PhotoSheet close={() => setActiveSlot(null)}>
-            <div className="mobile-photo-sheet__handle" aria-hidden="true" />
-            <header>
-              <div>
-                <p>Slot {String(activeSlot + 1).padStart(2, "0")}</p>
-                <h2 id="mobile-photo-sheet-title">Add front &amp; back</h2>
+          {(closeSheet) => (
+            <>
+              <div className="mobile-photo-sheet__handle" aria-hidden="true" />
+              <header>
+                <div>
+                  <p>Slot {String(activeSlot + 1).padStart(2, "0")}</p>
+                  <h2 id="mobile-photo-sheet-title">Add front &amp; back</h2>
+                </div>
+                <button type="button" onClick={closeSheet} aria-label="Close photo sheet">
+                  <CloseIcon />
+                </button>
+              </header>
+
+              <div className="mobile-photo-sheet__inputs">
+                {(["front", "back"] as const).map((side) => (
+                  <label key={side}>
+                    <PhotoPreview photo={selected[side]} label={side === "front" ? "Front" : "Back"} />
+                    <span>{selected[side] ? `Replace ${side}` : `Add ${side} photo`}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(event) => {
+                        choosePhoto(side, event.target.files?.[0]);
+                        event.target.value = "";
+                      }}
+                    />
+                  </label>
+                ))}
               </div>
-              <button type="button" onClick={() => setActiveSlot(null)} aria-label="Close photo sheet">
-                <CloseIcon />
+
+              <p className="mobile-photo-sheet__hint">
+                On iPhone, choosing a photo opens the normal camera and photo-library options.
+              </p>
+              <button
+                type="button"
+                className="mobile-primary-action"
+                disabled={!selected.front || !selected.back}
+                onClick={closeSheet}
+              >
+                Done
               </button>
-            </header>
-
-            <div className="mobile-photo-sheet__inputs">
-              {(["front", "back"] as const).map((side) => (
-                <label key={side}>
-                  <PhotoPreview photo={selected[side]} label={side === "front" ? "Front" : "Back"} />
-                  <span>{selected[side] ? `Replace ${side}` : `Add ${side} photo`}</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(event) => {
-                      choosePhoto(side, event.target.files?.[0]);
-                      event.target.value = "";
-                    }}
-                  />
-                </label>
-              ))}
-            </div>
-
-            <p className="mobile-photo-sheet__hint">
-              On iPhone, choosing a photo opens the normal camera and photo-library options.
-            </p>
-            <button
-              type="button"
-              className="mobile-primary-action"
-              disabled={!selected.front || !selected.back}
-              onClick={() => setActiveSlot(null)}
-            >
-              Done
-            </button>
+            </>
+          )}
         </PhotoSheet>
       ) : null}
     </DataGate>

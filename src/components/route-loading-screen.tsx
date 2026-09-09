@@ -25,6 +25,7 @@ const loadingMessages = [
 
 const loadingPaths = new Set(["/closet", "/build"]);
 const transitionDuration = 2600;
+const exitDuration = 280;
 const lastMessageKey = "ellies-closet-last-loading-message";
 
 function chooseMessage(lastMessage: string | null) {
@@ -47,6 +48,7 @@ export function RouteLoadingScreen() {
 function LoadingScreen() {
   const [message, setMessage] = useState("");
   const [isFinished, setIsFinished] = useState(false);
+  const [isExiting, setIsExiting] = useState(false);
 
   useEffect(() => {
     const messageTimer = window.setTimeout(() => {
@@ -71,10 +73,14 @@ function LoadingScreen() {
     const finishTimer = window.setTimeout(() => {
       setIsFinished(true);
     }, transitionDuration);
+    const exitTimer = window.setTimeout(() => {
+      setIsExiting(true);
+    }, transitionDuration - exitDuration);
 
     return () => {
       window.clearTimeout(messageTimer);
       window.clearTimeout(finishTimer);
+      window.clearTimeout(exitTimer);
     };
   }, []);
 
@@ -82,7 +88,7 @@ function LoadingScreen() {
 
   return (
     <div
-      className="route-loading-screen"
+      className={`route-loading-screen${isExiting ? " is-exiting" : ""}`}
       role="status"
       aria-busy="true"
       aria-live="polite"

@@ -1,0 +1,350 @@
+/*
+ * Ellie's Closet motion language
+ * Restrained, spatial, interruptible-feeling transitions with no hover-only UI.
+ */
+
+:root {
+  --motion-ease-out: cubic-bezier(.22, 1, .36, 1);
+  --motion-ease-in: cubic-bezier(.55, 0, 1, .45);
+  --motion-instant: 110ms;
+  --motion-fast: 180ms;
+  --motion-base: 320ms;
+  --motion-spatial: 400ms;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.site-motion-stage {
+  min-height: 100svh;
+  animation: ec-page-appear var(--motion-base) var(--motion-ease-out) both;
+}
+
+.site-motion-stage :is(button, a, input, select, textarea) {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.site-motion-stage :is(button, a) {
+  touch-action: manipulation;
+}
+
+.site-motion-stage :is(button:not(:disabled), a):active {
+  transform: scale(.975);
+  transition-duration: var(--motion-instant);
+}
+
+:is(
+  .wc-button,
+  .wc-icon-button,
+  .wc-utility-button,
+  .home-dashboard__utilities a,
+  .home-dashboard__primary-nav a,
+  .home-dashboard__secondary-nav a,
+  .closet-browser__mode button,
+  .closet-browser__filters button,
+  .closet-browser__item,
+  .closet-browser__favorite,
+  .wc-heart-button,
+  .wc-record-list > button,
+  .wc-saved-card,
+  .wc-calendar__day,
+  .mobile-home__actions a,
+  .mobile-tool-page__back,
+  .mobile-primary-action,
+  .mobile-slot-grid > button,
+  .mobile-database-tools button,
+  .mobile-database-list > button,
+  .mobile-photo-sheet header button,
+  .mobile-record-sheet header button
+) {
+  transition:
+    transform var(--motion-fast) var(--motion-ease-out),
+    color var(--motion-fast) ease,
+    background-color var(--motion-fast) ease,
+    opacity var(--motion-fast) ease,
+    box-shadow var(--motion-fast) ease;
+}
+
+:is(
+  .wc-form input,
+  .wc-form textarea,
+  .wc-form select,
+  .wc-search input,
+  .mobile-tool-page input,
+  .mobile-tool-page textarea,
+  .mobile-tool-page select
+) {
+  transition:
+    background-color var(--motion-fast) ease,
+    border-color var(--motion-fast) ease,
+    box-shadow var(--motion-fast) ease;
+}
+
+:is(
+  .wc-form input,
+  .wc-form textarea,
+  .wc-form select,
+  .wc-search input,
+  .mobile-tool-page input,
+  .mobile-tool-page textarea,
+  .mobile-tool-page select
+):focus-visible {
+  box-shadow: 0 0 0 4px rgb(210 225 246 / .48);
+}
+
+/* Calm entrances: one quiet reveal followed by a small amount of hierarchy. */
+.home-dashboard__welcome,
+.closet-index-page__header,
+.mobile-home__header,
+.mobile-tool-page__header {
+  animation: ec-materialize var(--motion-spatial) var(--motion-ease-out) both;
+}
+
+.home-dashboard__utilities > *,
+.home-dashboard__primary-nav > *,
+.home-dashboard__secondary-nav > *,
+.closet-browser__mode,
+.closet-browser__filters,
+.closet-browser__grid > *,
+.wc-content > *,
+.wc-record-list > *,
+.wc-calendar__grid > *,
+.wc-build-tray,
+.mobile-home__actions > *,
+.mobile-tool-page__content > *,
+.mobile-slot-grid > *,
+.mobile-database-list > * {
+  animation: ec-rise-in var(--motion-spatial) var(--motion-ease-out) both;
+}
+
+:is(
+  .home-dashboard__utilities,
+  .home-dashboard__primary-nav,
+  .home-dashboard__secondary-nav,
+  .closet-browser__grid,
+  .wc-record-list,
+  .wc-calendar__grid,
+  .mobile-home__actions,
+  .mobile-slot-grid,
+  .mobile-database-list
+) > :nth-child(2) { animation-delay: 35ms; }
+
+:is(
+  .home-dashboard__utilities,
+  .home-dashboard__primary-nav,
+  .home-dashboard__secondary-nav,
+  .closet-browser__grid,
+  .wc-record-list,
+  .wc-calendar__grid,
+  .mobile-home__actions,
+  .mobile-slot-grid,
+  .mobile-database-list
+) > :nth-child(3) { animation-delay: 70ms; }
+
+:is(
+  .home-dashboard__utilities,
+  .home-dashboard__primary-nav,
+  .home-dashboard__secondary-nav,
+  .closet-browser__grid,
+  .wc-record-list,
+  .wc-calendar__grid,
+  .mobile-home__actions,
+  .mobile-slot-grid,
+  .mobile-database-list
+) > :nth-child(n + 4) { animation-delay: 105ms; }
+
+/* Selection changes stay legible without feeling animated for animation's sake. */
+.closet-browser__mode button[aria-pressed="true"],
+.closet-browser__filters button[aria-pressed="true"],
+.wc-heart-button[aria-pressed="true"],
+.closet-browser__favorite[aria-pressed="true"] {
+  animation: ec-select var(--motion-base) var(--motion-ease-out);
+}
+
+.wc-heart,
+.closet-item-drawer__heart-fill,
+.closet-browser__favorite svg {
+  transform-origin: center;
+  transition:
+    transform var(--motion-fast) var(--motion-ease-out),
+    fill var(--motion-fast) ease,
+    stroke var(--motion-fast) ease;
+}
+
+/* Desktop/tablet side panels retain their source-to-right-edge relationship. */
+.wc-drawer[open] {
+  animation: ec-drawer-in var(--motion-spatial) var(--motion-ease-out) both;
+  will-change: transform, opacity;
+}
+
+.wc-drawer[open].is-closing {
+  pointer-events: none;
+  animation: ec-drawer-out 260ms var(--motion-ease-in) both;
+}
+
+.wc-drawer::backdrop {
+  animation: ec-backdrop-in var(--motion-base) ease-out both;
+}
+
+.wc-drawer.is-closing::backdrop {
+  animation: ec-backdrop-out 260ms ease-in both;
+}
+
+/* Phone sheets use the same directional model, anchored to the bottom edge. */
+.mobile-photo-dialog[open],
+.mobile-sheet-backdrop .mobile-record-sheet {
+  animation: ec-sheet-in 360ms var(--motion-ease-out) both;
+  will-change: transform, opacity;
+}
+
+.mobile-photo-dialog[open].is-closing,
+.mobile-sheet-backdrop.is-closing .mobile-record-sheet {
+  pointer-events: none;
+  animation: ec-sheet-out 260ms var(--motion-ease-in) both;
+}
+
+.mobile-photo-dialog::backdrop,
+.mobile-sheet-backdrop {
+  animation: ec-backdrop-in var(--motion-base) ease-out both;
+}
+
+.mobile-photo-dialog.is-closing::backdrop,
+.mobile-sheet-backdrop.is-closing {
+  animation: ec-backdrop-out 260ms ease-in both;
+}
+
+.route-loading-screen {
+  animation: ec-loading-in var(--motion-base) ease-out both;
+  transition: opacity 280ms ease-in;
+}
+
+.route-loading-screen.is-exiting {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.wc-loading-dots span {
+  animation: ec-dot 1.05s var(--motion-ease-out) infinite;
+}
+
+.wc-loading-dots span:nth-child(2) { animation-delay: 130ms; }
+.wc-loading-dots span:nth-child(3) { animation-delay: 260ms; }
+
+@keyframes ec-page-appear {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes ec-materialize {
+  from { opacity: 0; filter: blur(5px); }
+  to { opacity: 1; filter: blur(0); }
+}
+
+@keyframes ec-rise-in {
+  from { opacity: 0; transform: translateY(8px) scale(.995); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes ec-select {
+  0% { transform: scale(.97); }
+  70% { transform: scale(1.018); }
+  100% { transform: scale(1); }
+}
+
+@keyframes ec-drawer-in {
+  from { opacity: .78; transform: translateX(calc(100% + 24px)); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes ec-drawer-out {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(calc(100% + 24px)); }
+}
+
+@keyframes ec-sheet-in {
+  from { opacity: .82; transform: translateY(calc(100% + 20px)); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes ec-sheet-out {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(calc(100% + 20px)); }
+}
+
+@keyframes ec-backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes ec-backdrop-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes ec-loading-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes ec-dot {
+  0%, 72%, 100% { opacity: .28; transform: translateY(0) scale(.88); }
+  36% { opacity: 1; transform: translateY(-3px) scale(1); }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .mobile-sheet-backdrop {
+    background: rgb(238 237 232 / .96);
+    backdrop-filter: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :is(.wc-button, .wc-icon-button, .mobile-primary-action):focus-visible {
+    outline-width: 3px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
+  .site-motion-stage,
+  .site-motion-stage *,
+  .site-motion-stage *::before,
+  .site-motion-stage *::after,
+  .route-loading-screen,
+  .route-loading-screen *,
+  .wc-drawer,
+  .wc-drawer::backdrop,
+  .mobile-photo-dialog,
+  .mobile-photo-dialog::backdrop,
+  .mobile-sheet-backdrop,
+  .mobile-sheet-backdrop * {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    scroll-behavior: auto !important;
+    transition-duration: 1ms !important;
+  }
+}
+
+html[data-reduce-motion="true"] {
+  scroll-behavior: auto;
+}
+
+html[data-reduce-motion="true"] .site-motion-stage,
+html[data-reduce-motion="true"] .site-motion-stage *,
+html[data-reduce-motion="true"] .site-motion-stage *::before,
+html[data-reduce-motion="true"] .site-motion-stage *::after,
+html[data-reduce-motion="true"] .route-loading-screen,
+html[data-reduce-motion="true"] .route-loading-screen *,
+html[data-reduce-motion="true"] .wc-drawer,
+html[data-reduce-motion="true"] .wc-drawer::backdrop,
+html[data-reduce-motion="true"] .mobile-photo-dialog,
+html[data-reduce-motion="true"] .mobile-photo-dialog::backdrop,
+html[data-reduce-motion="true"] .mobile-sheet-backdrop,
+html[data-reduce-motion="true"] .mobile-sheet-backdrop * {
+  animation-duration: 1ms !important;
+  animation-delay: 0ms !important;
+  scroll-behavior: auto !important;
+  transition-duration: 1ms !important;
+}
