@@ -5,8 +5,19 @@ import type { WardrobeItem } from "@/lib/wardrobe";
 import { useWardrobe, DataGate } from "./provider";
 import { Drawer, Empty, Heart, ItemPhoto, PageShell } from "./ui";
 
-const topics = ["All", "Tops", "Jackets", "Bottoms", "Shoes", "Misc."];
+const topics = ["All", "Tops", "Jackets", "Dresses", "Sleep", "Bottoms", "Under", "Shoes", "Misc."];
 const tags = ["All", "Everyday", "Work", "Going out", "Church", "Comfortable", "Basic", "Layering", "Formal", "Active"];
+
+function itemTopic(item: WardrobeItem) {
+  if (item.category === "outerwear") return "Jackets";
+  if (item.category === "loungewear") return "Sleep";
+  if (item.category === "dresses") return "Dresses";
+  if (item.category === "tops") return "Tops";
+  if (item.category === "bottoms") return "Bottoms";
+  if (item.category === "shoes") return "Shoes";
+  if (item.tags.some(tag => /underwear|undergarment|lingerie|bra/i.test(tag))) return "Under";
+  return "Misc.";
+}
 export function ItemDetails({ item, close }: { item: WardrobeItem; close: () => void }) {
   const { mutate, data } = useWardrobe();
   const current = data?.items.find(i => i.id === item.id) ?? item;
@@ -29,20 +40,40 @@ export function ItemDetails({ item, close }: { item: WardrobeItem; close: () => 
   </Drawer>;
 }
 export function ItemGrid({ items, choose, selected = [] }: { items: WardrobeItem[]; choose?: (item: WardrobeItem) => void; selected?: string[] }) {
+  const { mutate } = useWardrobe();
   const [mode, setMode] = useState<"topics" | "tags">("topics");
   const [filter, setFilter] = useState("All");
   const [item, setItem] = useState<WardrobeItem | null>(null);
+  const [favoriteBusy, setFavoriteBusy] = useState<string | null>(null);
+  const [favoriteError, setFavoriteError] = useState("");
   const visible = items.filter(item => {
     if (filter === "All") return true;
     if (mode === "tags") return [...item.tags, ...item.occasions].some(t => t.toLowerCase() === filter.toLowerCase());
-    if (filter === "Jackets") return item.category === "outerwear";
-    if (filter === "Misc.") return !["tops", "outerwear", "bottoms", "shoes"].includes(item.category);
-    return item.category === filter.toLowerCase();
+    return itemTopic(item) === filter;
   });
+  async function toggleFavorite(current: WardrobeItem) {
+    if (favoriteBusy) return;
+    setFavoriteBusy(current.id);
+    setFavoriteError("");
+    try {
+      await mutate({ action: "mark", id: current.id, field: "favorite", value: !current.favorite });
+    } catch (error) {
+      setFavoriteError(error instanceof Error ? error.message : "Could not update this favorite.");
+    } finally {
+      setFavoriteBusy(null);
+    }
+  }
   return <section className="closet-browser">
-    <div className="closet-browser__mode">{(["topics", "tags"] as const).map(value => <button key={value} className={mode === value ? "is-active" : ""} aria-pressed={mode === value} onClick={() => { setMode(value); setFilter("All"); }}>{value === "topics" ? "Topics" : "Tags"}</button>)}</div>
+    <div className="closet-browser__mode" aria-label="Browse by topics or tags">{(["topics", "tags"] as const).map(value => <button type="button" key={value} className={mode === value ? "is-active" : ""} aria-label={`Show ${value}`} aria-pressed={mode === value} onClick={() => { setMode(value); setFilter("All"); }}>{mode === value ? value : ""}</button>)}</div>
     <div className="closet-browser__filters" aria-label="Categories">{(mode === "topics" ? topics : tags).map(value => <button key={value} className={filter === value ? "is-active" : ""} aria-pressed={filter === value} onClick={() => setFilter(value)}>{value}</button>)}</div>
-    {visible.length ? <div className="closet-browser__grid">{visible.map(item => <button className={"closet-browser__item" + (selected.includes(item.id) ? " wc-selected" : "")} key={item.id} aria-label={(choose ? "Add " : "Open details for ") + item.name} aria-pressed={choose ? selected.includes(item.id) : undefined} onClick={() => choose ? choose(item) : setItem(item)}><ItemPhoto item={item}/></button>)}</div> : <Empty>{items.length ? "No items in this category yet." : "Your clothes will appear here once they have been reviewed and published."}</Empty>}
+    {favoriteError && <p className="wc-notice" role="alert">{favoriteError}</p>}
+    {visible.length ? <div className="closet-browser__grid">{visible.map(current => <article className={"closet-browser__item" + (selected.includes(current.id) ? " wc-selected" : "")} key={current.id}>
+      <button type="button" className="closet-browser__item-open" aria-label={(choose ? "Add " : "Open details for ") + current.name} aria-pressed={choose ? selected.includes(current.id) : undefined} onClick={() => choose ? choose(current) : setItem(current)}>
+        <div className="closet-browser__visual"><ItemPhoto item={current}/></div>
+        <span className="closet-browser__item-meta"><small>{itemTopic(current)}</small><strong>{current.name}</strong></span>
+      </button>
+      <button type="button" className="closet-browser__favorite" disabled={favoriteBusy === current.id} aria-label={current.favorite ? `Remove ${current.name} from favorites` : `Add ${current.name} to favorites`} aria-pressed={current.favorite} onClick={() => void toggleFavorite(current)}><Heart filled={current.favorite}/></button>
+    </article>)}</div> : <Empty>{items.length ? "No items in this category yet." : "Your clothes will appear here once they have been reviewed and published."}</Empty>}
     {item && <ItemDetails item={item} close={() => setItem(null)}/>}
   </section>;
 }
