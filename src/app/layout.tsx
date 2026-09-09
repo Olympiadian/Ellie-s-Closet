@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Inclusive_Sans } from "next/font/google";
 import localFont from "next/font/local";
 import type { ReactNode } from "react";
 import { MobileRouteGuard } from "@/components/mobile/mobile-route-guard";
@@ -39,18 +40,18 @@ const funnelDisplay = localFont({
   weight: "300 800",
 });
 
-const instrumentSerif = localFont({
-  display: "swap",
-  src: "./fonts/instrument-serif-regular.ttf",
-  variable: "--font-instrument-serif",
-  weight: "400",
-});
-
 const manrope = localFont({
   display: "swap",
   src: "./fonts/manrope-variable.ttf",
   variable: "--font-manrope",
   weight: "200 800",
+});
+
+const inclusiveSans = Inclusive_Sans({
+  display: "swap",
+  subsets: ["latin"],
+  variable: "--font-inclusive-sans",
+  weight: "variable",
 });
 
 function getMetadataBase() {
@@ -111,7 +112,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       lang="en"
-      className={`${hurricane.variable} ${geistMono.variable} ${funnelDisplay.variable} ${instrumentSerif.variable} ${manrope.variable}`}
+      className={`${hurricane.variable} ${geistMono.variable} ${funnelDisplay.variable} ${manrope.variable} ${inclusiveSans.variable}`}
     >
       <body>
         <MobileRouteGuard />

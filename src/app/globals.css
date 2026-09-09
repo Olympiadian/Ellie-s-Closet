@@ -95,10 +95,10 @@ a {
 
 .home-dashboard__welcome h1 {
   margin: 0;
-  font-family: var(--font-instrument-serif), Georgia, "Times New Roman", serif;
+  font-family: var(--font-inclusive-sans), "Helvetica Neue", Arial, sans-serif;
   font-size: clamp(45px, 3.5vw, 58px);
-  font-weight: 400;
-  letter-spacing: -0.02em;
+  font-weight: 500;
+  letter-spacing: -0.03em;
   line-height: 0.98;
 }
 
@@ -197,13 +197,47 @@ a {
 }
 
 .home-dashboard__primary-nav a {
+  --card-guide: #f7edf6;
+  --card-guide-inset: clamp(38px, 3vw, 50px);
   height: 29.6vh;
   min-height: 230px;
+  overflow: hidden;
+}
+
+.home-dashboard__primary-nav a:first-child {
+  --card-guide: #d9defb;
+}
+
+.home-dashboard__primary-nav a::before,
+.home-dashboard__primary-nav a::after {
+  position: absolute;
+  z-index: 0;
+  background: var(--card-guide);
+  content: "";
+  pointer-events: none;
+}
+
+.home-dashboard__primary-nav a::before {
+  top: 0;
+  right: var(--card-guide-inset);
+  bottom: 0;
+  width: 6px;
+}
+
+.home-dashboard__primary-nav a::after {
+  top: clamp(30px, 3.05vh, 44px);
+  right: calc(var(--card-guide-inset) + 3px);
+  width: clamp(30px, 2.1vw, 36px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  transform: translateX(50%);
 }
 
 .home-dashboard__secondary-nav a {
   height: 13.3vh;
   min-height: 102px;
+  font-family: var(--font-inclusive-sans), "Helvetica Neue", Arial, sans-serif;
+  letter-spacing: -0.03em;
 }
 
 .home-dashboard__primary-card-copy,
@@ -215,6 +249,7 @@ a {
 }
 
 .home-dashboard__primary-card-copy {
+  z-index: 1;
   display: flex;
   flex-direction: column;
   gap: clamp(6px, 0.65vh, 9px);
@@ -227,8 +262,10 @@ a {
 }
 
 .home-dashboard__primary-card-title strong {
+  font-family: var(--font-inclusive-sans), "Helvetica Neue", Arial, sans-serif;
   font-size: inherit;
   font-weight: 500;
+  letter-spacing: -0.03em;
   line-height: 1;
 }
 
@@ -339,10 +376,10 @@ a {
 
 .closet-index-page__header h1 {
   margin: 0;
-  font-family: var(--font-instrument-serif), Georgia, "Times New Roman", serif;
+  font-family: var(--font-inclusive-sans), "Helvetica Neue", Arial, sans-serif;
   font-size: clamp(45px, 3.5vw, 58px);
-  font-weight: 400;
-  letter-spacing: -0.02em;
+  font-weight: 500;
+  letter-spacing: -0.03em;
   line-height: 0.98;
 }
 
@@ -366,10 +403,10 @@ a {
 .closet-browser__filters button {
   border: 0;
   color: rgba(48, 48, 48, 0.78);
-  font-family: var(--font-manrope), "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--font-inclusive-sans), "Helvetica Neue", Arial, sans-serif;
   font-size: clamp(13px, 0.98vw, 16px);
   font-weight: 500;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   line-height: 1;
   cursor: pointer;
 }
@@ -616,6 +653,15 @@ a {
   -webkit-tap-highlight-color: transparent;
 }
 
+button,
+.button,
+.topbar-add,
+.rail-add {
+  font-family: var(--font-inclusive-sans), "Helvetica Neue", Arial, sans-serif;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+
 .wall-home {
   display: grid;
   grid-template-columns: 92px 1fr;
@@ -645,7 +691,7 @@ a {
   place-items: center;
   border: 1px solid var(--line);
   border-radius: 50%;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-inclusive-sans), "Helvetica Neue", Arial, sans-serif;
   font-size: 20px;
   font-style: italic;
 }
@@ -754,10 +800,10 @@ a {
 
 .home-header h1 {
   margin: 0;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-inclusive-sans), "Helvetica Neue", Arial, sans-serif;
   font-size: clamp(31px, 4vw, 57px);
-  font-weight: 400;
-  letter-spacing: -0.045em;
+  font-weight: 500;
+  letter-spacing: -0.03em;
 }
 
 .weather-card {
@@ -774,7 +820,7 @@ a {
 }
 
 .weather-icon {
-  font-family: Georgia, serif;
+  font-family: var(--font-inclusive-sans), "Helvetica Neue", Arial, sans-serif;
   font-size: 31px;
   font-weight: 300;
   line-height: 1;
@@ -804,10 +850,10 @@ a {
 .stage-copy h2 {
   max-width: 600px;
   margin: 0;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-inclusive-sans), "Helvetica Neue", Arial, sans-serif;
   font-size: clamp(52px, 7.3vw, 104px);
-  font-weight: 400;
-  letter-spacing: -0.065em;
+  font-weight: 500;
+  letter-spacing: -0.03em;
   line-height: 0.91;
 }
 
@@ -927,9 +973,9 @@ a {
 
 .today-meta h3 {
   margin: 0;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-inclusive-sans), "Helvetica Neue", Arial, sans-serif;
   font-size: 25px;
-  font-weight: 400;
+  font-weight: 500;
   letter-spacing: -0.03em;
 }
 
@@ -1145,7 +1191,7 @@ a {
   place-items: center;
   border: 1px solid var(--line);
   border-radius: 50%;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-inclusive-sans), "Helvetica Neue", Arial, sans-serif;
   font-size: 20px;
   font-style: italic;
 }
@@ -1227,10 +1273,10 @@ a {
 .page-heading h1 {
   max-width: 850px;
   margin: 0;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-inclusive-sans), "Helvetica Neue", Arial, sans-serif;
   font-size: clamp(48px, 7vw, 88px);
-  font-weight: 400;
-  letter-spacing: -0.06em;
+  font-weight: 500;
+  letter-spacing: -0.03em;
   line-height: 0.98;
 }
 
@@ -1378,10 +1424,10 @@ a {
 
 .item-card__meta h3 {
   margin: 0;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-inclusive-sans), "Helvetica Neue", Arial, sans-serif;
   font-size: 19px;
-  font-weight: 400;
-  letter-spacing: -0.025em;
+  font-weight: 500;
+  letter-spacing: -0.03em;
 }
 
 .item-card__meta p {
@@ -1540,9 +1586,10 @@ a {
 .empty-state h2,
 .not-found h1 {
   margin: 14px 0 6px;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-inclusive-sans), "Helvetica Neue", Arial, sans-serif;
   font-size: 38px;
-  font-weight: 400;
+  font-weight: 500;
+  letter-spacing: -0.03em;
 }
 
 .empty-state p {
@@ -1592,10 +1639,10 @@ a {
 .canvas-heading h2,
 .color-story h2 {
   margin: 0;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-inclusive-sans), "Helvetica Neue", Arial, sans-serif;
   font-size: clamp(30px, 4vw, 48px);
-  font-weight: 400;
-  letter-spacing: -0.045em;
+  font-weight: 500;
+  letter-spacing: -0.03em;
 }
 
 .detail-favorite {
@@ -1661,7 +1708,7 @@ a {
 .included-outfits > p:not(.eyebrow) {
   margin: 7px 0;
   color: var(--muted);
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-inclusive-sans), "Helvetica Neue", Arial, sans-serif;
   font-size: 19px;
 }
 
@@ -1806,10 +1853,10 @@ a {
 
 .outfit-card__meta h2 {
   margin: 0;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-inclusive-sans), "Helvetica Neue", Arial, sans-serif;
   font-size: 25px;
-  font-weight: 400;
-  letter-spacing: -0.035em;
+  font-weight: 500;
+  letter-spacing: -0.03em;
 }
 
 .outfit-card__meta > div > p:last-child {
@@ -1853,9 +1900,10 @@ a {
 }
 
 .capture-modes button strong {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-inclusive-sans), "Helvetica Neue", Arial, sans-serif;
   font-size: 20px;
-  font-weight: 400;
+  font-weight: 500;
+  letter-spacing: -0.03em;
 }
 
 .capture-modes button p {
@@ -1909,9 +1957,10 @@ a {
 }
 
 .capture-drop strong {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-inclusive-sans), "Helvetica Neue", Arial, sans-serif;
   font-size: 32px;
-  font-weight: 400;
+  font-weight: 500;
+  letter-spacing: -0.03em;
 }
 
 .capture-drop p {
@@ -2043,7 +2092,7 @@ a {
 }
 
 .stat-grid strong {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-inclusive-sans), "Helvetica Neue", Arial, sans-serif;
   font-size: 62px;
   font-weight: 400;
   letter-spacing: -0.06em;
@@ -2146,9 +2195,10 @@ a {
 
 .review-copy h2 {
   margin: 0;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-inclusive-sans), "Helvetica Neue", Arial, sans-serif;
   font-size: 25px;
-  font-weight: 400;
+  font-weight: 500;
+  letter-spacing: -0.03em;
 }
 
 .review-copy > p:last-child {
@@ -2187,9 +2237,10 @@ a {
 }
 
 .admin-grid strong {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-inclusive-sans), "Helvetica Neue", Arial, sans-serif;
   font-size: 28px;
-  font-weight: 400;
+  font-weight: 500;
+  letter-spacing: -0.03em;
 }
 
 .admin-grid span {
@@ -3164,10 +3215,10 @@ a {
 
   .mobile-home__action-copy strong {
     overflow: hidden;
-    font-family: var(--font-manrope), sans-serif;
+    font-family: var(--font-inclusive-sans), sans-serif;
     font-size: 16px;
     font-weight: 500;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.03em;
     line-height: 1.15;
     text-overflow: ellipsis;
     white-space: nowrap;
