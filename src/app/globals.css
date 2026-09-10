@@ -3,7 +3,7 @@
 :root {
   --ink: #191714;
   --muted: #706a61;
-  --paper: #e9e3d8;
+  --paper: #f9f9f9;
   --cream: #f5f1e9;
   --line: rgba(25, 23, 20, 0.14);
   --glass: rgba(247, 243, 235, 0.66);
@@ -20,9 +20,7 @@ html {
 body {
   margin: 0;
   color: var(--ink);
-  background:
-    radial-gradient(circle at 72% 26%, rgba(255, 255, 255, 0.78), transparent 28%),
-    linear-gradient(145deg, #d8d0c3 0%, #f1ece3 47%, #c9beae 100%);
+  background: #f9f9f9;
   font-family: Geist, "Helvetica Neue", Arial, sans-serif;
 }
 
@@ -40,7 +38,7 @@ a {
   min-height: max(720px, 100svh);
   overflow: hidden;
   color: #303030;
-  background: #f7f7f6 url("/images/home-iridescent-background.webp") center / cover no-repeat;
+  background: #f9f9f9 url("/images/home-iridescent-background.webp") center / cover no-repeat;
   font-family: var(--font-manrope), "Helvetica Neue", Arial, sans-serif;
   letter-spacing: -0.02em;
 }
@@ -339,7 +337,7 @@ a {
   min-height: 100svh;
   padding: clamp(40px, 4.2vh, 62px) 0 clamp(56px, 6vh, 90px);
   color: #303030;
-  background: #f7f7f6 url("/images/home-iridescent-background.webp") center / cover fixed no-repeat;
+  background: #f9f9f9 url("/images/home-iridescent-background.webp") center / cover fixed no-repeat;
   font-family: var(--font-manrope), "Helvetica Neue", Arial, sans-serif;
   letter-spacing: -0.02em;
 }
@@ -3217,7 +3215,7 @@ button,
 @media (max-width: 600px), (max-height: 600px) and (pointer: coarse) {
   html,
   body {
-    background: #e9e6da;
+    background: #f9f9f9;
   }
 
   .home-page {

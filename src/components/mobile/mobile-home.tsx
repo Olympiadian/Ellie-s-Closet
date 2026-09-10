@@ -3,6 +3,9 @@ import { MessagesButton } from "@/components/wardrobe/messages";
 import {
   AddClothesIcon,
   BrowseClosetIcon,
+  CalendarIcon,
+  DealsIcon,
+  SupportIcon,
 } from "@/components/mobile/mobile-icons";
 
 const mobilePrimaryActions = [
@@ -44,10 +47,10 @@ export function MobileHome() {
         })}
 
         <div className="mobile-home__quick-actions">
-          <Link href="/deals">Deals</Link>
+          <Link href="/deals"><span>Deals</span><DealsIcon className="mobile-home__quick-icon" /></Link>
           <MessagesButton mobile />
-          <Link href="/calendar">Calendar</Link>
-          <Link href="/help">Support</Link>
+          <Link href="/calendar"><span>Calendar</span><CalendarIcon className="mobile-home__quick-icon" /></Link>
+          <Link href="/help"><span>Support</span><SupportIcon className="mobile-home__quick-icon" /></Link>
         </div>
       </nav>
     </div>

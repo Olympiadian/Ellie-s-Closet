@@ -38,6 +38,41 @@ export function BrowseClosetIcon({ className }: IconProps) {
   );
 }
 
+export function DealsIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4.5 5.5v5.8L13.2 20l6.8-6.8-8.7-8.7H5.5a1 1 0 0 0-1 1Z" />
+      <circle cx="8.5" cy="8.5" r="1.2" />
+    </svg>
+  );
+}
+
+export function CalendarIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="3.5" y="5" width="17" height="15" rx="2" />
+      <path d="M8 3v4M16 3v4M3.5 9.5h17M8 13h2M14 13h2M8 16.5h2M14 16.5h2" />
+    </svg>
+  );
+}
+
+export function MessagesIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4 5.5h16v11H10l-6 3v-14Z" />
+    </svg>
+  );
+}
+
+export function SupportIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M9.5 9.5a2.7 2.7 0 1 1 4.1 2.3c-1 .6-1.6 1.1-1.6 2.3M12 17.5h.01" />
+    </svg>
+  );
+}
+
 export function BackIcon({ className }: IconProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">

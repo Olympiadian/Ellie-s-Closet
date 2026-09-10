@@ -124,16 +124,16 @@
 .wc-deal a, .wc-source-list a { text-decoration: underline; text-underline-offset: 3px; color: #4e6380; }
 .wc-source-list { display: grid; gap: 14px; font-size: 14px; }
 .wc-manual { margin-top: 22px; text-align: center; font-size: 14px; }
-.route-loading-screen { background: #f7f7f6 url("/images/home-iridescent-background.webp") center / cover no-repeat; }
+.route-loading-screen { background: #f9f9f9 url("/images/home-iridescent-background.webp") center / cover no-repeat; }
 .wc-loading-dots { display: flex; gap: 9px; align-items: center; height: 28px; }
 .wc-loading-dots span { width: 7px; height: 7px; border-radius: 50%; background: #808080; animation: wc-dot 1.2s ease-in-out infinite; }
 .wc-loading-dots span:nth-child(2) { animation-delay: .16s; }
 .wc-loading-dots span:nth-child(3) { animation-delay: .32s; }
-.mobile-tool-page__background { background: #f7f7f6 url("/images/home-iridescent-background.webp") center / cover no-repeat; }
+.mobile-tool-page__background { background: #f9f9f9 url("/images/home-iridescent-background.webp") center / cover no-repeat; }
 .mobile-tool-page {
   --mobile-ink: #303030; --mobile-muted: #757575; --mobile-surface: #fff;
   --mobile-surface-solid: #fff; --mobile-accent: #d2e1f6;
-  --mobile-shadow: 2px 4px 12px #00000012; background: #f7f7f6;
+  --mobile-shadow: 2px 4px 12px #00000012; background: #f9f9f9;
 }
 .mobile-tool-page__header h1, .mobile-photo-sheet h2 { font-family: var(--font-inclusive-sans),Arial,sans-serif; font-weight: 500; letter-spacing: -.03em; }
 .mobile-tool-page__header h1 { font-size: 38px; }
@@ -218,7 +218,8 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
   }
 
   .mobile-home__actions {
-    width: 100%;
+    width: calc(100vw - 44px);
+    max-width: 346px;
     gap: 15px;
     margin-top: clamp(80px, 15svh, 110px);
   }
@@ -251,11 +252,13 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
 
   .mobile-home__quick-actions a,
   .mobile-home__quick-button {
-    display: grid;
+    display: flex;
     min-width: 0;
     min-height: 52px;
-    place-items: center;
-    padding: 0 8px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 0 15px;
     border: 0;
     border-radius: 12px;
     color: #3f403d;
@@ -277,7 +280,7 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
     position: absolute;
     top: max(28px, env(safe-area-inset-top));
     left: 19px;
-    width: 42px;
+    width: 44px;
     border-radius: 6px;
   }
 
@@ -296,7 +299,7 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
     min-height: 68px;
     align-items: flex-start;
     margin: 0 10px;
-    padding: 12px 0 34px 58px;
+    padding: 12px 12px 32px 78px;
     border-bottom: 1px solid rgba(48,48,48,.16);
     text-align: left;
   }
@@ -316,11 +319,11 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
   .mobile-closet-toolbar button {
     display: flex;
     min-width: 0;
-    min-height: 28px;
+    min-height: 34px;
     align-items: center;
     justify-content: center;
     gap: 9px;
-    padding: 0 9px;
+    padding: 3px 10px;
     border: 0;
     border-radius: 999px;
     color: #3d3d3d;
@@ -384,7 +387,8 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
   }
 
   .closet-browser__item-meta strong {
-    font-size: clamp(15px, 4.5vw, 18px);
+    font-size: clamp(14px, 4.05vw, 16px);
+    line-height: 1.22;
   }
 
   .mobile-closet-sheet__backdrop {
@@ -573,8 +577,14 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
   }
 
   .mobile-tool-page__header {
+    grid-template-columns: 44px minmax(0, 1fr);
     gap: 12px;
     margin-bottom: 24px;
+  }
+
+  .mobile-tool-page__back {
+    width: 44px;
+    height: 44px;
   }
 
   .mobile-tool-page__header h1 {
@@ -628,9 +638,10 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
 
   .closet-browser__item-meta strong {
     display: -webkit-box;
-    min-height: 2.16em;
+    min-height: 2.5em;
     overflow: hidden;
-    line-height: 1.08;
+    padding-bottom: 2px;
+    line-height: 1.22;
     text-overflow: clip;
     white-space: normal;
     -webkit-box-orient: vertical;
@@ -699,6 +710,17 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
     background: #d2e1f6;
     font: 500 13px var(--font-inclusive-sans), Arial, sans-serif;
     letter-spacing: -.03em;
+  }
+
+  .mobile-home__quick-icon {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.65;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
 
   .mobile-week-calendar__days {
