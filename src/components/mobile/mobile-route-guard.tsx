@@ -5,6 +5,8 @@ import { usePathname, useRouter } from "next/navigation";
 
 const allowedPhoneRoutes = new Set([
   "/",
+  "/closet",
+  "/deals",
   "/mobile/new-clothes",
   "/mobile/request",
   "/mobile/database",

@@ -1,29 +1,22 @@
 import Link from "next/link";
-import { MobileManualLink } from "@/components/wardrobe/home-count";
+import { MessagesButton } from "@/components/wardrobe/messages";
 import {
   AddClothesIcon,
-  DatabaseCheckIcon,
-  RequestFeatureIcon,
+  BrowseClosetIcon,
 } from "@/components/mobile/mobile-icons";
 
-const mobileActions = [
+const mobilePrimaryActions = [
   {
     title: "New Clothes?",
-    description: "Upload to your closet.",
+    description: "Upload new items to your closet",
     href: "/mobile/new-clothes",
     icon: AddClothesIcon,
   },
   {
-    title: "Request Feature",
-    description: "Changes to your experience.",
-    href: "/mobile/request",
-    icon: RequestFeatureIcon,
-  },
-  {
-    title: "Database Check",
-    description: "Fix / add information about your clothes.",
-    href: "/mobile/database",
-    icon: DatabaseCheckIcon,
+    title: "Browse Closet",
+    description: "Browse your closet and saved items",
+    href: "/closet",
+    icon: BrowseClosetIcon,
   },
 ] as const;
 
@@ -36,7 +29,7 @@ export function MobileHome() {
       </header>
 
       <nav className="mobile-home__actions" aria-label="Mobile closet actions">
-        {mobileActions.map((action) => {
+        {mobilePrimaryActions.map((action) => {
           const Icon = action.icon;
 
           return (
@@ -49,9 +42,13 @@ export function MobileHome() {
             </Link>
           );
         })}
-      </nav>
 
-      <MobileManualLink />
+        <div className="mobile-home__quick-actions">
+          <Link href="/deals">Deals</Link>
+          <MessagesButton mobile />
+          <Link href="/help">Support</Link>
+        </div>
+      </nav>
     </div>
   );
 }

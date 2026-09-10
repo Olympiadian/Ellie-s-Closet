@@ -29,6 +29,15 @@ export function DatabaseCheckIcon({ className }: IconProps) {
   );
 }
 
+export function BrowseClosetIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="4" y="4" width="16" height="16" rx="2" />
+      <path d="M8 7v10M12 7l2 10M17 7v10" />
+    </svg>
+  );
+}
+
 export function BackIcon({ className }: IconProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">

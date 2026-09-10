@@ -6,8 +6,9 @@ import type { WardrobeItem } from "@/lib/wardrobe";
 import { useAnimatedClose } from "@/components/use-animated-close";
 
 export function HomeIcon() { return <svg viewBox="0 0 32 32" aria-hidden="true"><path d="m6 14 10-9 10 9v12H6V14Z"/><path d="M13 26v-8h6v8"/></svg>; }
+function BackIcon() { return <svg className="closet-index-page__back-icon" viewBox="0 0 32 32" aria-hidden="true"><path d="m19 8-8 8 8 8"/></svg>; }
 export function PageShell({ title, children }: { title: string; children: ReactNode }) {
-  return <main className="closet-index-page wc-page"><Link href="/" className="closet-index-page__home" aria-label="Return home"><HomeIcon/></Link><header className="closet-index-page__header"><h1>{title}</h1></header>{children}</main>;
+  return <main className="closet-index-page wc-page"><Link href="/" className="closet-index-page__home" aria-label="Return home"><HomeIcon/><BackIcon/></Link><header className="closet-index-page__header"><h1>{title}</h1></header>{children}</main>;
 }
 export function Drawer({ title, close, children, small = false }: { title: string; close: () => void; children: ReactNode; small?: boolean }) {
   const ref = useRef<HTMLDialogElement>(null);
