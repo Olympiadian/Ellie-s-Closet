@@ -46,6 +46,7 @@ export function MobileHome() {
         <div className="mobile-home__quick-actions">
           <Link href="/deals">Deals</Link>
           <MessagesButton mobile />
+          <Link href="/calendar">Calendar</Link>
           <Link href="/help">Support</Link>
         </div>
       </nav>
