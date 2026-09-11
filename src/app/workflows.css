@@ -208,7 +208,7 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
     background: #f9f9f9 url("/images/ellie-closet-mobile-background.webp") center top / cover no-repeat;
   }
 
-  .mobile-home__header p {
+  .mobile-home__eyebrow {
     margin-bottom: 8px;
     color: #aaa;
     font-family: var(--font-inclusive-sans), Arial, sans-serif;
@@ -217,8 +217,20 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
   }
 
   .mobile-home__header h1 {
+    display: inline-block;
+    max-width: 100%;
+    padding: 0 .16em .08em;
     color: #414141;
-    font-size: clamp(50px, 15vw, 58px);
+    font-size: clamp(45px, 14vw, 56px);
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .mobile-home__date {
+    margin: 7px 0 0;
+    color: #777;
+    font: 400 12px/1.4 var(--font-manrope), Arial, sans-serif;
+    letter-spacing: -.02em;
   }
 
   .mobile-home__actions {
@@ -275,15 +287,15 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
   .closet-index-page.wc-page {
     position: relative;
     min-height: 100svh;
-    padding: max(28px, env(safe-area-inset-top)) 0 max(28px, env(safe-area-inset-bottom));
+    padding: max(28px, env(safe-area-inset-top)) 14px max(28px, env(safe-area-inset-bottom));
     background: #f9f9f9 url("/images/ellie-closet-mobile-background.webp") center top / cover fixed no-repeat;
     overflow-x: hidden;
   }
 
-  .closet-index-page__home {
+  .closet-index-page.wc-page .closet-index-page__home {
     position: absolute;
     top: max(28px, env(safe-area-inset-top));
-    left: 19px;
+    left: 14px;
     width: 44px;
     border-radius: 6px;
   }
@@ -302,22 +314,25 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
     display: flex;
     min-height: 44px;
     align-items: center;
-    margin: 0 10px 32px;
-    padding: 0 12px 31px 78px;
+    margin: 0 0 32px;
+    padding: 0 0 31px 60px;
     border-bottom: 1px solid rgba(48,48,48,.16);
     text-align: left;
   }
 
   .closet-index-page__header h1 {
-    font-size: 31px;
-    line-height: 1;
+    display: flex;
+    min-height: 44px;
+    align-items: center;
+    font-size: 30px;
+    line-height: 1.05;
   }
 
   .mobile-closet-toolbar {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 9px;
-    margin: 19px 9px 0;
+    margin: 19px 0 0;
   }
 
   .mobile-closet-toolbar button {
@@ -342,7 +357,7 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
 
   .mobile-closet-count {
     display: block;
-    margin: 12px 12px 0;
+    margin: 12px 3px 0;
     color: #7d7d7d;
     font: 400 12px/1.4 var(--font-manrope), Arial, sans-serif;
     letter-spacing: -.02em;
@@ -363,7 +378,7 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
   }
 
   .closet-browser__grid {
-    width: calc(100% - 12px);
+    width: 100%;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px 9px;
     margin-top: 18px;
@@ -494,10 +509,25 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
   }
 
   .mobile-radio-list input {
+    appearance: none;
     width: 22px;
     height: 22px;
     margin: 0;
-    accent-color: #3f3f3f;
+    flex: 0 0 22px;
+    border: 2px solid #7a7a7a;
+    border-radius: 50%;
+    background: #fff;
+    transition: border-width 120ms ease, border-color 120ms ease;
+  }
+
+  .mobile-radio-list input:checked {
+    border-width: 7px;
+    border-color: #3f3f3f;
+  }
+
+  .mobile-radio-list input:focus-visible {
+    outline: 2px solid #8a8a8a;
+    outline-offset: 3px;
   }
 
   .mobile-closet-sheet__confirm {
@@ -623,8 +653,11 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
     grid-column: 2;
     grid-row: 1;
     align-self: center;
-    font-size: 32px;
-    line-height: 1.02;
+    display: flex;
+    min-height: 44px;
+    align-items: center;
+    font-size: 30px;
+    line-height: 1.05;
   }
 
   .mobile-tool-page__intro {
@@ -857,12 +890,6 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
     margin-top: 34px;
     color: #666;
     text-align: center;
-  }
-
-  .mobile-home__weather p {
-    margin: 0 0 10px;
-    font: 400 12px/1.4 var(--font-manrope), Arial, sans-serif;
-    letter-spacing: -.02em;
   }
 
   .mobile-home__weather div {

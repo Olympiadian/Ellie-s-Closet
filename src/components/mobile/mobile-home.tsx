@@ -27,8 +27,9 @@ export function MobileHome({ dateLabel }: { dateLabel: string }) {
   return (
     <div className="mobile-home">
       <header className="mobile-home__header">
-        <p>Mobile</p>
+        <p className="mobile-home__eyebrow">Mobile</p>
         <h1>Ellie&apos;s Closet</h1>
+        <p className="mobile-home__date">{dateLabel}</p>
       </header>
 
       <nav className="mobile-home__actions" aria-label="Mobile closet actions">
@@ -58,7 +59,6 @@ export function MobileHome({ dateLabel }: { dateLabel: string }) {
         className="mobile-home__weather"
         aria-label="Today is sunny with a high of 108 degrees, a low of 78 degrees, and a UV index of 10 between 11 AM and 1 PM"
       >
-        <p>{dateLabel}</p>
         <div>
           <span>Sunny</span>
           <i aria-hidden="true" />
