@@ -2,6 +2,13 @@ import Link from "next/link";
 import { MobileHome } from "@/components/mobile/mobile-home";
 import { HomeCount } from "@/components/wardrobe/home-count";
 import { MessagesButton } from "@/components/wardrobe/messages";
+import {
+  CalendarIcon,
+  DealsIcon,
+  FavoritesIcon,
+  RecentIcon,
+  StatsIcon,
+} from "@/components/mobile/mobile-icons";
 
 export const dynamic = "force-dynamic";
 
@@ -27,11 +34,11 @@ const primaryNavigation = [
 ];
 
 const secondaryNavigation = [
-  { label: "Deals", href: "/deals" },
-  { label: "Favorites", href: "/favorites" },
-  { label: "Recent", href: "/recent" },
-  { label: "Log", href: "/log" },
-  { label: "Calendar", href: "/calendar" },
+  { label: "Deals", description: "Today’s finds", href: "/deals", icon: DealsIcon },
+  { label: "Favorites", description: "Loved pieces", href: "/favorites", icon: FavoritesIcon },
+  { label: "Recent", description: "Just added", href: "/recent", icon: RecentIcon },
+  { label: "Stats", description: "Closet insights", href: "/stats", icon: StatsIcon },
+  { label: "Calendar", description: "Plan a look", href: "/calendar", icon: CalendarIcon },
 ];
 
 function getGreeting(date: Date) {
@@ -69,15 +76,6 @@ function getDateLabel(date: Date) {
   const day = Number(value("day"));
 
   return `${value("weekday")}, ${value("month")} ${day}${getOrdinal(day)}, ${value("year")}`;
-}
-
-function SettingsIcon() {
-  return (
-    <svg viewBox="0 0 32 32" aria-hidden="true">
-      <path d="M13.5 4.7h5l.8 3a9.7 9.7 0 0 1 2.2 1.3l3-.8 2.5 4.3-2.2 2.1a9.2 9.2 0 0 1 0 2.8l2.2 2.1-2.5 4.3-3-.8a9.7 9.7 0 0 1-2.2 1.3l-.8 3h-5l-.8-3a9.7 9.7 0 0 1-2.2-1.3l-3 .8L5 19.5l2.2-2.1a9.2 9.2 0 0 1 0-2.8L5 12.5l2.5-4.3 3 .8a9.7 9.7 0 0 1 2.2-1.3l.8-3Z" />
-      <circle cx="16" cy="16" r="3.6" />
-    </svg>
-  );
 }
 
 function HelpIcon() {
@@ -121,9 +119,6 @@ export default function Home() {
       <div className="home-dashboard">
         <nav className="home-dashboard__utilities" aria-label="Utilities">
           <MessagesButton />
-          <Link href="/settings" aria-label="Settings">
-            <SettingsIcon />
-          </Link>
           <Link href="/help" aria-label="Help">
             <HelpIcon />
           </Link>
@@ -167,11 +162,23 @@ export default function Home() {
           </nav>
 
           <nav className="home-dashboard__secondary-nav" aria-label="Quick navigation">
-            {secondaryNavigation.map((item) => (
-              <Link href={item.href} key={item.label}>
-                <span>{item.label}</span>
-              </Link>
-            ))}
+            {secondaryNavigation.map((item) => {
+              const Icon = item.icon;
+
+              return (
+                <Link href={item.href} key={item.label}>
+                  <span className="home-dashboard__secondary-card-copy">
+                    <span>
+                      <strong>{item.label}</strong>
+                      <small>{item.description}</small>
+                    </span>
+                    <span className="home-dashboard__secondary-icon" aria-hidden="true">
+                      <Icon />
+                    </span>
+                  </span>
+                </Link>
+              );
+            })}
           </nav>
         </section>
       </div>

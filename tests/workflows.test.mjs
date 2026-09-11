@@ -69,7 +69,7 @@ test("favorites, saved items, builds, and calendar persist across sessions", asy
   assert.equal(data.items[0].favorite, true); assert.equal(data.items[0].saved, true);
   assert.equal(data.builds[0].name, "Test outfit"); assert.equal(data.plans[0].buildIds[0], buildId);
 });
-test("support inbox, future message privacy, log editing and settings", async () => {
+test("support inbox, future message privacy, item editing and settings", async () => {
   await call("/api/closet", { action: "request", subject: "Test help", body: "Test request", kind: "help" }, viewerCookie);
   await call("/api/closet", { action: "message", id: randomUUID(), title: "Today", body: "Visible", date: "2020-01-01" }, adminCookie);
   await call("/api/closet", { action: "message", id: randomUUID(), title: "Future", body: "Not visible", date: "2099-01-01" }, adminCookie);
@@ -84,7 +84,8 @@ test("support inbox, future message privacy, log editing and settings", async ()
   await call("/api/closet", { action: "resolveRequest", id: admin.requests[0].id, resolved: true }, adminCookie);
 });
 test("all pages respond, legacy routes redirect, logout revokes access", async () => {
-  for (const route of ["/", "/closet", "/build", "/saved", "/calendar", "/favorites", "/recent", "/log", "/deals", "/help", "/settings", "/admin", "/mobile/new-clothes", "/mobile/request", "/mobile/database"]) assert.equal((await fetch(origin + route)).status, 200, route);
+  for (const route of ["/", "/closet", "/build", "/saved", "/calendar", "/favorites", "/recent", "/stats", "/deals", "/help", "/settings", "/admin", "/mobile/new-clothes", "/mobile/request", "/mobile/database"]) assert.equal((await fetch(origin + route)).status, 200, route);
+  assert.equal((await fetch(origin + "/log")).status, 404);
   assert.equal((await fetch(origin + "/hub", { redirect: "manual" })).status, 307);
   await call("/api/session", { action: "logout" }, viewerCookie);
   await call("/api/closet", undefined, viewerCookie, 200);

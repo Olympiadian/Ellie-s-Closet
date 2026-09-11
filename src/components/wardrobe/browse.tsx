@@ -84,7 +84,7 @@ export function ItemDetails({ item, close }: { item: WardrobeItem; close: () => 
     <dl className="closet-item-drawer__details">
       {Object.entries({ Category: [current.category, current.subcategory].filter(Boolean).join(" · "), Tags: current.tags.join(" · "), Color: current.color, Details: [current.details, current.size && "Size " + current.size, current.fit, current.store, current.cost !== null && "$" + current.cost.toFixed(2), current.occasions.join(" · ")].filter(Boolean).join(" · ") }).map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value || "Not added yet"}</dd></div>)}
     </dl>
-    <Link className="wc-text-link" href={"/log?item=" + current.id}>Edit item information</Link>
+    <Link className="wc-text-link" href={"/mobile/database?item=" + current.id}>Edit item information</Link>
   </Drawer>;
 }
 export function ItemGrid({ items, builds = [], choose, selected = [] }: { items: WardrobeItem[]; builds?: SavedBuild[]; choose?: (item: WardrobeItem) => void; selected?: string[] }) {

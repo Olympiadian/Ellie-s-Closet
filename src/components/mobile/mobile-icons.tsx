@@ -56,6 +56,32 @@ export function CalendarIcon({ className }: IconProps) {
   );
 }
 
+export function FavoritesIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 20.2S4.2 15.7 4.2 9.9A4.2 4.2 0 0 1 12 7.7a4.2 4.2 0 0 1 7.8 2.2c0 5.8-7.8 10.3-7.8 10.3Z" />
+    </svg>
+  );
+}
+
+export function RecentIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M12 7.5v5l3.3 2" />
+    </svg>
+  );
+}
+
+export function StatsIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M5 19V9M12 19V5M19 19v-7" />
+      <path d="M3.5 19.5h17" />
+    </svg>
+  );
+}
+
 export function MessagesIcon({ className }: IconProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">

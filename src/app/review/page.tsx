@@ -1,2 +1,2 @@
 import { redirect } from "next/navigation";
-export default function Page() { redirect("/log"); }
+export default function Page() { redirect("/mobile/database"); }
