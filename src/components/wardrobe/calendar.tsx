@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { localDate, type CalendarPlan } from "@/lib/wardrobe";
+import { ItemGrid } from "./browse";
 import { DataGate, useWardrobe } from "./provider";
 import { Drawer, PageShell } from "./ui";
 
@@ -23,8 +24,11 @@ export function CalendarPage() {
   const [month, setMonth] = useState(today.slice(0, 7));
   const [weekStart, setWeekStart] = useState(() => weekStartFor(today));
   const [selected, setSelected] = useState<string | null>(null);
+  const [draftItemIds, setDraftItemIds] = useState<string[]>([]);
+  const [draftNote, setDraftNote] = useState("");
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const first = new Date(`${month}-01T12:00:00`);
   const count = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
   const plan = data?.plans.find((entry) => entry.date === selected);
@@ -35,8 +39,26 @@ export function CalendarPage() {
   });
   const weekLabel = `${weekDays[0].date.toLocaleDateString("en-US", { month: "short", day: "numeric" })} – ${weekDays[6].date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`;
 
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 600px)");
+    const update = () => setIsMobile(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+
+  useEffect(() => {
+    if (!selected || !isMobile) return;
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = overflow; };
+  }, [isMobile, selected]);
+
   function selectDate(date: string) {
+    const existing = data?.plans.find((entry) => entry.date === date);
     setSelected(date);
+    setDraftItemIds(existing?.itemIds ?? []);
+    setDraftNote(existing?.note ?? "");
     setMessage("");
   }
 
@@ -60,18 +82,16 @@ export function CalendarPage() {
       : [];
   }
 
-  async function save(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function savePlan(itemIds: FormDataEntryValue[] | string[], buildIds: FormDataEntryValue[] | string[], note: FormDataEntryValue | string | null) {
     setBusy(true);
     setMessage("");
-    const form = new FormData(event.currentTarget);
     try {
       await mutate({
         action: "plan",
         date: selected,
-        itemIds: form.getAll("itemIds"),
-        buildIds: form.getAll("buildIds"),
-        note: form.get("note"),
+        itemIds,
+        buildIds,
+        note,
       });
       setSelected(null);
     } catch (error) {
@@ -79,6 +99,16 @@ export function CalendarPage() {
     } finally {
       setBusy(false);
     }
+  }
+
+  async function save(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    await savePlan(form.getAll("itemIds"), form.getAll("buildIds"), form.get("note"));
+  }
+
+  function toggleDraftItem(id: string) {
+    setDraftItemIds((current) => current.includes(id) ? current.filter((candidate) => candidate !== id) : [...current, id]);
   }
 
   return (
@@ -158,13 +188,13 @@ export function CalendarPage() {
         </section>
       </DataGate>
 
-      {selected && (
+      {selected && !isMobile && (
         <Drawer
           title={dateFromKey(selected).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
           close={() => { if (!busy) setSelected(null); }}
           small
         >
-          <form className="wc-form" onSubmit={save}>
+          <form className="wc-form wc-calendar-plan-form--desktop" onSubmit={save}>
             <fieldset>
               <legend>Saved outfits &amp; collections</legend>
               {data?.builds.length ? data.builds.map((build) => (
@@ -194,6 +224,45 @@ export function CalendarPage() {
             {message && <p role="alert">{message}</p>}
           </form>
         </Drawer>
+      )}
+
+      {selected && isMobile && (
+        <div
+          className="mobile-calendar-drawer__backdrop"
+          role="presentation"
+          onClick={(event) => {
+            if (event.target === event.currentTarget && !busy) setSelected(null);
+          }}
+        >
+          <section className="mobile-calendar-drawer" role="dialog" aria-modal="true" aria-labelledby="mobile-calendar-drawer-title">
+            <header className="mobile-calendar-drawer__header">
+              <h2 id="mobile-calendar-drawer-title">{dateFromKey(selected).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}</h2>
+              <button type="button" className="wc-icon-button" onClick={() => { if (!busy) setSelected(null); }} aria-label="Close panel">×</button>
+            </header>
+            <section className="mobile-calendar-picker" aria-label="Choose clothes for this day">
+            <p className="mobile-calendar-picker__intro">Choose any pieces you want to wear. Tap an item again to remove it.</p>
+            <ItemGrid
+              items={data?.items ?? []}
+              builds={data?.builds ?? []}
+              choose={(item) => toggleDraftItem(item.id)}
+              selected={draftItemIds}
+            />
+            <label className="mobile-calendar-picker__note">
+              Note
+              <textarea rows={2} maxLength={1000} value={draftNote} onChange={(event) => setDraftNote(event.target.value)} />
+            </label>
+            <button
+              type="button"
+              className="wc-button wc-button--accent mobile-calendar-picker__save"
+              disabled={busy}
+              onClick={() => void savePlan(draftItemIds, plan?.buildIds ?? [], draftNote)}
+            >
+              {busy ? "Saving…" : `Save ${draftItemIds.length ? `${draftItemIds.length} ${draftItemIds.length === 1 ? "item" : "items"}` : "day"}`}
+            </button>
+            {message && <p role="alert">{message}</p>}
+            </section>
+          </section>
+        </div>
       )}
     </PageShell>
   );

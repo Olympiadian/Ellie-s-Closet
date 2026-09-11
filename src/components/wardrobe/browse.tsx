@@ -30,11 +30,23 @@ function MobileClosetSheet({ title, close, children }: { title: string; close: (
   useEffect(() => {
     const overflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    panelRef.current?.focus();
-    return () => { document.body.style.overflow = overflow; };
+    panelRef.current?.focus({ preventScroll: true });
+    return () => {
+      document.body.style.overflow = overflow;
+    };
   }, []);
 
-  return <div className="mobile-closet-sheet__backdrop" role="presentation" onKeyDown={(event) => { if (event.key === "Escape") close(); }} onPointerDown={(event) => { if (event.target === event.currentTarget) close(); }}>
+  return <div
+    className="mobile-closet-sheet__backdrop"
+    role="presentation"
+    onKeyDown={(event) => { if (event.key === "Escape") close(); }}
+    onPointerDown={(event) => { event.stopPropagation(); }}
+    onClick={(event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      if (event.target === event.currentTarget) close();
+    }}
+  >
     <section ref={panelRef} className="mobile-closet-sheet" role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1}>
       <span className="mobile-closet-sheet__handle" aria-hidden="true" />
       <h2 id={titleId}>{title}</h2>
@@ -138,11 +150,12 @@ export function ItemGrid({ items, builds = [], choose, selected = [] }: { items:
       <button type="button" className={sheet === "sort" ? "is-active" : ""} onClick={() => setSheet("sort")}><SortIcon/>Sort</button>
       <button type="button" className={sheet === "saved" || savedView ? "is-active" : ""} onClick={() => setSheet("saved")}><SavedIcon/>Saved</button>
     </div>
+    <p className="mobile-closet-count" aria-live="polite">({visible.length}) {visible.length === 1 ? "item" : "items"}</p>
     <div className="closet-browser__mode" aria-label="Browse by topics or tags">{(["topics", "tags"] as const).map(value => <button type="button" key={value} className={mode === value ? "is-active" : ""} aria-label={`Show ${value}`} aria-pressed={mode === value} onClick={() => { setMode(value); setFilter("All"); }}>{mode === value ? value : ""}</button>)}</div>
     <div className="closet-browser__filters" aria-label="Categories">{(mode === "topics" ? topics : tags).map(value => <button key={value} className={filter === value ? "is-active" : ""} aria-pressed={filter === value} onClick={() => setFilter(value)}>{value}</button>)}</div>
     {favoriteError && <p className="wc-notice" role="alert">{favoriteError}</p>}
     {visible.length ? <div className="closet-browser__grid">{visible.map(current => <article className={"closet-browser__item" + (selected.includes(current.id) ? " wc-selected" : "")} key={current.id}>
-      <button type="button" className="closet-browser__item-open" aria-label={(choose ? "Add " : "Open details for ") + current.name} aria-pressed={choose ? selected.includes(current.id) : undefined} onClick={() => choose ? choose(current) : setItem(current)}>
+      <button type="button" className="closet-browser__item-open" aria-label={(choose ? (selected.includes(current.id) ? "Remove " : "Add ") : "Open details for ") + current.name} aria-pressed={choose ? selected.includes(current.id) : undefined} onClick={() => choose ? choose(current) : setItem(current)}>
         <div className="closet-browser__visual"><ItemPhoto item={current}/></div>
         <span className="closet-browser__item-meta"><small>{itemTopic(current)}</small><strong>{current.name}</strong></span>
       </button>

@@ -10,8 +10,7 @@ export const metadata: Metadata = {
 export default function MobileNewClothesPage() {
   return (
     <MobilePageShell
-      eyebrow="New clothes"
-      title="Add photos"
+      title="Add Clothes"
       description="Add up to ten items. Each slot holds a front and back photo."
     >
       <MobileNewClothes />

@@ -116,7 +116,7 @@ export default function Home() {
 
   return (
     <main className="home-page">
-      <MobileHome />
+      <MobileHome dateLabel={getDateLabel(now)} />
 
       <div className="home-dashboard">
         <nav className="home-dashboard__utilities" aria-label="Utilities">

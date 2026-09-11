@@ -23,7 +23,7 @@ const mobilePrimaryActions = [
   },
 ] as const;
 
-export function MobileHome() {
+export function MobileHome({ dateLabel }: { dateLabel: string }) {
   return (
     <div className="mobile-home">
       <header className="mobile-home__header">
@@ -53,6 +53,21 @@ export function MobileHome() {
           <Link href="/help"><span>Support</span><SupportIcon className="mobile-home__quick-icon" /></Link>
         </div>
       </nav>
+
+      <section
+        className="mobile-home__weather"
+        aria-label="Today is sunny with a high of 108 degrees, a low of 78 degrees, and a UV index of 10 between 11 AM and 1 PM"
+      >
+        <p>{dateLabel}</p>
+        <div>
+          <span>Sunny</span>
+          <i aria-hidden="true" />
+          <span>High 108°</span>
+          <span>Low 78°</span>
+          <i aria-hidden="true" />
+          <span><strong>UV</strong> 10 · 11–1pm</span>
+        </div>
+      </section>
     </div>
   );
 }

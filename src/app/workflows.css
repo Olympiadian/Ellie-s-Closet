@@ -194,6 +194,9 @@
 html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .wc-loading-dots span { animation: none; }
 
 .mobile-closet-toolbar,
+.mobile-closet-count,
+.mobile-calendar-picker,
+.mobile-calendar-drawer__backdrop,
 .closet-index-page__back-icon {
   display: none;
 }
@@ -202,6 +205,7 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
   .mobile-home {
     justify-content: flex-start;
     padding: max(94px, calc(env(safe-area-inset-top) + 72px)) 22px max(54px, env(safe-area-inset-bottom));
+    background: #f9f9f9 url("/images/ellie-closet-mobile-background.webp") center top / cover no-repeat;
   }
 
   .mobile-home__header p {
@@ -272,7 +276,7 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
     position: relative;
     min-height: 100svh;
     padding: max(28px, env(safe-area-inset-top)) 0 max(28px, env(safe-area-inset-bottom));
-    background-attachment: scroll;
+    background: #f9f9f9 url("/images/ellie-closet-mobile-background.webp") center top / cover fixed no-repeat;
     overflow-x: hidden;
   }
 
@@ -296,10 +300,10 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
 
   .closet-index-page__header {
     display: flex;
-    min-height: 68px;
-    align-items: flex-start;
-    margin: 0 10px;
-    padding: 12px 12px 32px 78px;
+    min-height: 44px;
+    align-items: center;
+    margin: 0 10px 32px;
+    padding: 0 12px 31px 78px;
     border-bottom: 1px solid rgba(48,48,48,.16);
     text-align: left;
   }
@@ -336,6 +340,14 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
     background: #c5c5c5;
   }
 
+  .mobile-closet-count {
+    display: block;
+    margin: 12px 12px 0;
+    color: #7d7d7d;
+    font: 400 12px/1.4 var(--font-manrope), Arial, sans-serif;
+    letter-spacing: -.02em;
+  }
+
   .mobile-closet-toolbar svg {
     width: 17px;
     fill: none;
@@ -354,7 +366,7 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
     width: calc(100% - 12px);
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px 9px;
-    margin-top: 41px;
+    margin-top: 18px;
   }
 
   .closet-browser__item {
@@ -399,6 +411,7 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
     align-items: flex-end;
     justify-content: center;
     background: rgba(48,48,48,.22);
+    touch-action: none;
     animation: ec-backdrop-in 220ms ease-out both;
   }
 
@@ -412,6 +425,7 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
     border-radius: 22px 22px 0 0;
     background: #fff;
     box-shadow: 0 -18px 48px rgba(48,48,48,.14);
+    touch-action: auto;
     animation: ec-sheet-in 340ms cubic-bezier(.22,1,.36,1) both;
   }
 
@@ -576,30 +590,61 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
     width: min(calc(100% - 28px), 520px);
   }
 
+  .mobile-tool-page__background {
+    background: #f9f9f9 url("/images/ellie-closet-mobile-background.webp") center top / cover fixed no-repeat;
+  }
+
   .mobile-tool-page__header {
     grid-template-columns: 44px minmax(0, 1fr);
-    gap: 12px;
-    margin-bottom: 24px;
+    grid-template-rows: 44px auto auto;
+    align-items: center;
+    gap: 0 16px;
+    margin: 10px 0 34px;
+  }
+
+  .mobile-tool-page__header::after {
+    content: "";
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 100%;
+    height: 1px;
+    margin-top: 28px;
+    background: rgba(48,48,48,.16);
   }
 
   .mobile-tool-page__back {
+    grid-column: 1;
+    grid-row: 1;
     width: 44px;
     height: 44px;
   }
 
   .mobile-tool-page__header h1 {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: center;
     font-size: 32px;
     line-height: 1.02;
   }
 
+  .mobile-tool-page__intro {
+    grid-column: 2;
+    grid-row: 3;
+    margin-top: 19px;
+  }
+
+  .mobile-tool-page__intro p {
+    margin: 0 0 5px;
+  }
+
   .mobile-tool-page__header span {
+    margin-top: 0;
     font-size: 13px;
     line-height: 1.45;
   }
 
   .mobile-upload-summary {
-    padding: 15px 16px;
-    border-radius: 14px;
+    display: none;
   }
 
   .mobile-upload-summary p {
@@ -609,7 +654,7 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
 
   .mobile-slot-grid {
     gap: 10px;
-    margin-block: 16px;
+    margin: 70px 0 16px;
   }
 
   .mobile-slot-grid > button {
@@ -655,6 +700,100 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
 
   .wc-calendar__desktop {
     display: none;
+  }
+
+  .wc-calendar-plan-form--desktop {
+    display: none;
+  }
+
+  .mobile-calendar-drawer__backdrop {
+    position: fixed;
+    z-index: 80;
+    inset: 0;
+    display: flex;
+    justify-content: flex-end;
+    padding: 12px;
+    background: rgba(48,48,48,.14);
+    animation: ec-backdrop-in 220ms ease-out both;
+  }
+
+  .mobile-calendar-drawer {
+    width: min(460px, 100%);
+    height: 100%;
+    overflow-y: auto;
+    padding: 24px;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 8px 24px rgba(0,0,0,.12);
+  }
+
+  .mobile-calendar-drawer__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 38px;
+  }
+
+  .mobile-calendar-drawer__header h2 {
+    margin: 0;
+    font: 500 30px/1.18 var(--font-inclusive-sans), Arial, sans-serif;
+    letter-spacing: -.03em;
+  }
+
+  .mobile-calendar-drawer__header button {
+    flex: 0 0 auto;
+  }
+
+  .mobile-calendar-picker {
+    display: block;
+  }
+
+  .mobile-calendar-picker__intro {
+    margin: -8px 0 18px;
+    color: #767676;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .mobile-calendar-picker .mobile-closet-toolbar {
+    margin-inline: 0;
+  }
+
+  .mobile-calendar-picker .mobile-closet-count {
+    margin-inline: 3px;
+  }
+
+  .mobile-calendar-picker .closet-browser__grid {
+    width: 100%;
+  }
+
+  .mobile-calendar-picker__note {
+    display: grid;
+    gap: 8px;
+    margin-top: 22px;
+    color: #606060;
+    font-size: 13px;
+  }
+
+  .mobile-calendar-picker__note textarea {
+    width: 100%;
+    min-height: 70px;
+    resize: vertical;
+    padding: 12px 14px;
+    border: 0;
+    border-radius: 12px;
+    background: #f5f5f5;
+    color: #303030;
+    font: 400 16px var(--font-manrope), Arial, sans-serif;
+  }
+
+  .mobile-calendar-picker__save {
+    position: sticky;
+    z-index: 4;
+    bottom: max(0px, env(safe-area-inset-bottom));
+    width: 100%;
+    margin-top: 16px;
   }
 
   .mobile-week-calendar {
@@ -710,6 +849,41 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
     background: #d2e1f6;
     font: 500 13px var(--font-inclusive-sans), Arial, sans-serif;
     letter-spacing: -.03em;
+  }
+
+  .mobile-home__weather {
+    width: calc(100vw - 44px);
+    max-width: 346px;
+    margin-top: 34px;
+    color: #666;
+    text-align: center;
+  }
+
+  .mobile-home__weather p {
+    margin: 0 0 10px;
+    font: 400 12px/1.4 var(--font-manrope), Arial, sans-serif;
+    letter-spacing: -.02em;
+  }
+
+  .mobile-home__weather div {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 7px 10px;
+    font: 400 11px/1.35 var(--font-manrope), Arial, sans-serif;
+    letter-spacing: -.02em;
+  }
+
+  .mobile-home__weather i {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .mobile-home__weather strong {
+    font-weight: 600;
   }
 
   .mobile-home__quick-icon {
