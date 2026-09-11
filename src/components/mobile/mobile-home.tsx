@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { MessagesButton } from "@/components/wardrobe/messages";
 import {
@@ -28,7 +29,10 @@ export function MobileHome({ dateLabel }: { dateLabel: string }) {
     <div className="mobile-home">
       <header className="mobile-home__header">
         <p className="mobile-home__eyebrow">Mobile</p>
-        <h1>Ellie&apos;s Closet</h1>
+        <h1 className="mobile-home__brand">
+          <Image src="/images/ellie-closet-logo.png" alt="" width={400} height={400} priority />
+          <span className="sr-only">Ellie&apos;s Closet</span>
+        </h1>
         <p className="mobile-home__date">{dateLabel}</p>
       </header>
 

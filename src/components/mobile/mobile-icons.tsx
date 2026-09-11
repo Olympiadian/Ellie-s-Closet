@@ -75,8 +75,8 @@ export function SupportIcon({ className }: IconProps) {
 
 export function BackIcon({ className }: IconProps) {
   return (
-    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
-      <path d="m14.5 5-7 7 7 7" />
+    <svg className={className} viewBox="0 0 32 32" aria-hidden="true">
+      <path d="m19 8-8 8 8 8" />
     </svg>
   );
 }

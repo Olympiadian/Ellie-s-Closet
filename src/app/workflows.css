@@ -216,21 +216,28 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
     letter-spacing: .02em;
   }
 
-  .mobile-home__header h1 {
-    display: inline-block;
-    max-width: 100%;
-    padding: 0 .16em .08em;
-    color: #414141;
-    font-size: clamp(45px, 14vw, 56px);
-    line-height: 1;
-    white-space: nowrap;
+  .mobile-home__header .mobile-home__brand {
+    display: block;
+    width: clamp(104px, 31vw, 124px);
+    height: clamp(104px, 31vw, 124px);
+    margin: 0 auto;
+    padding: 0;
+    line-height: 0;
   }
 
-  .mobile-home__date {
+  .mobile-home__brand img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .mobile-home__header .mobile-home__date {
     margin: 7px 0 0;
     color: #777;
-    font: 400 12px/1.4 var(--font-manrope), Arial, sans-serif;
-    letter-spacing: -.02em;
+    font: 500 15px/1.35 var(--font-inclusive-sans), Arial, sans-serif;
+    letter-spacing: -.03em;
+    text-transform: none;
   }
 
   .mobile-home__actions {
@@ -509,6 +516,7 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
   }
 
   .mobile-radio-list input {
+    -webkit-appearance: none;
     appearance: none;
     width: 22px;
     height: 22px;
@@ -518,6 +526,7 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
     border-radius: 50%;
     background: #fff;
     transition: border-width 120ms ease, border-color 120ms ease;
+    cursor: pointer;
   }
 
   .mobile-radio-list input:checked {
@@ -647,16 +656,31 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
     grid-row: 1;
     width: 44px;
     height: 44px;
+    border: 0;
+    border-radius: 6px;
+    color: rgba(48,48,48,.73);
+    background: #fff;
+    box-shadow: 2px 4px 12px rgba(0,0,0,.1);
+    backdrop-filter: none;
   }
 
-  .mobile-tool-page__header h1 {
+  .mobile-tool-page__back svg {
+    width: 42%;
+    height: 42%;
+    stroke-width: 2.2;
+  }
+
+  .mobile-tool-page .mobile-tool-page__header h1 {
     grid-column: 2;
     grid-row: 1;
     align-self: center;
     display: flex;
     min-height: 44px;
     align-items: center;
+    font-family: var(--font-inclusive-sans), "Helvetica Neue", Arial, sans-serif;
     font-size: 30px;
+    font-weight: 500;
+    letter-spacing: -.03em;
     line-height: 1.05;
   }
 
@@ -791,6 +815,10 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
 
   .mobile-calendar-picker .mobile-closet-toolbar {
     margin-inline: 0;
+  }
+
+  .mobile-calendar-picker .mobile-closet-toolbar button {
+    border: 1px solid #dedede;
   }
 
   .mobile-calendar-picker .mobile-closet-count {

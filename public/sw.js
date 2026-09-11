@@ -1,4 +1,4 @@
-const CACHE_NAME = "ellie-shell-v4";
+const CACHE_NAME = "ellie-shell-v5";
 const STATIC_ASSETS = ["/images/home-iridescent-background.webp", "/icons/ellie-closet-192.png", "/offline.html"];
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(STATIC_ASSETS)));

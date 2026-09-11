@@ -42,9 +42,10 @@ function MobileClosetSheet({ title, close, children }: { title: string; close: (
     onKeyDown={(event) => { if (event.key === "Escape") close(); }}
     onPointerDown={(event) => { event.stopPropagation(); }}
     onClick={(event) => {
+      if (event.target !== event.currentTarget) return;
       event.preventDefault();
       event.stopPropagation();
-      if (event.target === event.currentTarget) close();
+      close();
     }}
   >
     <section ref={panelRef} className="mobile-closet-sheet" role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1}>

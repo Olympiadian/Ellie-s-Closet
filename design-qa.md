@@ -1,37 +1,51 @@
-# Design QA — Mobile Alignment and Selection Pass
+# Design QA — Brand and Mobile Controls Pass
 
-## Reference
+## Evidence
 
-- Home source: `C:/Users/elico/AppData/Local/Temp/codex-clipboard-c2caf00b-1d74-4fbb-9bec-50d15f106862.png`
-- Closet source: `C:/Users/elico/AppData/Local/Temp/codex-clipboard-d93e0550-ed2a-4385-ac60-30ff14941d18.png`
-- Sort source: `C:/Users/elico/AppData/Local/Temp/codex-clipboard-ac540ac4-c94f-4076-b202-dd42358237c5.png`
-- Saved source: `C:/Users/elico/AppData/Local/Temp/codex-clipboard-aa0d2f56-2f94-4cc4-bcbc-df0d8e7358d1.png`
-- Implementation routes: `http://127.0.0.1:4318/`, `http://127.0.0.1:4318/closet`, and `http://127.0.0.1:4318/mobile/new-clothes`
+- Source visual truth: `C:/Users/elico/Downloads/Frame dsadsadsa51.png`
+- Source pixels: 400 × 400 PNG at 1× density.
+- Rendered implementation: `http://127.0.0.1:4318/` with inline Codex in-app browser captures of Home, Add Clothes, Closet Sort, Closet Saved, and the mobile Calendar picker.
+- Implementation screenshot path: in-app browser capture attached to this task; the browser surface does not expose a local screenshot filepath.
+- Viewport: 380 × 820 CSS pixels at 1× browser density.
+- State: mobile home; Add Clothes header; Sort with Oldest selected; Saved with Saved Outfits selected; Calendar day picker open.
 
-## Viewport and density
+## Full-view comparison evidence
 
-- Source screenshots range from 670–758 px wide and 1457–1536 px tall.
-- Interactive verification used a 380 × 820 CSS-pixel mobile viewport in the Codex in-app browser.
-- Layout was compared proportionally because the supplied screenshots are approximately double-density exports.
+- The supplied 400 × 400 artwork is used unchanged as the visible home logo. Its crop, square aspect ratio, color, softness, and white mark match the source.
+- The same source artwork was rendered into the 16/32/48 px favicon bundle, 180 px Apple icon, 192 px PWA icon, and 512 px standard and maskable icons. Focused inspection of the 180 px, 400 px, and 512 px outputs confirmed the same crop and palette without stretching or transparency artifacts.
+- Add Clothes and Closet headers use the same 30 px Inclusive Sans, weight 500, -0.9 px tracking, and 31.5 px line height. Their back buttons now share the same 44 px square, 6 px radius, shadow, icon geometry, and stroke weight.
+- The Calendar picker toolbar shows a light-gray outline around Filters, Sort, and Saved, preserving their white fill against the white drawer.
+- The home date uses Inclusive Sans at 15 px, exactly one pixel smaller than the 16 px primary home-button title.
 
-## Visual comparison
+## Focused region comparison evidence
 
-- Page headings are vertically centered with their 44 px back buttons and use the requested slightly smaller 30 px mobile size.
-- The closet back button and content/cards share a uniform 14 px side gutter. An initial specificity conflict left the back button at 24 px; the post-fix capture confirmed it at 14 px.
-- The closet grid retains the reference's two-column card layout while gaining eight additional pixels of outer side padding.
-- The home wordmark fits fully at 380 px without clipping the final `t`.
-- The date appears directly beneath the wordmark; weather, temperature, and UV remain beneath the action cards.
-- Sort and Saved sheets retain the reference's dimmed backdrop, white bottom sheet, rounded top corners, and dark selected radio treatment.
+- Brand mark: source and rendered logo retain the same centered white symbol and iridescent field.
+- Radio controls: selecting Oldest moved both the visible dark ring and accessibility checked state from Newest to Oldest before confirmation. Selecting Saved Outfits did the same from Favorites to Saved Outfits.
+- Header controls: focused captures show Add Clothes and Closet using matching title metrics and matching back-button treatment.
+- Calendar controls: the open day-picker capture clearly shows the new light-gray toolbar borders.
 
-## Interaction and implementation evidence
+## Findings
 
-- Selecting `Oldest` immediately moved the visible selected radio from `Newest` to `Oldest`; accessibility state also changed to `Oldest = selected` before confirmation.
-- Selecting `Saved Outfits` immediately moved the visible selected radio from `Favorites` to `Saved Outfits`; accessibility state also changed before confirmation.
-- Production build passed with Next.js 16.3.2 using the default Turbopack builder.
-- TypeScript passed (`tsc --noEmit`).
-- ESLint passed with zero errors; two pre-existing navigation warnings remain in `src/components/wardrobe/admin.tsx`.
-- Workflow suite passed: 6/6 tests.
+- No remaining P0, P1, or P2 fidelity issues.
+- P3: favicon detail naturally becomes softer at 16 px because the supplied mark contains a blurred photographic background; this is an acceptable consequence of preserving the exact artwork.
 
-## Result
+## Comparison history
+
+- Initial P2: the home date inherited uppercase monospace styling from a more-specific legacy header selector.
+- Fix: increased the date rule specificity and explicitly applied 15 px Inclusive Sans with normal casing.
+- Post-fix evidence: the final 380 × 820 home capture shows `Thursday, September 10th, 2026` in mixed-case Inclusive Sans directly below the logo.
+- Initial P1: sheet backdrop click cancellation could prevent a tapped native radio from committing its visual checked state on touch browsers.
+- Fix: backdrop cancellation now runs only for direct backdrop clicks; child radio clicks are no longer prevented. Added the WebKit appearance reset for consistent iOS rendering.
+- Post-fix evidence: Sort and Saved captures show immediate visual and accessibility-state movement before the confirmation button is pressed.
+
+## Verification
+
+- Production Next.js build: passed.
+- TypeScript: passed.
+- Workflow suite: 6/6 passed.
+- ESLint: zero errors; two pre-existing warnings remain in `src/components/wardrobe/admin.tsx`.
+- Browser console: zero warnings or errors during final mobile verification.
+
+## Final result
 
 passed
