@@ -135,7 +135,6 @@ function StatsContents() {
       <div className="stats-dashboard wc-content">
         <header className="stats-dashboard__intro">
           <div>
-            <p className="stats-dashboard__eyebrow">Your closet, at a glance</p>
             <h2>A clearer look at what you own.</h2>
             <p>See where your closet is strongest, what it’s worth, and where your pieces came from.</p>
           </div>
@@ -164,7 +163,6 @@ function StatsContents() {
           <article className="stats-panel stats-panel--wide">
             <header>
               <div>
-                <span className="stats-panel__kicker">Category mix</span>
                 <h3>What’s in your closet</h3>
               </div>
               <span className="stats-panel__total">{stats.items.length} total</span>
@@ -175,7 +173,6 @@ function StatsContents() {
           <article className="stats-panel">
             <header>
               <div>
-                <span className="stats-panel__kicker">Stores</span>
                 <h3>Where it came from</h3>
               </div>
             </header>
@@ -185,7 +182,6 @@ function StatsContents() {
           <article className="stats-panel stats-snapshot">
             <header>
               <div>
-                <span className="stats-panel__kicker">Collection notes</span>
                 <h3>The quick read</h3>
               </div>
             </header>

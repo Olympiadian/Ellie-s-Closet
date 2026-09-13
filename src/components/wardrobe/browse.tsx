@@ -87,7 +87,7 @@ export function ItemDetails({ item, close }: { item: WardrobeItem; close: () => 
     <Link className="wc-text-link" href={"/mobile/database?item=" + current.id}>Edit item information</Link>
   </Drawer>;
 }
-export function ItemGrid({ items, builds = [], choose, selected = [] }: { items: WardrobeItem[]; builds?: SavedBuild[]; choose?: (item: WardrobeItem) => void; selected?: string[] }) {
+export function ItemGrid({ items, builds = [], choose, selected = [], compact = false }: { items: WardrobeItem[]; builds?: SavedBuild[]; choose?: (item: WardrobeItem) => void; selected?: string[]; compact?: boolean }) {
   const { mutate } = useWardrobe();
   const [mode, setMode] = useState<"topics" | "tags">("topics");
   const [filter, setFilter] = useState("All");
@@ -145,7 +145,7 @@ export function ItemGrid({ items, builds = [], choose, selected = [] }: { items:
       setFavoriteBusy(null);
     }
   }
-  return <section className="closet-browser">
+  return <section className={`closet-browser${compact ? " closet-browser--compact" : ""}`}>
     <div className="mobile-closet-toolbar" aria-label="Closet controls">
       <button type="button" className={sheet === "filters" || appliedTopic !== "All" || appliedTag !== "All" ? "is-active" : ""} onClick={() => setSheet("filters")}><FilterIcon/>Filters</button>
       <button type="button" className={sheet === "sort" ? "is-active" : ""} onClick={() => setSheet("sort")}><SortIcon/>Sort</button>

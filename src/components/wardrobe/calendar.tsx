@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState } from "react";
 import { localDate, type CalendarPlan } from "@/lib/wardrobe";
 import { ItemGrid } from "./browse";
 import { DataGate, useWardrobe } from "./provider";
 import { Drawer, PageShell } from "./ui";
 
 const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+type DesktopCalendarView = "month" | "week";
 
 function dateFromKey(value: string) {
   return new Date(`${value}T12:00:00`);
@@ -23,6 +24,7 @@ export function CalendarPage() {
   const today = localDate();
   const [month, setMonth] = useState(today.slice(0, 7));
   const [weekStart, setWeekStart] = useState(() => weekStartFor(today));
+  const [desktopView, setDesktopView] = useState<DesktopCalendarView>("month");
   const [selected, setSelected] = useState<string | null>(null);
   const [draftItemIds, setDraftItemIds] = useState<string[]>([]);
   const [draftNote, setDraftNote] = useState("");
@@ -38,6 +40,9 @@ export function CalendarPage() {
     return { date, key: localDate(date) };
   });
   const weekLabel = `${weekDays[0].date.toLocaleDateString("en-US", { month: "short", day: "numeric" })} – ${weekDays[6].date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`;
+  const calendarLabel = desktopView === "month"
+    ? first.toLocaleDateString("en-US", { month: "long", year: "numeric" })
+    : weekLabel;
 
   useEffect(() => {
     const media = window.matchMedia("(max-width: 600px)");
@@ -73,6 +78,18 @@ export function CalendarPage() {
     setWeekStart(localDate(date));
   }
 
+  function showToday() {
+    setMonth(today.slice(0, 7));
+    setWeekStart(weekStartFor(today));
+  }
+
+  function changeDesktopView(nextView: DesktopCalendarView) {
+    if (nextView === "week" && !weekDays.some((day) => day.key.startsWith(month))) {
+      setWeekStart(weekStartFor(`${month}-01`));
+    }
+    setDesktopView(nextView);
+  }
+
   function planLabels(entry?: CalendarPlan) {
     return entry
       ? [
@@ -101,12 +118,6 @@ export function CalendarPage() {
     }
   }
 
-  async function save(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const form = new FormData(event.currentTarget);
-    await savePlan(form.getAll("itemIds"), form.getAll("buildIds"), form.get("note"));
-  }
-
   function toggleDraftItem(id: string) {
     setDraftItemIds((current) => current.includes(id) ? current.filter((candidate) => candidate !== id) : [...current, id]);
   }
@@ -116,17 +127,33 @@ export function CalendarPage() {
       <DataGate>
         <section className="wc-content wc-calendar">
           <div className="wc-calendar__desktop">
+            <div className="wc-calendar__view-row">
+              <div className="stats-period calendar-view-toggle" role="group" aria-label="Calendar view">
+                {(["month", "week"] as DesktopCalendarView[]).map((view) => (
+                  <button
+                    type="button"
+                    key={view}
+                    aria-pressed={desktopView === view}
+                    onClick={() => changeDesktopView(view)}
+                  >
+                    {view === "month" ? "Month" : "Week"}
+                  </button>
+                ))}
+              </div>
+              <button className="wc-text-link wc-calendar__today" onClick={showToday}>Today</button>
+            </div>
             <header className="wc-calendar__header">
-              <button className="wc-icon-button" aria-label="Previous month" onClick={() => moveMonth(-1)}>‹</button>
-              <h2>{first.toLocaleDateString("en-US", { month: "long", year: "numeric" })}</h2>
-              <button className="wc-icon-button" aria-label="Next month" onClick={() => moveMonth(1)}>›</button>
+              <button className="wc-icon-button" aria-label={`Previous ${desktopView}`} onClick={() => desktopView === "month" ? moveMonth(-1) : moveWeek(-1)}>‹</button>
+              <h2>{calendarLabel}</h2>
+              <button className="wc-icon-button" aria-label={`Next ${desktopView}`} onClick={() => desktopView === "month" ? moveMonth(1) : moveWeek(1)}>›</button>
             </header>
-            <button className="wc-text-link" onClick={() => setMonth(today.slice(0, 7))}>Today</button>
-            <div className="wc-calendar__grid">
+            <div className={`wc-calendar__grid${desktopView === "week" ? " wc-calendar__grid--week" : ""}`}>
               {weekdays.map((day) => <span className="wc-calendar__weekday" key={day}>{day}</span>)}
-              {Array.from({ length: first.getDay() }, (_, index) => <span key={`blank-${index}`} />)}
-              {Array.from({ length: count }, (_, index) => {
-                const date = `${month}-${String(index + 1).padStart(2, "0")}`;
+              {desktopView === "month" && Array.from({ length: first.getDay() }, (_, index) => <span key={`blank-${index}`} />)}
+              {(desktopView === "month" ? Array.from({ length: count }, (_, index) => ({
+                date: `${month}-${String(index + 1).padStart(2, "0")}`,
+                day: index + 1,
+              })) : weekDays.map(({ key, date }) => ({ date: key, day: date.getDate() }))).map(({ date, day }) => {
                 const entry = data?.plans.find((candidate) => candidate.date === date);
                 const labels = planLabels(entry);
                 return (
@@ -136,7 +163,7 @@ export function CalendarPage() {
                     aria-label={`Plan outfit for ${date}`}
                     onClick={() => selectDate(date)}
                   >
-                    <b>{index + 1}</b>
+                    <b>{day}</b>
                     {labels.slice(0, 2).map((name) => <span key={name}>{name}</span>)}
                     {labels.length > 2 && <small>+{labels.length - 2} more</small>}
                     {entry?.note && <small>Note added</small>}
@@ -192,37 +219,30 @@ export function CalendarPage() {
         <Drawer
           title={dateFromKey(selected).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
           close={() => { if (!busy) setSelected(null); }}
-          small
         >
-          <form className="wc-form wc-calendar-plan-form--desktop" onSubmit={save}>
-            <fieldset>
-              <legend>Saved outfits &amp; collections</legend>
-              {data?.builds.length ? data.builds.map((build) => (
-                <label className="wc-check" key={build.id}>
-                  <input type="checkbox" name="buildIds" value={build.id} defaultChecked={plan?.buildIds.includes(build.id)} />
-                  {build.name}
-                </label>
-              )) : <p className="wc-muted">Save a build to plan it here.</p>}
-            </fieldset>
-            <fieldset>
-              <legend>Individual items</legend>
-              <div className="wc-checkbox-list">
-                {data?.items.map((item) => (
-                  <label className="wc-check" key={item.id}>
-                    <input type="checkbox" name="itemIds" value={item.id} defaultChecked={plan?.itemIds.includes(item.id)} />
-                    {item.name}
-                  </label>
-                ))}
-              </div>
-            </fieldset>
-            <label>
+          <section className="calendar-closet-picker" aria-label="Choose clothes for this day">
+            <p className="calendar-closet-picker__intro">Choose pieces from the closet. Use the filters, sort, or saved views to narrow things down.</p>
+            <ItemGrid
+              items={data?.items ?? []}
+              builds={data?.builds ?? []}
+              choose={(item) => toggleDraftItem(item.id)}
+              selected={draftItemIds}
+              compact
+            />
+            <label className="calendar-closet-picker__note">
               Note
-              <textarea name="note" rows={3} maxLength={1000} defaultValue={plan?.note} />
+              <textarea rows={2} maxLength={1000} value={draftNote} onChange={(event) => setDraftNote(event.target.value)} />
             </label>
-            <p className="wc-muted">Uncheck everything and clear the note to leave this day empty.</p>
-            <button className="wc-button wc-button--accent" disabled={busy}>{busy ? "Saving…" : "Save plan"}</button>
+            <button
+              type="button"
+              className="wc-button wc-button--accent calendar-closet-picker__save"
+              disabled={busy}
+              onClick={() => void savePlan(draftItemIds, plan?.buildIds ?? [], draftNote)}
+            >
+              {busy ? "Saving…" : `Save ${draftItemIds.length ? `${draftItemIds.length} ${draftItemIds.length === 1 ? "item" : "items"}` : "day"}`}
+            </button>
             {message && <p role="alert">{message}</p>}
-          </form>
+          </section>
         </Drawer>
       )}
 
