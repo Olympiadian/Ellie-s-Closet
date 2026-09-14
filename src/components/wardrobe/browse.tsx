@@ -154,8 +154,10 @@ export function ItemGrid({ items, builds = [], choose, selected = [], compact = 
     </article>)}</div> : <Empty>{items.length ? "No items in this category yet." : "Your clothes will appear here once they have been reviewed and published."}</Empty>}
     {item && <ItemDetails item={item} close={() => setItem(null)}/>}
     {sheet === "filters" && <MobileClosetSheet title="Filters" close={() => setSheet(null)}>
-      <div className="mobile-filter-group"><h3>Topics</h3><div>{topics.map(value => <button type="button" key={value} className={draftTopic === value ? "is-selected" : ""} aria-pressed={draftTopic === value} onClick={() => setDraftTopic(value)}>{value}</button>)}</div></div>
-      <div className="mobile-filter-group"><h3>Tags</h3><div>{tags.map(value => <button type="button" key={value} className={draftTag === value ? "is-selected" : ""} aria-pressed={draftTag === value} onClick={() => setDraftTag(value)}>{value}</button>)}</div></div>
+      <div className="closet-sheet-tabs" aria-label="Filter type">
+        {(["topics", "tags"] as const).map(value => <button type="button" key={value} className={mode === value ? "is-selected" : ""} aria-pressed={mode === value} onClick={() => { setMode(value); setFilter("All"); }}>{value}</button>)}
+      </div>
+      {mode === "topics" ? <div className="mobile-filter-group"><h3>Topics</h3><div>{topics.map(value => <button type="button" key={value} className={draftTopic === value ? "is-selected" : ""} aria-pressed={draftTopic === value} onClick={() => setDraftTopic(value)}>{value}</button>)}</div></div> : <div className="mobile-filter-group"><h3>Tags</h3><div>{tags.map(value => <button type="button" key={value} className={draftTag === value ? "is-selected" : ""} aria-pressed={draftTag === value} onClick={() => setDraftTag(value)}>{value}</button>)}</div></div>}
       <button type="button" className="mobile-closet-sheet__confirm" onClick={() => { setAppliedTopic(draftTopic); setAppliedTag(draftTag); setMode(draftTag !== "All" ? "tags" : "topics"); setFilter(draftTag !== "All" ? draftTag : draftTopic); setSavedView(null); setSheet(null); }}>Show {filterPreviewCount} {filterPreviewCount === 1 ? "piece" : "pieces"}</button>
     </MobileClosetSheet>}
     {sheet === "sort" && <MobileClosetSheet title="Sort" close={() => setSheet(null)}>
