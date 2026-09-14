@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { flushSync } from "react-dom";
 import { usePathname } from "next/navigation";
 
 const loadingMessages = [
@@ -39,13 +40,33 @@ function chooseMessage(lastMessage: string | null) {
 export function RouteLoadingScreen() {
   const pathname = usePathname();
   const isLoadingPath = loadingPaths.has(pathname);
+  const [isVisible, setIsVisible] = useState(isLoadingPath);
 
-  if (!isLoadingPath) return null;
+  useEffect(() => {
+    const showBeforeNavigation = (event: MouseEvent) => {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      if (!(event.target instanceof Element)) return;
+      const anchor = event.target.closest<HTMLAnchorElement>("a[href]");
+      if (!anchor || anchor.target || anchor.hasAttribute("download")) return;
+      const destination = new URL(anchor.href, window.location.href);
+      if (destination.origin !== window.location.origin || !loadingPaths.has(destination.pathname)) return;
+      flushSync(() => setIsVisible(true));
+    };
 
-  return <LoadingScreen key={pathname} />;
+    document.addEventListener("click", showBeforeNavigation, true);
+    return () => document.removeEventListener("click", showBeforeNavigation, true);
+  }, []);
+
+  useEffect(() => {
+    if (isLoadingPath) setIsVisible(true);
+  }, [isLoadingPath]);
+
+  if (!isVisible) return null;
+
+  return <LoadingScreen key={pathname} finish={() => setIsVisible(false)} />;
 }
 
-function LoadingScreen() {
+function LoadingScreen({ finish }: { finish: () => void }) {
   const [message, setMessage] = useState("");
   const [isFinished, setIsFinished] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
@@ -83,6 +104,10 @@ function LoadingScreen() {
       window.clearTimeout(exitTimer);
     };
   }, []);
+
+  useEffect(() => {
+    if (isFinished) finish();
+  }, [finish, isFinished]);
 
   if (isFinished) return null;
 

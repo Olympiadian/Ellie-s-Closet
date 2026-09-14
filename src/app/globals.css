@@ -2719,7 +2719,7 @@ button,
 .route-loading-screen__content p {
   min-height: 26px;
   margin: 0;
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-hurricane), cursive;
   font-size: clamp(14px, 1.2vw, 18px);
   font-weight: 400;
   letter-spacing: -0.025em;
