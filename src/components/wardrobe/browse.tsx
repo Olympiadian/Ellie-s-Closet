@@ -144,6 +144,7 @@ export function ItemGrid({ items, builds = [], choose, selected = [], compact = 
       <div className="closet-browser__filters" aria-label={mode === "topics" ? "Categories" : "Tags"}>{(mode === "topics" ? topics : tags).map(value => <button key={value} className={filter === value ? "is-active" : ""} aria-pressed={filter === value} onClick={() => setFilter(value)}>{value}</button>)}</div>
     </div>
     <p className="mobile-closet-count" aria-live="polite">({visible.length}) {visible.length === 1 ? "item" : "items"}</p>
+    <p className="closet-browser__display-count" aria-live="polite">Displaying {visible.length} {visible.length === 1 ? "item" : "items"}</p>
     {favoriteError && <p className="wc-notice" role="alert">{favoriteError}</p>}
     {visible.length ? <div className="closet-browser__grid">{visible.map(current => <article className={"closet-browser__item" + (selected.includes(current.id) ? " wc-selected" : "")} key={current.id}>
       <button type="button" className="closet-browser__item-open" aria-label={(choose ? (selected.includes(current.id) ? "Remove " : "Add ") : "Open details for ") + current.name} aria-pressed={choose ? selected.includes(current.id) : undefined} onClick={() => choose ? choose(current) : setItem(current)}>

@@ -469,12 +469,12 @@ a {
 
   .mobile-closet-toolbar button {
     display: grid;
-    width: 46px;
-    height: 46px;
+    width: clamp(58px, 5.6vw, 86px);
+    height: clamp(58px, 5.6vw, 86px);
     place-items: center;
     padding: 0;
     border: 0;
-    border-radius: 5px;
+    border-radius: 8px;
     color: #303030;
     background: #fff;
     box-shadow: 2px 4px 12px rgba(0,0,0,.08);
@@ -483,7 +483,7 @@ a {
   }
 
   .mobile-closet-toolbar button.is-active { color: #303030; background: #c5c5c5; }
-  .mobile-closet-toolbar svg { width: 21px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+  .mobile-closet-toolbar svg { width: 42%; height: 42%; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
   .closet-browser__mode { display: none; }
   .closet-browser__controls {
@@ -513,7 +513,14 @@ a {
     text-transform: none;
   }
   .closet-browser__filters button.is-active { background: #aaa; box-shadow: none; }
-  .closet-browser__grid { margin-top: 49px; }
+  .closet-browser__display-count {
+    width: min(76.8vw, 1520px);
+    margin: 17px auto 0;
+    color: rgba(48,48,48,.6);
+    font-size: 13px;
+    letter-spacing: .01em;
+  }
+  .closet-browser__grid { margin-top: 25px; }
 
   .mobile-closet-sheet__backdrop {
     position: fixed;
@@ -547,6 +554,10 @@ a {
 
 .closet-browser {
   width: 100%;
+}
+
+.closet-browser__display-count {
+  display: none;
 }
 
 .closet-browser__mode {
