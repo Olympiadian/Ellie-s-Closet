@@ -137,9 +137,9 @@ export function ItemGrid({ items, builds = [], choose, selected = [], compact = 
   return <section className={`closet-browser${compact ? " closet-browser--compact" : ""}`}>
     <div className="closet-browser__controls">
       <div className="mobile-closet-toolbar" aria-label="Closet controls">
-        <button type="button" aria-label="Filters" title="Filters" className={sheet === "filters" || appliedTopic !== "All" || appliedTag !== "All" ? "is-active" : ""} onClick={() => setSheet("filters")}><SlidersHorizontal aria-hidden="true"/><span>Filters</span></button>
-        <button type="button" aria-label="Sort" title="Sort" className={sheet === "sort" ? "is-active" : ""} onClick={() => setSheet("sort")}><SortDescending aria-hidden="true"/><span>Sort</span></button>
-        <button type="button" aria-label="Saved" title="Saved" className={sheet === "saved" || savedView ? "is-active" : ""} onClick={() => setSheet("saved")}><FloppyDisk aria-hidden="true"/><span>Saved</span></button>
+        <button type="button" aria-label="Filters" title="Filters" className={sheet === "filters" || appliedTopic !== "All" || appliedTag !== "All" ? "is-active" : ""} onClick={() => setSheet("filters")}><SlidersHorizontal weight="regular" aria-hidden="true"/><span>Filters</span></button>
+        <button type="button" aria-label="Sort" title="Sort" className={sheet === "sort" ? "is-active" : ""} onClick={() => setSheet("sort")}><SortDescending weight="regular" aria-hidden="true"/><span>Sort</span></button>
+        <button type="button" aria-label="Saved" title="Saved" className={sheet === "saved" || savedView ? "is-active" : ""} onClick={() => setSheet("saved")}><FloppyDisk weight="regular" aria-hidden="true"/><span>Saved</span></button>
       </div>
       <div className="closet-browser__filters" aria-label={mode === "topics" ? "Categories" : "Tags"}>{(mode === "topics" ? topics : tags).map(value => <button key={value} className={filter === value ? "is-active" : ""} aria-pressed={filter === value} onClick={() => setFilter(value)}>{value}</button>)}</div>
     </div>
