@@ -104,10 +104,10 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: clamp(18px, 2.1vw, 38px);
-  margin-top: clamp(30px, 3.15vh, 42px);
+  gap: clamp(13px, 1.5vw, 26px);
+  margin-top: clamp(29px, 3.15vh, 42px);
   color: #55545a;
-  font-size: clamp(18px, 1.55vw, 26px);
+  font-size: clamp(14px, 1.15vw, 20px);
   font-weight: 400;
   letter-spacing: -0.02em;
   line-height: 1;
@@ -134,8 +134,8 @@ a {
 }
 
 .home-dashboard__weather-item {
-  gap: .38em;
-  padding: .42em .9em;
+  gap: .32em;
+  padding: .34em .76em;
   border-radius: 999px;
   color: #55545a;
   background: rgba(245, 224, 83, .42);
@@ -394,8 +394,8 @@ a {
   }
 
   .home-dashboard__weather {
-    gap: clamp(14px, 1.5vw, 22px);
-    font-size: clamp(16px, 1.45vw, 22px);
+    gap: clamp(11px, 1.15vw, 17px);
+    font-size: clamp(13px, 1.1vw, 17px);
   }
 
   .home-dashboard__weather > i {
