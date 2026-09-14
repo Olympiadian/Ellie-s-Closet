@@ -1572,8 +1572,8 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
 }
 
 @media (min-width: 601px) {
-  .closet-browser:not(.closet-browser--compact) .mobile-closet-toolbar button { width: 62px; min-width: 62px; height: 62px; aspect-ratio: 1 / 1; flex: 0 0 62px; border-radius: 4px; color: #444; background: #fff; }
+  .closet-browser:not(.closet-browser--compact) .mobile-closet-toolbar button { width: 48px; min-width: 48px; height: 48px; aspect-ratio: 1 / 1; flex: 0 0 48px; border-radius: 4px; color: #444; background: #fff; }
   .closet-browser:not(.closet-browser--compact) .mobile-closet-toolbar button.is-active { color: #303030; background: #c7c7c7; }
-  .closet-browser:not(.closet-browser--compact) .mobile-closet-toolbar svg { width: 25px; height: 25px; color: #3d3d3d !important; opacity: 1 !important; fill: currentColor; stroke: none; }
+  .closet-browser:not(.closet-browser--compact) .mobile-closet-toolbar svg { width: 22px; height: 22px; color: #3d3d3d !important; opacity: 1 !important; fill: currentColor; stroke: none; }
   .closet-browser:not(.closet-browser--compact) .closet-browser__display-count { display: block; width: min(76.8vw, 1520px); margin: 17px auto 0; color: rgba(48,48,48,.6); font-size: 13px; letter-spacing: .01em; }
 }
