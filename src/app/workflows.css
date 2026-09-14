@@ -517,7 +517,7 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
   .mobile-home__header .mobile-home__date {
     margin: 6px 0 0;
     color: #777;
-    font: 600 13px/1.35 var(--font-inclusive-sans), Arial, sans-serif;
+    font: 600 12px/1.35 var(--font-inclusive-sans), Arial, sans-serif;
     letter-spacing: -.03em;
     text-transform: none;
   }
@@ -1452,8 +1452,8 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
     flex-wrap: wrap;
     align-items: center;
     justify-content: center;
-    gap: 7px 9px;
-    font: 400 11px/1.35 var(--font-manrope), Arial, sans-serif;
+    gap: 6px 8px;
+    font: 400 10px/1.35 var(--font-manrope), Arial, sans-serif;
     letter-spacing: -.02em;
   }
 
@@ -1472,7 +1472,7 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
     display: inline-flex;
     align-items: center;
     gap: .3em;
-    padding: .32em .68em;
+    padding: .3em .62em;
     border-radius: 999px;
     color: #55545a;
     background: rgba(245, 224, 83, .42);
