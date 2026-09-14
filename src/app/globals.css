@@ -104,10 +104,10 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: clamp(15px, 1.75vw, 28px);
-  margin-top: clamp(29px, 3.15vh, 42px);
-  color: rgba(48, 48, 48, 0.72);
-  font-size: clamp(12px, 0.98vw, 16px);
+  gap: clamp(18px, 2.1vw, 38px);
+  margin-top: clamp(30px, 3.15vh, 42px);
+  color: #55545a;
+  font-size: clamp(18px, 1.55vw, 26px);
   font-weight: 400;
   letter-spacing: -0.02em;
   line-height: 1;
@@ -115,15 +115,15 @@ a {
 }
 
 .home-dashboard__weather > i {
-  width: 6px;
-  height: 6px;
-  flex: 0 0 6px;
-  border-radius: 50%;
-  background: #303030;
+  display: none;
 }
 
 .home-dashboard__weather strong {
   font-weight: 700;
+}
+
+.home-dashboard__weather > span:first-child {
+  font-weight: 600;
 }
 
 .home-dashboard__weather-item,
@@ -134,17 +134,44 @@ a {
 }
 
 .home-dashboard__weather-item {
-  gap: 5px;
+  gap: .38em;
+  padding: .42em .9em;
+  border-radius: 999px;
+  color: #55545a;
+  background: rgba(245, 224, 83, .42);
+}
+
+.home-dashboard__weather-item--partly-cloudy {
+  background: rgba(176, 181, 190, .42);
+}
+
+.home-dashboard__weather-item--cloudy,
+.home-dashboard__weather-item--fog {
+  background: rgba(147, 151, 158, .42);
+}
+
+.home-dashboard__weather-item--rain,
+.home-dashboard__weather-item--storm {
+  color: #fff;
+  background: rgba(23, 59, 105, .46);
+}
+
+.home-dashboard__weather-item--snow {
+  background: rgba(163, 192, 220, .42);
 }
 
 .home-dashboard__temperature {
   gap: 7px;
 }
 
+.home-dashboard__temperature > span {
+  gap: .28em;
+}
+
 .home-dashboard__weather svg {
-  width: 18px;
-  height: 18px;
-  flex: 0 0 18px;
+  width: 1em;
+  height: 1em;
+  flex: 0 0 1em;
   fill: none;
   stroke: currentColor;
   stroke-linecap: round;
@@ -153,9 +180,9 @@ a {
 }
 
 .home-dashboard__temperature svg {
-  width: 15px;
-  height: 15px;
-  flex-basis: 15px;
+  width: .92em;
+  height: .92em;
+  flex-basis: .92em;
   stroke-width: 1.7;
 }
 
@@ -367,14 +394,12 @@ a {
   }
 
   .home-dashboard__weather {
-    gap: clamp(10px, 1.5vw, 18px);
-    font-size: clamp(11px, 1.45vw, 14px);
+    gap: clamp(14px, 1.5vw, 22px);
+    font-size: clamp(16px, 1.45vw, 22px);
   }
 
   .home-dashboard__weather > i {
-    width: 5px;
-    height: 5px;
-    flex-basis: 5px;
+    display: none;
   }
 
   .home-dashboard__navigation {

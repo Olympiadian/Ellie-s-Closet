@@ -10,8 +10,11 @@ type OpenMeteoResponse = {
   hourly?: { time?: string[]; uv_index?: number[] };
 };
 
+export type WeatherKind = "clear" | "partly-cloudy" | "cloudy" | "rain" | "snow" | "storm" | "fog";
+
 export type WeatherSummary = {
   condition: string;
+  kind: WeatherKind;
   high: number;
   low: number;
   uv: number;
@@ -20,8 +23,18 @@ export type WeatherSummary = {
 
 const SCOTTSDALE = { latitude: 33.4942, longitude: -111.9261 };
 
+function weatherKind(code: number): WeatherKind {
+  if (code === 0) return "clear";
+  if (code <= 2) return "partly-cloudy";
+  if (code === 3) return "cloudy";
+  if (code <= 48) return "fog";
+  if (code <= 67 || (code >= 80 && code <= 82)) return "rain";
+  if (code <= 77 || code === 85 || code === 86) return "snow";
+  return "storm";
+}
+
 function conditionLabel(code: number) {
-  if (code === 0) return "Clear";
+  if (code === 0) return "Sunny";
   if (code <= 2) return "Partly cloudy";
   if (code === 3) return "Overcast";
   if (code <= 48) return "Foggy";
@@ -79,6 +92,7 @@ export async function getWeatherSummary(): Promise<WeatherSummary> {
   const safeCode = code as number;
   return {
     condition: conditionLabel(safeCode),
+    kind: weatherKind(safeCode),
     high: Math.round(safeHigh),
     low: Math.round(safeLow),
     uv: Math.round(safeUv * 10) / 10,

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { MobileHome } from "@/components/mobile/mobile-home";
+import { WeatherIcon } from "@/components/weather-icon";
 import { HomeCount } from "@/components/wardrobe/home-count";
 import { MessagesButton } from "@/components/wardrobe/messages";
 import { getWeatherSummary } from "@/lib/server/weather";
@@ -88,15 +89,6 @@ function HelpIcon() {
   );
 }
 
-function SunIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <circle cx="12" cy="12" r="3.5" />
-      <path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M18.7 5.3l-1.4 1.4M6.7 17.3l-1.4 1.4" />
-    </svg>
-  );
-}
-
 function TemperatureIcon({ direction }: { direction: "up" | "down" }) {
   const path =
     direction === "up"
@@ -120,7 +112,7 @@ async function HomeContent() {
 
   return (
     <main className="home-page">
-      <MobileHome dateLabel={getDateLabel(now)} />
+      <MobileHome dateLabel={getDateLabel(now)} weather={weather} />
 
       <div className="home-dashboard">
         <nav className="home-dashboard__utilities" aria-label="Utilities">
@@ -138,11 +130,11 @@ async function HomeContent() {
           >
             <span>{getDateLabel(now)}</span>
             <i aria-hidden="true" />
-            <span className="home-dashboard__weather-item"><SunIcon />{weather?.condition ?? "Weather unavailable"}</span>
+            <span className={"home-dashboard__weather-item home-dashboard__weather-item--" + (weather?.kind ?? "cloudy")}><WeatherIcon kind={weather?.kind ?? "cloudy"} />{weather?.condition ?? "Weather unavailable"}</span>
             <i aria-hidden="true" />
             {weather ? <span className="home-dashboard__temperature"><span><TemperatureIcon direction="up" />{weather.high}°</span><span><TemperatureIcon direction="down" />{weather.low}°</span></span> : null}
             <i aria-hidden="true" />
-            {weather ? <span><strong>UV:</strong>&nbsp; {weather.uv} | {weather.uvPeak}</span> : null}
+            {weather ? <span><strong>UV</strong>&nbsp; {weather.uv}&nbsp; {weather.uvPeak}</span> : null}
           </div>
         </section>
 

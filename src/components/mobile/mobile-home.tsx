@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { MessagesButton } from "@/components/wardrobe/messages";
+import { WeatherIcon } from "@/components/weather-icon";
+import type { WeatherSummary } from "@/lib/server/weather";
 import {
   AddClothesIcon,
   BrowseClosetIcon,
@@ -23,7 +25,11 @@ const mobilePrimaryActions = [
   },
 ] as const;
 
-export function MobileHome({ dateLabel }: { dateLabel: string }) {
+export function MobileHome({ dateLabel, weather }: { dateLabel: string; weather: WeatherSummary | null }) {
+  const weatherLabel = weather
+    ? "Today is " + weather.condition + " with a high of " + weather.high + " degrees, a low of " + weather.low + " degrees, and a UV index of " + weather.uv + " peaking " + weather.uvPeak
+    : "Today’s weather is unavailable";
+
   return (
     <div className="mobile-home">
       <header className="mobile-home__header">
@@ -56,16 +62,16 @@ export function MobileHome({ dateLabel }: { dateLabel: string }) {
       </nav>
 
       <section
-        className="mobile-home__weather"
-        aria-label="Today is sunny with a high of 108 degrees, a low of 78 degrees, and a UV index of 10 between 11 AM and 1 PM"
+        className={"mobile-home__weather mobile-home__weather--" + (weather?.kind ?? "cloudy")}
+        aria-label={weatherLabel}
       >
         <div>
-          <span>Sunny</span>
+          <span className="mobile-home__weather-item"><WeatherIcon kind={weather?.kind ?? "cloudy"} />{weather?.condition ?? "Weather unavailable"}</span>
           <i aria-hidden="true" />
-          <span>High 108°</span>
-          <span>Low 78°</span>
+          <span>High {weather ? weather.high + "°" : "—"}</span>
+          <span>Low {weather ? weather.low + "°" : "—"}</span>
           <i aria-hidden="true" />
-          <span><strong>UV</strong> 10 · 11–1pm</span>
+          <span><strong>UV</strong> {weather ? weather.uv + " · " + weather.uvPeak : "—"}</span>
         </div>
       </section>
     </div>
