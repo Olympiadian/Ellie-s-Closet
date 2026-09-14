@@ -49,3 +49,43 @@
 ## Final result
 
 passed
+
+---
+
+# Design QA — Tablet Closet, Builder, and Recent Pass
+
+## Evidence
+
+- Source visual truth: `C:/Users/elico/AppData/Local/Temp/codex-clipboard-8ef4efe6-13b9-4c3c-8d65-d4b3b0491617.png` (Closet) and `C:/Users/elico/AppData/Local/Temp/codex-clipboard-741178d9-02bd-40f3-886c-8b2a080dca84.png` (Recent).
+- Source pixels: 1800 × 1173 PNG for Closet; 2115 × 1344 PNG for Recent.
+- Rendered implementation: inline Codex in-app browser captures at `http://localhost:4318/closet`, `/build`, and `/recent`.
+- Viewport: 1280 × 720 CSS pixels, tablet landscape.
+- State: Closet categories rail; Build Outfit with one selected piece; Recent sorted newest to oldest.
+
+## Full-view comparison evidence
+
+- Closet and Build Outfit use three compact, square icon controls at the left edge and a single horizontal category/tag rail on the right. The controls, active gray treatment, outlined pills, wide card grid, and generous open canvas reproduce the supplied closet composition while retaining the product’s data and interactions.
+- Recent uses vertically stacked horizontal cards: thumbnail at left, item name and category in the center, and distinct Favorite and Edit Info actions stacked on the right. The sort controls and label follow the reference hierarchy.
+- The original card grids remain intact on Closet and Build Outfit; only navigation and filtering chrome changed, as requested.
+
+## Focused region comparison evidence
+
+- The three control buttons were verified to open the existing Filters, Sort, and Saved workflows, including the compact Build Outfit state.
+- Selecting a topic or tag in Filters updates the right-side rail to the appropriate set, preserving the required filtering behavior without restoring the old Topics/Tags switch.
+- Recent Favorite updates the wardrobe item and its visible label; Edit Info links to that specific item’s editing view.
+
+## Findings
+
+- No remaining P0, P1, or P2 fidelity issues.
+- P3: the local mock fixture does not include product image URLs, so verification thumbnails appear blank there. Production uses the existing item-photo data path and will display each user’s actual images.
+
+## Verification
+
+- Production Next.js build: passed.
+- TypeScript: passed.
+- Workflow suite: 6/6 passed before the final visual pass.
+- ESLint: zero errors; two pre-existing warnings remain in `src/components/wardrobe/admin.tsx`.
+
+## Final result
+
+passed

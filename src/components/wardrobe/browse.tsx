@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { FloppyDisk, PencilSimple, SlidersHorizontal, SortAscending, SortDescending } from "@phosphor-icons/react";
 import type { SavedBuild, WardrobeItem } from "@/lib/wardrobe";
 import { useWardrobe, DataGate } from "./provider";
 import { Drawer, Empty, Heart, ItemPhoto, PageShell } from "./ui";
@@ -11,18 +12,6 @@ const tags = ["All", "Everyday", "Work", "Club", "Church", "Comfy", "Basic", "La
 type SheetName = "filters" | "sort" | "saved";
 type SortOrder = "newest" | "oldest";
 type SavedView = "favorites" | "outfits" | "collections";
-
-function FilterIcon() {
-  return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>;
-}
-
-function SortIcon() {
-  return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4v15m0 0-4-4m4 4 4-4M14 6h6M14 10h4M14 14h2"/></svg>;
-}
-
-function SavedIcon() {
-  return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h12l2 2v16H5V3Z"/><path d="M8 3v6h8V3M8 21v-7h8v7"/></svg>;
-}
 
 function MobileClosetSheet({ title, close, children }: { title: string; close: () => void; children: ReactNode }) {
   const titleId = useId();
@@ -146,14 +135,15 @@ export function ItemGrid({ items, builds = [], choose, selected = [], compact = 
     }
   }
   return <section className={`closet-browser${compact ? " closet-browser--compact" : ""}`}>
-    <div className="mobile-closet-toolbar" aria-label="Closet controls">
-      <button type="button" className={sheet === "filters" || appliedTopic !== "All" || appliedTag !== "All" ? "is-active" : ""} onClick={() => setSheet("filters")}><FilterIcon/>Filters</button>
-      <button type="button" className={sheet === "sort" ? "is-active" : ""} onClick={() => setSheet("sort")}><SortIcon/>Sort</button>
-      <button type="button" className={sheet === "saved" || savedView ? "is-active" : ""} onClick={() => setSheet("saved")}><SavedIcon/>Saved</button>
+    <div className="closet-browser__controls">
+      <div className="mobile-closet-toolbar" aria-label="Closet controls">
+        <button type="button" aria-label="Filters" title="Filters" className={sheet === "filters" || appliedTopic !== "All" || appliedTag !== "All" ? "is-active" : ""} onClick={() => setSheet("filters")}><SlidersHorizontal aria-hidden="true"/><span>Filters</span></button>
+        <button type="button" aria-label="Sort" title="Sort" className={sheet === "sort" ? "is-active" : ""} onClick={() => setSheet("sort")}><SortDescending aria-hidden="true"/><span>Sort</span></button>
+        <button type="button" aria-label="Saved" title="Saved" className={sheet === "saved" || savedView ? "is-active" : ""} onClick={() => setSheet("saved")}><FloppyDisk aria-hidden="true"/><span>Saved</span></button>
+      </div>
+      <div className="closet-browser__filters" aria-label={mode === "topics" ? "Categories" : "Tags"}>{(mode === "topics" ? topics : tags).map(value => <button key={value} className={filter === value ? "is-active" : ""} aria-pressed={filter === value} onClick={() => setFilter(value)}>{value}</button>)}</div>
     </div>
     <p className="mobile-closet-count" aria-live="polite">({visible.length}) {visible.length === 1 ? "item" : "items"}</p>
-    <div className="closet-browser__mode" aria-label="Browse by topics or tags">{(["topics", "tags"] as const).map(value => <button type="button" key={value} className={mode === value ? "is-active" : ""} aria-label={`Show ${value}`} aria-pressed={mode === value} onClick={() => { setMode(value); setFilter("All"); }}>{mode === value ? value : ""}</button>)}</div>
-    <div className="closet-browser__filters" aria-label="Categories">{(mode === "topics" ? topics : tags).map(value => <button key={value} className={filter === value ? "is-active" : ""} aria-pressed={filter === value} onClick={() => setFilter(value)}>{value}</button>)}</div>
     {favoriteError && <p className="wc-notice" role="alert">{favoriteError}</p>}
     {visible.length ? <div className="closet-browser__grid">{visible.map(current => <article className={"closet-browser__item" + (selected.includes(current.id) ? " wc-selected" : "")} key={current.id}>
       <button type="button" className="closet-browser__item-open" aria-label={(choose ? (selected.includes(current.id) ? "Remove " : "Add ") : "Open details for ") + current.name} aria-pressed={choose ? selected.includes(current.id) : undefined} onClick={() => choose ? choose(current) : setItem(current)}>
@@ -166,7 +156,7 @@ export function ItemGrid({ items, builds = [], choose, selected = [], compact = 
     {sheet === "filters" && <MobileClosetSheet title="Filters" close={() => setSheet(null)}>
       <div className="mobile-filter-group"><h3>Topics</h3><div>{topics.map(value => <button type="button" key={value} className={draftTopic === value ? "is-selected" : ""} aria-pressed={draftTopic === value} onClick={() => setDraftTopic(value)}>{value}</button>)}</div></div>
       <div className="mobile-filter-group"><h3>Tags</h3><div>{tags.map(value => <button type="button" key={value} className={draftTag === value ? "is-selected" : ""} aria-pressed={draftTag === value} onClick={() => setDraftTag(value)}>{value}</button>)}</div></div>
-      <button type="button" className="mobile-closet-sheet__confirm" onClick={() => { setAppliedTopic(draftTopic); setAppliedTag(draftTag); setSavedView(null); setSheet(null); }}>Show {filterPreviewCount} {filterPreviewCount === 1 ? "piece" : "pieces"}</button>
+      <button type="button" className="mobile-closet-sheet__confirm" onClick={() => { setAppliedTopic(draftTopic); setAppliedTag(draftTag); setMode(draftTag !== "All" ? "tags" : "topics"); setFilter(draftTag !== "All" ? draftTag : draftTopic); setSavedView(null); setSheet(null); }}>Show {filterPreviewCount} {filterPreviewCount === 1 ? "piece" : "pieces"}</button>
     </MobileClosetSheet>}
     {sheet === "sort" && <MobileClosetSheet title="Sort" close={() => setSheet(null)}>
       <div className="mobile-radio-list">{(["newest", "oldest"] as SortOrder[]).map(value => <label key={value}><input type="radio" name="closet-sort" value={value} checked={draftSort === value} onChange={() => setDraftSort(value)}/><span>{value}</span></label>)}</div>
@@ -178,9 +168,57 @@ export function ItemGrid({ items, builds = [], choose, selected = [], compact = 
     </MobileClosetSheet>}
   </section>;
 }
+
+function RecentList({ items }: { items: WardrobeItem[] }) {
+  const { mutate } = useWardrobe();
+  const [sortOrder, setSortOrder] = useState<SortOrder>("newest");
+  const [favoriteBusy, setFavoriteBusy] = useState<string | null>(null);
+  const [favoriteError, setFavoriteError] = useState("");
+  const sortedItems = [...items].sort((a, b) => {
+    const left = a.publishedAt ?? a.createdAt;
+    const right = b.publishedAt ?? b.createdAt;
+    return sortOrder === "newest" ? right.localeCompare(left) : left.localeCompare(right);
+  });
+
+  async function toggleFavorite(item: WardrobeItem) {
+    if (favoriteBusy) return;
+    setFavoriteBusy(item.id);
+    setFavoriteError("");
+    try {
+      await mutate({ action: "mark", id: item.id, field: "favorite", value: !item.favorite });
+    } catch (error) {
+      setFavoriteError(error instanceof Error ? error.message : "Could not update this favorite.");
+    } finally {
+      setFavoriteBusy(null);
+    }
+  }
+
+  return <section className="recent-list">
+    <div className="recent-list__sort" aria-label="Sort recent pieces">
+      <button type="button" aria-label="Newest to oldest" aria-pressed={sortOrder === "newest"} onClick={() => setSortOrder("newest")}><SortDescending aria-hidden="true"/></button>
+      <button type="button" aria-label="Oldest to newest" aria-pressed={sortOrder === "oldest"} onClick={() => setSortOrder("oldest")}><SortAscending aria-hidden="true"/></button>
+      <span>{sortOrder === "newest" ? "Newest to oldest" : "Oldest to newest"}</span>
+    </div>
+    {favoriteError && <p className="wc-notice" role="alert">{favoriteError}</p>}
+    {sortedItems.length ? <div className="recent-list__items">
+      {sortedItems.map(item => <article className="recent-card" key={item.id}>
+        <div className="recent-card__photo"><ItemPhoto item={item}/></div>
+        <div className="recent-card__meta"><strong>{item.name}</strong><small>{itemTopic(item)}</small></div>
+        <div className="recent-card__actions">
+          <button type="button" disabled={favoriteBusy === item.id} aria-pressed={item.favorite} onClick={() => void toggleFavorite(item)}><span>{item.favorite ? "Favorited" : "Favorite"}</span><Heart filled={item.favorite}/></button>
+          <Link href={`/mobile/database?item=${item.id}`}><span>Edit Info</span><PencilSimple aria-hidden="true"/></Link>
+        </div>
+      </article>)}
+    </div> : <Empty>Your clothes will appear here once they have been reviewed and published.</Empty>}
+  </section>;
+}
+
 export function BrowsePage({ view }: { view: "closet" | "favorites" | "recent" }) {
   const { data } = useWardrobe();
   const items = [...(data?.items ?? [])].filter(i => view !== "favorites" || i.favorite);
   if (view === "recent") items.sort((a,b) => (b.publishedAt ?? b.createdAt).localeCompare(a.publishedAt ?? a.createdAt));
-  return <PageShell title={view === "closet" ? "The Closet" : view === "favorites" ? "Favorites" : "Recent"}><DataGate><ItemGrid items={items} builds={data?.builds ?? []}/></DataGate></PageShell>;
+  return <PageShell title={view === "closet" ? "The Closet" : view === "favorites" ? "Favorites" : "Recent"}><DataGate>{view === "recent" ? <>
+    <RecentList items={items}/>
+    <div className="recent-mobile-grid"><ItemGrid items={items} builds={data?.builds ?? []}/></div>
+  </> : <ItemGrid items={items} builds={data?.builds ?? []}/>}</DataGate></PageShell>;
 }
