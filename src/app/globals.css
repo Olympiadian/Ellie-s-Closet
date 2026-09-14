@@ -475,21 +475,34 @@ a {
     padding: 0;
     border: 0;
     border-radius: 5px;
-    color: #3d3d3d;
-    background: rgba(255,255,255,.94);
+    color: #303030;
+    background: #fff;
     box-shadow: 2px 4px 12px rgba(0,0,0,.08);
     font-size: 0;
     cursor: pointer;
   }
 
-  .mobile-closet-toolbar button.is-active { background: #c5c5c5; }
+  .mobile-closet-toolbar button.is-active { color: #303030; background: #c5c5c5; }
   .mobile-closet-toolbar svg { width: 21px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 
   .closet-browser__mode { display: none; }
+  .closet-browser__controls {
+    display: flex;
+    width: min(76.8vw, 1520px);
+    align-items: flex-start;
+    gap: 24px;
+    margin: 42px auto 0;
+  }
+  .closet-browser__controls .mobile-closet-toolbar {
+    position: static;
+    flex: 0 0 auto;
+  }
   .closet-browser__filters {
+    width: auto;
+    flex: 1 1 auto;
     justify-content: flex-end;
-    margin-top: clamp(42px, 4.2vh, 58px);
-    padding-left: 210px;
+    margin: 0;
+    padding-left: 0;
   }
   .closet-browser__filters button {
     min-width: auto;
@@ -523,15 +536,10 @@ a {
     box-shadow: 2px 8px 24px rgba(48,48,48,.14);
   }
   .mobile-closet-sheet__handle { display: none; }
-  .mobile-closet-sheet h2 { margin: 0 0 14px; font-size: 18px; }
+  .mobile-closet-sheet h2 { display: none; }
   .closet-sheet-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 14px; padding: 3px; border-radius: 999px; background: #eee; }
   .closet-sheet-tabs button { border: 0; border-radius: 999px; padding: 7px; color: #555; background: transparent; text-transform: capitalize; cursor: pointer; }
   .closet-sheet-tabs button.is-selected { color: #fff; background: #737373; }
-  .mobile-filter-group { margin-top: 12px; }
-  .mobile-filter-group h3 { margin: 0 0 8px; font-size: 12px; text-transform: uppercase; }
-  .mobile-filter-group > div { display: flex; flex-wrap: wrap; gap: 6px; }
-  .mobile-filter-group button { padding: 6px 9px; border: 1px solid #ddd; border-radius: 999px; background: #fff; font-size: 12px; cursor: pointer; }
-  .mobile-filter-group button.is-selected { color: #fff; border-color: #777; background: #777; }
   .mobile-radio-list { display: grid; gap: 5px; }
   .mobile-radio-list label { display: flex; gap: 9px; align-items: center; padding: 8px 0; text-transform: capitalize; cursor: pointer; }
   .mobile-closet-sheet__confirm { width: 100%; margin-top: 16px; padding: 10px; border: 0; border-radius: 999px; color: white; background: #303030; cursor: pointer; }

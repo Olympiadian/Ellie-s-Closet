@@ -155,18 +155,14 @@ export function ItemGrid({ items, builds = [], choose, selected = [], compact = 
     {item && <ItemDetails item={item} close={() => setItem(null)}/>}
     {sheet === "filters" && <MobileClosetSheet title="Filters" close={() => setSheet(null)}>
       <div className="closet-sheet-tabs" aria-label="Filter type">
-        {(["topics", "tags"] as const).map(value => <button type="button" key={value} className={mode === value ? "is-selected" : ""} aria-pressed={mode === value} onClick={() => { setMode(value); setFilter("All"); }}>{value}</button>)}
+        {(["topics", "tags"] as const).map(value => <button type="button" key={value} className={mode === value ? "is-selected" : ""} aria-pressed={mode === value} onClick={() => { setMode(value); setFilter("All"); setAppliedTopic("All"); setAppliedTag("All"); setSavedView(null); setSheet(null); }}>{value}</button>)}
       </div>
-      {mode === "topics" ? <div className="mobile-filter-group"><h3>Topics</h3><div>{topics.map(value => <button type="button" key={value} className={draftTopic === value ? "is-selected" : ""} aria-pressed={draftTopic === value} onClick={() => setDraftTopic(value)}>{value}</button>)}</div></div> : <div className="mobile-filter-group"><h3>Tags</h3><div>{tags.map(value => <button type="button" key={value} className={draftTag === value ? "is-selected" : ""} aria-pressed={draftTag === value} onClick={() => setDraftTag(value)}>{value}</button>)}</div></div>}
-      <button type="button" className="mobile-closet-sheet__confirm" onClick={() => { setAppliedTopic(draftTopic); setAppliedTag(draftTag); setMode(draftTag !== "All" ? "tags" : "topics"); setFilter(draftTag !== "All" ? draftTag : draftTopic); setSavedView(null); setSheet(null); }}>Show {filterPreviewCount} {filterPreviewCount === 1 ? "piece" : "pieces"}</button>
     </MobileClosetSheet>}
     {sheet === "sort" && <MobileClosetSheet title="Sort" close={() => setSheet(null)}>
-      <div className="mobile-radio-list">{(["newest", "oldest"] as SortOrder[]).map(value => <label key={value}><input type="radio" name="closet-sort" value={value} checked={draftSort === value} onChange={() => setDraftSort(value)}/><span>{value}</span></label>)}</div>
-      <button type="button" className="mobile-closet-sheet__confirm" onClick={() => { setSortOrder(draftSort); setSheet(null); }}>Show all pieces</button>
+      <div className="mobile-radio-list">{(["newest", "oldest"] as SortOrder[]).map(value => <label key={value}><input type="radio" name="closet-sort" value={value} checked={draftSort === value} onChange={() => { setDraftSort(value); setSortOrder(value); setSheet(null); }}/><span>{value}</span></label>)}</div>
     </MobileClosetSheet>}
     {sheet === "saved" && <MobileClosetSheet title="Saved" close={() => setSheet(null)}>
-      <div className="mobile-radio-list">{([['favorites', 'Favorites'], ['outfits', 'Saved Outfits'], ['collections', 'Collections']] as [SavedView, string][]).map(([value, label]) => <label key={value}><input type="radio" name="closet-saved" value={value} checked={draftSaved === value} onChange={() => setDraftSaved(value)}/><span>{label}</span></label>)}</div>
-      <button type="button" className="mobile-closet-sheet__confirm" onClick={() => { setSavedView(draftSaved); setAppliedTopic("All"); setAppliedTag("All"); setSheet(null); }}>Show {savedPreviewCount} {savedPreviewCount === 1 ? "piece" : "pieces"}</button>
+      <div className="mobile-radio-list">{([['favorites', 'Favorites'], ['outfits', 'Saved Outfits'], ['collections', 'Collections']] as [SavedView, string][]).map(([value, label]) => <label key={value}><input type="radio" name="closet-saved" value={value} checked={draftSaved === value} onChange={() => { setDraftSaved(value); setSavedView(value); setAppliedTopic("All"); setAppliedTag("All"); setSheet(null); }}/><span>{label}</span></label>)}</div>
     </MobileClosetSheet>}
   </section>;
 }
