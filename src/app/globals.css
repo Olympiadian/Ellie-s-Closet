@@ -556,6 +556,11 @@ a {
   width: 100%;
 }
 
+.wc-deals-grid {
+  display: grid;
+  gap: 16px;
+}
+
 .closet-browser__display-count {
   display: none;
 }

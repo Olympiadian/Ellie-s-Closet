@@ -22,15 +22,22 @@ export type CalendarPlan = { id: string; date: string; itemIds: string[]; buildI
 export type DailyMessage = { id: string; title: string; body: string; date: string; createdAt: string };
 export type SupportRequest = { id: string; subject: string; body: string; kind: "help" | "feature" | "change"; status: "open" | "resolved"; createdAt: string };
 export type Activity = { id: string; text: string; createdAt: string };
-export type DealScan = { id: string; text: string; sources: { title: string; url: string }[]; checkedAt: string; status: "running" | "complete" | "failed"; error?: string };
+export type DealScan = { id: string; text: string; sources: { title: string; url: string }[]; checkedAt: string; status: "running" | "complete" | "failed"; error?: string; isDemo?: boolean };
 export type Preferences = { stores: string; area: string; manualUrl: string; reduceMotion: boolean };
 export type WardrobeData = {
   items: WardrobeItem[]; builds: SavedBuild[]; plans: CalendarPlan[];
   messages: DailyMessage[]; requests: SupportRequest[]; activity: Activity[];
   scans: DealScan[]; settings: Preferences; role: "admin" | "viewer";
 };
+export const dealStores = [
+  "Aritzia", "Cotton On", "Vuori", "Princess Polly", "Target", "Old Navy", "Altered State", "Edikted",
+  "Abercrombie & Fitch", "Sephora", "Lululemon", "Anthropologie", "Free People", "Urban Outfitters", "Gap",
+  "Brandy Melville", "Oh Polly", "Beginning Boutique", "Pepper Mayo", "Motel Rocks", "Cider", "Bo+Tee",
+  "Beyond Yoga", "H&M", "Alo", "Skims", "Marshalls", "Victoria’s Secret", "Zara", "Steve Madden",
+  "Garage", "Nordstrom", "Macy’s",
+].join(", ");
 export const defaultSettings: Preferences = {
-  stores: "Aritzia, Anthropologie, Reformation, Free People, Madewell, Abercrombie & Fitch, Nordstrom",
+  stores: dealStores,
   area: "Scottsdale Fashion Square and Biltmore, Phoenix, Arizona",
   manualUrl: "", reduceMotion: false,
 };

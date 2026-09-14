@@ -2,6 +2,7 @@ import Link from "next/link";
 import { MobileHome } from "@/components/mobile/mobile-home";
 import { HomeCount } from "@/components/wardrobe/home-count";
 import { MessagesButton } from "@/components/wardrobe/messages";
+import { getWeatherSummary } from "@/lib/server/weather";
 import {
   CalendarIcon,
   DealsIcon,
@@ -110,7 +111,12 @@ function TemperatureIcon({ direction }: { direction: "up" | "down" }) {
 }
 
 export default function Home() {
+  return <HomeContent />;
+}
+
+async function HomeContent() {
   const now = new Date();
+  const weather = await getWeatherSummary().catch(() => null);
 
   return (
     <main className="home-page">
@@ -128,21 +134,15 @@ export default function Home() {
           <h1 id="home-greeting">{getGreeting(now)}, Ellie</h1>
           <div
             className="home-dashboard__weather"
-            aria-label="Today is sunny with a high of 108 degrees, a low of 78 degrees, and a UV index of 10 between 11 AM and 1 PM"
+            aria-label={weather ? `Today is ${weather.condition} with a high of ${weather.high} degrees, a low of ${weather.low} degrees, and a UV index of ${weather.uv} peaking ${weather.uvPeak}` : "Today’s weather is unavailable"}
           >
             <span>{getDateLabel(now)}</span>
             <i aria-hidden="true" />
-            <span className="home-dashboard__weather-item">
-              <SunIcon />
-              Sunny
-            </span>
+            <span className="home-dashboard__weather-item"><SunIcon />{weather?.condition ?? "Weather unavailable"}</span>
             <i aria-hidden="true" />
-            <span className="home-dashboard__temperature">
-              <span><TemperatureIcon direction="up" />108°</span>
-              <span><TemperatureIcon direction="down" />78°</span>
-            </span>
+            {weather ? <span className="home-dashboard__temperature"><span><TemperatureIcon direction="up" />{weather.high}°</span><span><TemperatureIcon direction="down" />{weather.low}°</span></span> : null}
             <i aria-hidden="true" />
-            <span><strong>UV:</strong>&nbsp; 10 | 11–1pm</span>
+            {weather ? <span><strong>UV:</strong>&nbsp; {weather.uv} | {weather.uvPeak}</span> : null}
           </div>
         </section>
 

@@ -1,5 +1,5 @@
 import { timingSafeEqual } from "node:crypto";
-import { scanDeals } from "@/lib/server/deals";
+import { createDemoDealScan, scanDeals } from "@/lib/server/deals";
 import { requireSession, sameOrigin } from "@/lib/server/session";
 import { apiError, json } from "@/lib/server/http";
 import { AppError } from "@/lib/server/records";
@@ -16,6 +16,8 @@ export async function POST(request: Request) {
   try {
     sameOrigin(request);
     await requireSession(true);
+    const body = await request.json().catch(() => ({}));
+    if (body.demo === true) return json(await createDemoDealScan());
     return json(await scanDeals(true));
   } catch (error) { return apiError(error); }
 }
