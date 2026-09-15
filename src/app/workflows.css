@@ -1943,3 +1943,92 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
   .closet-browser:not(.closet-browser--compact) .mobile-closet-toolbar svg { width: 36px; height: 36px; color: #3d3d3d !important; opacity: 1; }
   .closet-browser:not(.closet-browser--compact) .closet-browser__display-count { display: block; width: min(76.8vw, 1520px); margin: 17px auto 0; color: rgba(48,48,48,.6); font-size: 13px; letter-spacing: .01em; }
 }
+
+@media (min-width: 601px) {
+  .closet-browser:not(.closet-browser--compact) .mobile-closet-sheet__backdrop {
+    align-items: flex-start;
+    justify-content: flex-start;
+    background: transparent;
+  }
+
+  .closet-browser:not(.closet-browser--compact) .mobile-closet-sheet {
+    top: 188px;
+    left: max(calc((100% - min(76.8vw, 1520px)) / 2), 12px);
+    display: flex;
+    max-height: calc(100dvh - 212px);
+    flex-direction: column;
+    padding: 20px;
+    border: 1px solid rgba(48,48,48,.12);
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 14px 32px rgba(48,48,48,.14);
+  }
+
+  .closet-browser:not(.closet-browser--compact) .mobile-closet-sheet--filters { width: min(500px, calc(100vw - 24px)); }
+  .closet-browser:not(.closet-browser--compact) .mobile-closet-sheet--sort,
+  .closet-browser:not(.closet-browser--compact) .mobile-closet-sheet--saved { width: min(320px, calc(100vw - 24px)); }
+
+  .closet-browser:not(.closet-browser--compact) .mobile-closet-sheet__handle { display: none; }
+  .closet-browser:not(.closet-browser--compact) .mobile-closet-sheet h2 {
+    display: block;
+    margin: 0 0 18px;
+    color: #303030;
+    font: 500 22px/1 var(--font-inclusive-sans), Arial, sans-serif;
+    letter-spacing: -.035em;
+  }
+
+  .closet-browser:not(.closet-browser--compact) .mobile-filter-group + .mobile-filter-group { margin-top: 20px; }
+  .closet-browser:not(.closet-browser--compact) .mobile-filter-group h3 {
+    margin: 0 0 9px;
+    color: #777;
+    font: 500 11px var(--font-inclusive-sans), Arial, sans-serif;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+
+  .closet-browser:not(.closet-browser--compact) .mobile-filter-group > div { display: flex; flex-wrap: wrap; gap: 7px; }
+  .closet-browser:not(.closet-browser--compact) .mobile-filter-group button {
+    min-height: 32px;
+    padding: 5px 13px;
+    border: 1px solid rgba(48,48,48,.22);
+    border-radius: 999px;
+    color: #444;
+    background: #fff;
+    font: 400 13px var(--font-inclusive-sans), Arial, sans-serif;
+    cursor: pointer;
+  }
+
+  .closet-browser:not(.closet-browser--compact) .mobile-filter-group button.is-selected { color: #fff; border-color: #3b3b3b; background: #3b3b3b; }
+  .closet-browser:not(.closet-browser--compact) .mobile-radio-list { gap: 0; padding: 0; }
+  .closet-browser:not(.closet-browser--compact) .mobile-radio-list label {
+    min-height: 48px;
+    gap: 12px;
+    padding: 0 2px;
+    border-top: 1px solid rgba(48,48,48,.1);
+    font: 400 15px var(--font-inclusive-sans), Arial, sans-serif;
+  }
+
+  .closet-browser:not(.closet-browser--compact) .mobile-radio-list label:last-child { border-bottom: 1px solid rgba(48,48,48,.1); }
+  .closet-browser:not(.closet-browser--compact) .mobile-radio-list input { width: 18px; height: 18px; margin: 0; accent-color: #3b3b3b; }
+  .closet-browser:not(.closet-browser--compact) .mobile-closet-sheet__confirm {
+    min-height: 40px;
+    margin-top: 20px;
+    padding: 0 16px;
+    border: 0;
+    border-radius: 999px;
+    color: #fff;
+    background: #303030;
+    font: 500 14px var(--font-inclusive-sans), Arial, sans-serif;
+    cursor: pointer;
+  }
+
+  .closet-browser--compact .mobile-closet-toolbar { gap: 9px; }
+  .closet-browser--compact .mobile-closet-toolbar button { min-height: 34px; gap: 9px; padding: 3px 10px; font-size: 14px; }
+  .closet-browser--compact .mobile-closet-toolbar svg { width: 17px; height: 17px; }
+  .closet-browser--compact .mobile-closet-sheet__backdrop { justify-content: center; padding: 16px; }
+  .closet-browser--compact .mobile-closet-sheet { width: min(500px, calc(100vw - 32px)); padding: 12px 20px 26px; border-radius: 20px 20px 10px 10px; box-shadow: 0 -12px 32px rgba(48,48,48,.14); }
+}
+
+@media (max-width: 600px), (max-height: 600px) and (pointer: coarse) {
+  .mobile-closet-sheet { border: 0; box-shadow: none; }
+}

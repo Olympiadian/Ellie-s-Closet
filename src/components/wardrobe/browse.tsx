@@ -13,7 +13,7 @@ type SheetName = "filters" | "sort" | "saved";
 type SortOrder = "newest" | "oldest";
 type SavedView = "favorites" | "outfits" | "collections";
 
-function MobileClosetSheet({ title, close, children }: { title: string; close: () => void; children: ReactNode }) {
+function MobileClosetSheet({ title, kind, close, children }: { title: string; kind: SheetName; close: () => void; children: ReactNode }) {
   const titleId = useId();
   const panelRef = useRef<HTMLElement>(null);
   useEffect(() => {
@@ -26,7 +26,7 @@ function MobileClosetSheet({ title, close, children }: { title: string; close: (
   }, []);
 
   return <div
-    className="mobile-closet-sheet__backdrop"
+    className={`mobile-closet-sheet__backdrop mobile-closet-sheet__backdrop--${kind}`}
     role="presentation"
     onKeyDown={(event) => { if (event.key === "Escape") close(); }}
     onPointerDown={(event) => { event.stopPropagation(); }}
@@ -37,7 +37,7 @@ function MobileClosetSheet({ title, close, children }: { title: string; close: (
       close();
     }}
   >
-    <section ref={panelRef} className="mobile-closet-sheet" role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1}>
+    <section ref={panelRef} className={`mobile-closet-sheet mobile-closet-sheet--${kind}`} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1}>
       <span className="mobile-closet-sheet__handle" aria-hidden="true" />
       <h2 id={titleId}>{title}</h2>
       {children}
@@ -154,7 +154,7 @@ export function ItemGrid({ items, builds = [], choose, selected = [], compact = 
       <button type="button" className="closet-browser__favorite" disabled={favoriteBusy === current.id} aria-label={current.favorite ? `Remove ${current.name} from favorites` : `Add ${current.name} to favorites`} aria-pressed={current.favorite} onClick={() => void toggleFavorite(current)}><Heart filled={current.favorite}/></button>
     </article>)}</div> : <Empty>{items.length ? "No items in this category yet." : "Your clothes will appear here once they have been reviewed and published."}</Empty>}
     {item && <ItemDetails item={item} close={() => setItem(null)}/>}
-    {sheet === "filters" && <MobileClosetSheet title="Filters" close={() => setSheet(null)}>
+    {sheet === "filters" && <MobileClosetSheet title="Filters" kind="filters" close={() => setSheet(null)}>
       <div className="mobile-filter-group">
         <h3>Topics</h3>
         <div>{topics.map(value => <button type="button" key={value} className={draftTopic === value ? "is-selected" : ""} aria-pressed={draftTopic === value} onClick={() => setDraftTopic(value)}>{value}</button>)}</div>
@@ -165,11 +165,11 @@ export function ItemGrid({ items, builds = [], choose, selected = [], compact = 
       </div>
       <button type="button" className="mobile-closet-sheet__confirm" onClick={() => { setAppliedTopic(draftTopic); setAppliedTag(draftTag); setFilter("All"); setSavedView(null); setSheet(null); }}>Show {filterPreviewCount} {filterPreviewCount === 1 ? "item" : "items"}</button>
     </MobileClosetSheet>}
-    {sheet === "sort" && <MobileClosetSheet title="Sort" close={() => setSheet(null)}>
+    {sheet === "sort" && <MobileClosetSheet title="Sort" kind="sort" close={() => setSheet(null)}>
       <div className="mobile-radio-list">{(["newest", "oldest"] as SortOrder[]).map(value => <label key={value}><input type="radio" name="closet-sort" value={value} checked={draftSort === value} onChange={() => setDraftSort(value)}/><span>{value}</span></label>)}</div>
       <button type="button" className="mobile-closet-sheet__confirm" onClick={() => { setSortOrder(draftSort); setSheet(null); }}>Apply sort</button>
     </MobileClosetSheet>}
-    {sheet === "saved" && <MobileClosetSheet title="Saved" close={() => setSheet(null)}>
+    {sheet === "saved" && <MobileClosetSheet title="Saved" kind="saved" close={() => setSheet(null)}>
       <div className="mobile-radio-list">{([['favorites', 'Favorites'], ['outfits', 'Saved Outfits'], ['collections', 'Collections']] as [SavedView, string][]).map(([value, label]) => <label key={value}><input type="radio" name="closet-saved" value={value} checked={draftSaved === value} onChange={() => setDraftSaved(value)}/><span>{label}</span></label>)}</div>
       <button type="button" className="mobile-closet-sheet__confirm" onClick={() => { setSavedView(draftSaved); setAppliedTopic("All"); setAppliedTag("All"); setFilter("All"); setSheet(null); }}>Show {savedPreviewCount} {savedPreviewCount === 1 ? "item" : "items"}</button>
     </MobileClosetSheet>}
