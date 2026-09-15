@@ -1938,8 +1938,8 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
 }
 
 @media (min-width: 601px) {
-  .closet-browser:not(.closet-browser--compact) .mobile-closet-toolbar button { width: clamp(58px, 5.6vw, 86px); min-width: clamp(58px, 5.6vw, 86px); height: clamp(58px, 5.6vw, 86px); aspect-ratio: 1 / 1; flex: 0 0 auto; border-radius: 8px; color: #3d3d3d; background: #fff; }
+  .closet-browser:not(.closet-browser--compact) .mobile-closet-toolbar button { width: 86px; min-width: 86px; height: 86px; aspect-ratio: 1 / 1; flex: 0 0 86px; border-radius: 8px; color: #3d3d3d; background: #fff; }
   .closet-browser:not(.closet-browser--compact) .mobile-closet-toolbar button.is-active { color: #303030; background: #c7c7c7; }
-  .closet-browser:not(.closet-browser--compact) .mobile-closet-toolbar svg { width: 42%; height: 42%; color: #3d3d3d !important; opacity: 1; fill: none !important; stroke: currentColor !important; stroke-width: 1.8; }
+  .closet-browser:not(.closet-browser--compact) .mobile-closet-toolbar svg { width: 36px; height: 36px; color: #3d3d3d !important; opacity: 1; }
   .closet-browser:not(.closet-browser--compact) .closet-browser__display-count { display: block; width: min(76.8vw, 1520px); margin: 17px auto 0; color: rgba(48,48,48,.6); font-size: 13px; letter-spacing: .01em; }
 }
