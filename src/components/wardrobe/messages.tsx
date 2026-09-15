@@ -28,7 +28,7 @@ export function MessagesButton({ mobile = false }: { mobile?: boolean }) {
         )}
       </button>
       {open && (
-        <Drawer title="A Note for You" close={() => setOpen(false)} small>
+        <Drawer title="Notes" close={() => setOpen(false)} small>
           <DataGate>
             {data?.messages.length ? data.messages.map((message) => (
               <article className="wc-message" key={message.id}>

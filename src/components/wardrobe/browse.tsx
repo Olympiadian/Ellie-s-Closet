@@ -137,9 +137,9 @@ export function ItemGrid({ items, builds = [], choose, selected = [], compact = 
   return <section className={`closet-browser${compact ? " closet-browser--compact" : ""}`}>
     <div className="closet-browser__controls">
       <div className="mobile-closet-toolbar" aria-label="Closet controls">
-        <button type="button" aria-label="Filters" title="Filters" className={sheet === "filters" || appliedTopic !== "All" || appliedTag !== "All" ? "is-active" : ""} onClick={() => setSheet("filters")}><SlidersHorizontal color="#3d3d3d" weight="fill" aria-hidden="true"/><span>Filters</span></button>
-        <button type="button" aria-label="Sort" title="Sort" className={sheet === "sort" ? "is-active" : ""} onClick={() => setSheet("sort")}><SortDescending color="#3d3d3d" weight="fill" aria-hidden="true"/><span>Sort</span></button>
-        <button type="button" aria-label="Saved" title="Saved" className={sheet === "saved" || savedView ? "is-active" : ""} onClick={() => setSheet("saved")}><FloppyDisk color="#3d3d3d" weight="fill" aria-hidden="true"/><span>Saved</span></button>
+        <button type="button" aria-label="Filters" title="Filters" className={sheet === "filters" || appliedTopic !== "All" || appliedTag !== "All" ? "is-active" : ""} onClick={() => { setDraftTopic(appliedTopic); setDraftTag(appliedTag); setSheet("filters"); }}><SlidersHorizontal weight="regular" aria-hidden="true"/><span>Filters</span></button>
+        <button type="button" aria-label="Sort" title="Sort" className={sheet === "sort" ? "is-active" : ""} onClick={() => { setDraftSort(sortOrder ?? "newest"); setSheet("sort"); }}><SortDescending weight="regular" aria-hidden="true"/><span>Sort</span></button>
+        <button type="button" aria-label="Saved" title="Saved" className={sheet === "saved" || savedView ? "is-active" : ""} onClick={() => { setDraftSaved(savedView ?? "favorites"); setSheet("saved"); }}><FloppyDisk weight="regular" aria-hidden="true"/><span>Saved</span></button>
       </div>
       <div className="closet-browser__filters" aria-label={mode === "topics" ? "Categories" : "Tags"}>{(mode === "topics" ? topics : tags).map(value => <button key={value} className={filter === value ? "is-active" : ""} aria-pressed={filter === value} onClick={() => setFilter(value)}>{value}</button>)}</div>
     </div>
@@ -155,15 +155,23 @@ export function ItemGrid({ items, builds = [], choose, selected = [], compact = 
     </article>)}</div> : <Empty>{items.length ? "No items in this category yet." : "Your clothes will appear here once they have been reviewed and published."}</Empty>}
     {item && <ItemDetails item={item} close={() => setItem(null)}/>}
     {sheet === "filters" && <MobileClosetSheet title="Filters" close={() => setSheet(null)}>
-      <div className="closet-sheet-tabs" aria-label="Filter type">
-        {(["topics", "tags"] as const).map(value => <button type="button" key={value} className={mode === value ? "is-selected" : ""} aria-pressed={mode === value} onClick={() => { setMode(value); setFilter("All"); setAppliedTopic("All"); setAppliedTag("All"); setSavedView(null); setSheet(null); }}>{value}</button>)}
+      <div className="mobile-filter-group">
+        <h3>Topics</h3>
+        <div>{topics.map(value => <button type="button" key={value} className={draftTopic === value ? "is-selected" : ""} aria-pressed={draftTopic === value} onClick={() => setDraftTopic(value)}>{value}</button>)}</div>
       </div>
+      <div className="mobile-filter-group">
+        <h3>Tags</h3>
+        <div>{tags.map(value => <button type="button" key={value} className={draftTag === value ? "is-selected" : ""} aria-pressed={draftTag === value} onClick={() => setDraftTag(value)}>{value}</button>)}</div>
+      </div>
+      <button type="button" className="mobile-closet-sheet__confirm" onClick={() => { setAppliedTopic(draftTopic); setAppliedTag(draftTag); setFilter("All"); setSavedView(null); setSheet(null); }}>Show {filterPreviewCount} {filterPreviewCount === 1 ? "item" : "items"}</button>
     </MobileClosetSheet>}
     {sheet === "sort" && <MobileClosetSheet title="Sort" close={() => setSheet(null)}>
-      <div className="mobile-radio-list">{(["newest", "oldest"] as SortOrder[]).map(value => <label key={value}><input type="radio" name="closet-sort" value={value} checked={draftSort === value} onChange={() => { setDraftSort(value); setSortOrder(value); setSheet(null); }}/><span>{value}</span></label>)}</div>
+      <div className="mobile-radio-list">{(["newest", "oldest"] as SortOrder[]).map(value => <label key={value}><input type="radio" name="closet-sort" value={value} checked={draftSort === value} onChange={() => setDraftSort(value)}/><span>{value}</span></label>)}</div>
+      <button type="button" className="mobile-closet-sheet__confirm" onClick={() => { setSortOrder(draftSort); setSheet(null); }}>Apply sort</button>
     </MobileClosetSheet>}
     {sheet === "saved" && <MobileClosetSheet title="Saved" close={() => setSheet(null)}>
-      <div className="mobile-radio-list">{([['favorites', 'Favorites'], ['outfits', 'Saved Outfits'], ['collections', 'Collections']] as [SavedView, string][]).map(([value, label]) => <label key={value}><input type="radio" name="closet-saved" value={value} checked={draftSaved === value} onChange={() => { setDraftSaved(value); setSavedView(value); setAppliedTopic("All"); setAppliedTag("All"); setSheet(null); }}/><span>{label}</span></label>)}</div>
+      <div className="mobile-radio-list">{([['favorites', 'Favorites'], ['outfits', 'Saved Outfits'], ['collections', 'Collections']] as [SavedView, string][]).map(([value, label]) => <label key={value}><input type="radio" name="closet-saved" value={value} checked={draftSaved === value} onChange={() => setDraftSaved(value)}/><span>{label}</span></label>)}</div>
+      <button type="button" className="mobile-closet-sheet__confirm" onClick={() => { setSavedView(draftSaved); setAppliedTopic("All"); setAppliedTag("All"); setFilter("All"); setSheet(null); }}>Show {savedPreviewCount} {savedPreviewCount === 1 ? "item" : "items"}</button>
     </MobileClosetSheet>}
   </section>;
 }
