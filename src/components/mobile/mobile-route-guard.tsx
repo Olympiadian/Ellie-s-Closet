@@ -7,6 +7,7 @@ const allowedPhoneRoutes = new Set([
   "/",
   "/closet",
   "/calendar",
+  "/stats",
   "/deals",
   "/mobile/new-clothes",
   "/mobile/request",
