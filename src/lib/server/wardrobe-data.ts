@@ -12,6 +12,8 @@ export async function wardrobeData(role: "admin" | "viewer", adminView = false):
   const items = allItems.filter(item => adminView || item.status === "published");
   const paths = [...new Set(items.flatMap(item => [
     item.frontProcessedPath ?? item.frontPath, item.backProcessedPath ?? item.backPath,
+    item.frontThumbnailPath ?? item.frontProcessedPath ?? item.frontPath,
+    item.backThumbnailPath ?? item.backProcessedPath ?? item.backPath,
     ...(adminView ? [item.frontPath, item.backPath] : []),
   ]).filter((path): path is string => !!path))];
   const urls = new Map<string, string>();
@@ -25,6 +27,8 @@ export async function wardrobeData(role: "admin" | "viewer", adminView = false):
       ...item,
       frontUrl: urls.get(item.frontProcessedPath ?? item.frontPath ?? ""),
       backUrl: urls.get(item.backProcessedPath ?? item.backPath ?? ""),
+      frontThumbnailUrl: urls.get(item.frontThumbnailPath ?? item.frontProcessedPath ?? item.frontPath ?? ""),
+      backThumbnailUrl: urls.get(item.backThumbnailPath ?? item.backProcessedPath ?? item.backPath ?? ""),
       originalFrontUrl: adminView ? urls.get(item.frontPath ?? "") : undefined,
       originalBackUrl: adminView ? urls.get(item.backPath ?? "") : undefined,
     })),

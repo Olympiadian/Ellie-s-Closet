@@ -148,7 +148,7 @@ export function ItemGrid({ items, builds = [], choose, selected = [], compact = 
     {favoriteError && <p className="wc-notice" role="alert">{favoriteError}</p>}
     {visible.length ? <div className="closet-browser__grid">{visible.map(current => <article className={"closet-browser__item" + (selected.includes(current.id) ? " wc-selected" : "")} key={current.id}>
       <button type="button" className="closet-browser__item-open" aria-label={(choose ? (selected.includes(current.id) ? "Remove " : "Add ") : "Open details for ") + current.name} aria-pressed={choose ? selected.includes(current.id) : undefined} onClick={() => choose ? choose(current) : setItem(current)}>
-        <div className="closet-browser__visual"><ItemPhoto item={current}/></div>
+        <div className="closet-browser__visual"><ItemPhoto item={current} thumbnail/></div>
         <span className="closet-browser__item-meta"><small>{itemTopic(current)}</small><strong>{current.name}</strong></span>
       </button>
       <button type="button" className="closet-browser__favorite" disabled={favoriteBusy === current.id} aria-label={current.favorite ? `Remove ${current.name} from favorites` : `Add ${current.name} to favorites`} aria-pressed={current.favorite} onClick={() => void toggleFavorite(current)}><Heart filled={current.favorite}/></button>
@@ -201,7 +201,7 @@ function RecentList({ items }: { items: WardrobeItem[] }) {
     {favoriteError && <p className="wc-notice" role="alert">{favoriteError}</p>}
     {sortedItems.length ? <div className="recent-list__items">
       {sortedItems.map(item => <article className="recent-card" key={item.id}>
-        <div className="recent-card__photo"><ItemPhoto item={item}/></div>
+        <div className="recent-card__photo"><ItemPhoto item={item} thumbnail/></div>
         <div className="recent-card__meta"><strong>{item.name}</strong><small>{itemTopic(item)}</small></div>
         <div className="recent-card__actions">
           <button type="button" disabled={favoriteBusy === item.id} aria-pressed={item.favorite} onClick={() => void toggleFavorite(item)}><span>{item.favorite ? "Favorited" : "Favorite"}</span><Heart filled={item.favorite}/></button>

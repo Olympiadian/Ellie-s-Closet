@@ -11,11 +11,20 @@ export const itemFields = z.object({
   issues: list,
 });
 export type ItemFields = z.infer<typeof itemFields>;
+export type ImageProcessingState = "processing" | "ready" | "failed";
+export type ImageProcessingInfo = {
+  status: ImageProcessingState;
+  message?: string;
+  updatedAt: string;
+};
 export type WardrobeItem = ItemFields & {
   id: string; status: "uploading" | "pending" | "published" | "archived";
   favorite: boolean; saved: boolean; createdAt: string; publishedAt?: string;
   frontPath?: string; backPath?: string; frontProcessedPath?: string; backProcessedPath?: string;
-  frontUrl?: string; backUrl?: string; originalFrontUrl?: string; originalBackUrl?: string;
+  frontThumbnailPath?: string; backThumbnailPath?: string;
+  imageProcessing?: Partial<Record<"front" | "back", ImageProcessingInfo>>;
+  frontUrl?: string; backUrl?: string; frontThumbnailUrl?: string; backThumbnailUrl?: string;
+  originalFrontUrl?: string; originalBackUrl?: string;
 };
 export type SavedBuild = { id: string; name: string; occasion: string; kind: "outfit" | "collection"; itemIds: string[]; createdAt: string };
 export type CalendarPlan = { id: string; date: string; itemIds: string[]; buildIds: string[]; note: string };

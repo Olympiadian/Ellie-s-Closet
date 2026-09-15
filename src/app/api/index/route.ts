@@ -11,8 +11,10 @@ export async function POST(request: Request) {
     const { id } = z.object({ id: z.string().uuid() }).parse(await request.json());
     await limit("ai-index", 30, 3600);
     const item = await record<WardrobeItem>("item", id);
-    if (!item?.frontPath) throw new AppError("Upload a front image first.");
-    const { data, error } = await db().storage.from("closet-private").createSignedUrl(item.frontPath, 300);
+    if (!item) throw new AppError("Upload a front image first.");
+    const imagePath = item.frontProcessedPath ?? item.frontPath;
+    if (!imagePath) throw new AppError("Upload a front image first.");
+    const { data, error } = await db().storage.from("closet-private").createSignedUrl(imagePath, 300);
     if (error) throw new AppError("Could not open the photo.");
     const result = await indexClothingImage(data.signedUrl);
     await patch("item", id, {

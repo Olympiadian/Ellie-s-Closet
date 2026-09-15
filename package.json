@@ -15,6 +15,7 @@
     "test:workflows": "node --test tests/workflows.test.mjs"
   },
   "dependencies": {
+    "@huggingface/transformers": "^4.2.0",
     "@phosphor-icons/react": "^2.1.10",
     "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.112.3",
@@ -22,6 +23,7 @@
     "openai": "^7.5.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
+    "sharp": "^0.35.3",
     "zod": "^4.4.3"
   },
   "devDependencies": {

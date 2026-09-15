@@ -64,13 +64,12 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 OPENAI_API_KEY=
 OPENAI_VISION_MODEL=
-REMOVE_BG_API_KEY=
 NEXT_PUBLIC_SENTRY_DSN=
 ```
 
 Only the two `NEXT_PUBLIC_` Supabase values may enter browser code. The service-role and OpenAI keys must remain server-only. Choose an image-capable OpenAI model that supports Structured Outputs and set it through `OPENAI_VISION_MODEL`; this keeps model changes out of source code.
 
-`REMOVE_BG_API_KEY` is optional. When present, newly uploaded clothing photos are compressed in the browser, sent through remove.bg on the server, and saved as private PNG cutouts alongside the original upload. Create the key in remove.bg and add it to the local environment and Vercel project; never expose it as a `NEXT_PUBLIC_` value.
+New clothing photos keep their selected original in private storage. Background removal runs in the uploading browser with the open `onnx-community/ormbg-ONNX` model, then the transparent result is sent to private storage for server-side sizing and thumbnails. There is no removal API key, paid removal service, or third-party inference request. The model downloads and caches in the browser on first use, so the first photo needs a reliable connection and can take longer.
 
 ## Supabase setup
 
@@ -110,12 +109,12 @@ The app should use a persistent trusted-device Supabase session. There should be
 ```text
 iPhone camera
   -> preserve original file
-  -> create compressed upload copy
-  -> private Supabase Storage
+  -> browser downloads/runs background-removal model locally
+  -> transparent PNG cutout
+  -> private Supabase Storage + server-side sizing/thumbnails
   -> processing_jobs row
   -> server-side OpenAI image indexing
   -> validated structured metadata
-  -> optional background removal
   -> Ready or Needs Review
   -> phone and wall tablet update
 ```

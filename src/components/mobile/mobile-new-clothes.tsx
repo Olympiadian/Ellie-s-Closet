@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { CameraIcon, CloseIcon } from "@/components/mobile/mobile-icons";
 import { useAnimatedClose } from "@/components/use-animated-close";
-import { uploadPhoto } from "@/lib/api";
+import { uploadClothingPhoto, type ClothingPhotoProgress } from "@/lib/api";
 import { DataGate, useWardrobe } from "@/components/wardrobe/provider";
 
 type PhotoSide = "front" | "back";
@@ -144,9 +144,16 @@ export function MobileNewClothes() {
       for (let index = 0; index < next.length; index++) {
         const slot = next[index];
         if (!slot.front || !slot.back || slot.sent) continue;
-        setConfirmation("Uploading item " + (index + 1) + "… Keep this page open.");
-        if (!slot.uploadedFront) { await uploadPhoto(slot.id, "front", slot.front.file); slot.uploadedFront = true; setSlots(next.map(s => ({ ...s }))); }
-        if (!slot.uploadedBack) { await uploadPhoto(slot.id, "back", slot.back.file); slot.uploadedBack = true; setSlots(next.map(s => ({ ...s }))); }
+        const progress = (update: ClothingPhotoProgress) => {
+          const label = "item " + (index + 1);
+          if (update.stage === "uploading-original") setConfirmation("Saving the original photo for " + label + "… Keep this page open.");
+          if (update.stage === "loading-model") setConfirmation("Preparing on-device background removal for " + label + "…");
+          if (update.stage === "downloading-model") setConfirmation("Downloading the on-device background-removal model" + (update.percent === undefined ? "" : " (" + update.percent + "%)") + "…");
+          if (update.stage === "removing-background") setConfirmation("Removing the background on this device for " + label + "…");
+          if (update.stage === "uploading-cutout") setConfirmation("Saving the transparent cutout for " + label + "…");
+        };
+        if (!slot.uploadedFront) { await uploadClothingPhoto(slot.id, "front", slot.front.file, progress); slot.uploadedFront = true; setSlots(next.map(s => ({ ...s }))); }
+        if (!slot.uploadedBack) { await uploadClothingPhoto(slot.id, "back", slot.back.file, progress); slot.uploadedBack = true; setSlots(next.map(s => ({ ...s }))); }
         slot.sent = true;
         setSlots(next.map(s => ({ ...s })));
       }

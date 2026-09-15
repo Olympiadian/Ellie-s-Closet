@@ -4,7 +4,7 @@ import { emptyItem, type WardrobeItem } from "@/lib/wardrobe";
 import { activity, AppError, db, limit, patch, put, record } from "@/lib/server/records";
 import { requireSession, sameOrigin } from "@/lib/server/session";
 import { apiError, json } from "@/lib/server/http";
-import { processUploadedImage } from "@/lib/server/remove-bg";
+import { standardizeUploadedCutout } from "@/lib/server/remove-bg";
 export const maxDuration = 120;
 
 const schema = z.object({
@@ -18,7 +18,6 @@ export async function POST(request: Request) {
     sameOrigin(request);
     const current = await requireSession();
     const body = schema.parse(await request.json());
-    if (body.processed && current.role !== "admin") throw new AppError("Only admin can replace processed images.", 403);
     let item = await record<WardrobeItem>("item", body.itemId);
     if (!item) {
       if (body.action !== "prepare" || body.processed) throw new AppError("Item not found.", 404);
@@ -29,7 +28,7 @@ export async function POST(request: Request) {
     if (current.role !== "admin" && item.status !== "uploading") {
       // A completed request may lose its response on a mobile connection.
       // Retrying the same slot must not create a duplicate or overwrite a review.
-      if (item.status === "pending" && item.frontPath && item.backPath) return json({ alreadySubmitted: true });
+      if (item.status === "pending" && item.frontPath && item.backPath && item.frontProcessedPath && item.backProcessedPath) return json({ alreadySubmitted: true });
       throw new AppError("This item has already been submitted.", 403);
     }
     const prefix = body.itemId + "/" + (body.processed ? "processed-" : "original-") + body.side + "-";
@@ -47,16 +46,17 @@ export async function POST(request: Request) {
     if (error || !files?.some(file => body.itemId + "/" + file.name === body.path && Number(file.metadata?.size ?? 0) > 0)) throw new AppError("The photo upload is not complete. Please try again.");
     const field = body.side + (body.processed ? "ProcessedPath" : "Path");
     item = await patch<WardrobeItem>("item", item.id, { [field]: body.path });
-    if (!body.processed) {
+    if (body.processed) {
       try {
-        await processUploadedImage(item.id, body.side, body.path);
-      } catch {
-        // The original remains available for admin review if the optional cleanup service is unavailable.
+        await standardizeUploadedCutout(item.id, body.side, body.path);
+      } catch (error) {
+        console.error("Clothing cutout standardization failed", error);
+        throw error;
       }
     }
-    if (item.status === "uploading" && item.frontPath && item.backPath) {
+    if (item.status === "uploading" && item.frontPath && item.backPath && item.frontProcessedPath && item.backProcessedPath) {
       await patch("item", item.id, { status: "pending" });
-      await activity("New front and back photos received for review");
+      await activity("New front and back cutouts received for review");
     }
     return json({ ok: true });
   } catch (error) { return apiError(error); }

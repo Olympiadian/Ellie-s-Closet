@@ -53,8 +53,12 @@ export function Drawer({ title, close, children, small = false }: { title: strin
     </dialog>
   );
 }
-export function ItemPhoto({ item, side = "front", original = false }: { item: WardrobeItem; side?: "front" | "back"; original?: boolean }) {
-  const src = original ? (side === "front" ? item.originalFrontUrl : item.originalBackUrl) : side === "front" ? item.frontUrl : item.backUrl;
+export function ItemPhoto({ item, side = "front", original = false, thumbnail = false }: { item: WardrobeItem; side?: "front" | "back"; original?: boolean; thumbnail?: boolean }) {
+  const src = original
+    ? (side === "front" ? item.originalFrontUrl : item.originalBackUrl)
+    : thumbnail
+      ? (side === "front" ? item.frontThumbnailUrl : item.backThumbnailUrl)
+      : side === "front" ? item.frontUrl : item.backUrl;
   return <div className="wc-photo">{src ? <Image src={src} alt={item.name + " · " + side} fill sizes="(max-width: 600px) 40vw, 25vw" unoptimized /> : <span className="sr-only">{side} photo not yet available</span>}</div>;
 }
 export function Heart({ filled }: { filled: boolean }) {
