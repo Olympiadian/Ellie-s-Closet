@@ -45,6 +45,30 @@ test("standardizes an alpha cutout into centered transparent master and thumbnai
   assert.ok(Math.abs(masterBounds.width / masterBounds.height - 300 / 660) < 0.02);
 });
 
+test("keeps the garment and removes a separate foreground object", async () => {
+  const garment = await sharp({ create: { width: 280, height: 500, channels: 4, background: { r: 44, g: 70, b: 120, alpha: 1 } } }).png().toBuffer();
+  const strayObject = await sharp({ create: { width: 120, height: 150, channels: 4, background: { r: 240, g: 45, b: 45, alpha: 1 } } }).png().toBuffer();
+  const source = await sharp({ create: { width: 1000, height: 1000, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } })
+    .composite([
+      { input: strayObject, left: 70, top: 80 },
+      { input: garment, left: 420, top: 300 },
+    ])
+    .png()
+    .toBuffer();
+
+  const { master } = await composeStandardImages(source);
+  const { data, info } = await sharp(master).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  let strayPixels = 0;
+  for (let index = 0; index < info.width * info.height; index++) {
+    const offset = index * info.channels;
+    if (data[offset] > 180 && data[offset + 1] < 110 && data[offset + 2] < 110 && data[offset + info.channels - 1] > 100) strayPixels++;
+  }
+
+  assert.equal(strayPixels, 0);
+  const bounds = await alphaBounds(master);
+  assert.ok(Math.abs(bounds.width / bounds.height - 280 / 500) < 0.02, JSON.stringify(bounds));
+});
+
 test("rejects an image with no meaningful foreground", async () => {
   const empty = await sharp({ create: { width: 400, height: 400, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } }).png().toBuffer();
   await assert.rejects(composeStandardImages(empty), /No foreground/);
