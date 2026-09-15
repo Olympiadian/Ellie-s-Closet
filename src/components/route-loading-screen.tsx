@@ -39,6 +39,13 @@ function chooseMessage(lastMessage: string | null) {
 
 export function RouteLoadingScreen() {
   const pathname = usePathname();
+
+  // A route key makes the initial visibility derive from the current path,
+  // rather than synchronously changing state from an effect after navigation.
+  return <RouteLoadingScreenForPath key={pathname} pathname={pathname} />;
+}
+
+function RouteLoadingScreenForPath({ pathname }: { pathname: string }) {
   const isLoadingPath = loadingPaths.has(pathname);
   const [isVisible, setIsVisible] = useState(isLoadingPath);
 
@@ -56,10 +63,6 @@ export function RouteLoadingScreen() {
     document.addEventListener("click", showBeforeNavigation, true);
     return () => document.removeEventListener("click", showBeforeNavigation, true);
   }, []);
-
-  useEffect(() => {
-    if (isLoadingPath) setIsVisible(true);
-  }, [isLoadingPath]);
 
   if (!isVisible) return null;
 
