@@ -1030,13 +1030,11 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
   fill: #758fae;
 }
 
-.stats-timeline__key--pieces,
-.stats-timeline__line--pieces,
-.stats-timeline__point--pieces {
-  color: #c08e76;
-  background: #c08e76;
-  stroke: #c08e76;
-  fill: #c08e76;
+.stats-timeline__key--benchmark,
+.stats-timeline__line--benchmark {
+  color: #b0b0b0;
+  background: #b0b0b0;
+  stroke: #b0b0b0;
 }
 
 .stats-timeline__chart {
@@ -1059,9 +1057,19 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
   stroke-linejoin: round;
 }
 
+.stats-timeline__line--benchmark {
+  stroke-width: 2;
+  stroke-dasharray: 5 6;
+}
+
 .stats-timeline__point {
   stroke: #fff;
   stroke-width: 2;
+}
+
+.stats-timeline__axis-label {
+  fill: #999;
+  font: 11px var(--font-inclusive-sans), sans-serif;
 }
 
 .stats-timeline__figure figcaption {

@@ -41,108 +41,74 @@ function StatCard({ label, value, note }: { label: string; value: string; note: 
   );
 }
 
-type GrowthPoint = {
-  timestamp: number;
-  pieces: number;
-  value: number;
+type ValueCurvePoint = {
+  itemShare: number;
+  valueShare: number;
 };
 
-function getGrowthPoints(items: WardrobeItem[]) {
-  const indexedByDay = new Map<number, { pieces: number; value: number }>();
+function getValueCurvePoints(items: WardrobeItem[]) {
+  const pricedItems = items
+    .filter((item) => typeof item.cost === "number" && Number.isFinite(item.cost))
+    .sort((first, second) => (first.cost ?? 0) - (second.cost ?? 0));
+  const totalValue = pricedItems.reduce((sum, item) => sum + (item.cost ?? 0), 0);
 
-  items.forEach((item) => {
-    const indexedAt = new Date(item.createdAt);
-    if (!Number.isFinite(indexedAt.getTime())) return;
-    indexedAt.setHours(0, 0, 0, 0);
-    const timestamp = indexedAt.getTime();
-    const current = indexedByDay.get(timestamp) ?? { pieces: 0, value: 0 };
-    indexedByDay.set(timestamp, {
-      pieces: current.pieces + 1,
-      value: current.value + (item.cost ?? 0),
+  if (!pricedItems.length || totalValue <= 0) return [];
+
+  let cumulativeValue = 0;
+  const points: ValueCurvePoint[] = [{ itemShare: 0, valueShare: 0 }];
+  pricedItems.forEach((item, index) => {
+    cumulativeValue += item.cost ?? 0;
+    points.push({
+      itemShare: (index + 1) / pricedItems.length,
+      valueShare: cumulativeValue / totalValue,
     });
   });
 
-  let pieces = 0;
-  let value = 0;
-  const points = [...indexedByDay.entries()]
-    .sort(([first], [second]) => first - second)
-    .map(([timestamp, additions]) => {
-      pieces += additions.pieces;
-      value += additions.value;
-      return { timestamp, pieces, value };
-    });
+  if (points.length <= 9) return points;
 
-  if (points.length <= 8) return points;
-
-  return Array.from({ length: 8 }, (_, index) => points[Math.round((index * (points.length - 1)) / 7)]);
+  return Array.from({ length: 9 }, (_, index) => points[Math.round((index * (points.length - 1)) / 8)]);
 }
 
-function formatChartDate(timestamp: number) {
-  return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(timestamp);
-}
+function ClosetValueCurve({ points }: { points: ValueCurvePoint[] }) {
+  if (!points.length) return <Empty>Add prices to see how your closet value is distributed.</Empty>;
 
-function ClosetGrowthChart({
-  points,
-  now,
-  startLabel,
-}: {
-  points: GrowthPoint[];
-  now: Date;
-  startLabel: string;
-}) {
-  if (!points.length) return <Empty>Add pieces with an index date to see your closet’s growth over time.</Empty>;
-
-  const isSinglePoint = points.length === 1;
-  const finalTimestamp = Math.max(now.getTime(), points[0].timestamp + 24 * 60 * 60 * 1000);
-  const displayPoints = isSinglePoint
-    ? [...points, { ...points[0], timestamp: finalTimestamp }]
-    : points;
   const width = 720;
   const height = 220;
-  const padding = { top: 12, right: 12, bottom: 18, left: 12 };
+  const padding = { top: 14, right: 14, bottom: 28, left: 14 };
   const plotWidth = width - padding.left - padding.right;
   const plotHeight = height - padding.top - padding.bottom;
-  const firstTimestamp = displayPoints[0].timestamp;
-  const lastTimestamp = displayPoints[displayPoints.length - 1].timestamp;
-  const timeRange = Math.max(lastTimestamp - firstTimestamp, 1);
-  const maxPieces = Math.max(...displayPoints.map((point) => point.pieces), 1);
-  const maxValue = Math.max(...displayPoints.map((point) => point.value), 1);
-  const position = (point: GrowthPoint, maximum: number) => ({
-    x: padding.left + ((point.timestamp - firstTimestamp) / timeRange) * plotWidth,
-    y: padding.top + (1 - point.value / maximum) * plotHeight,
+  const position = (point: ValueCurvePoint) => ({
+    x: padding.left + point.itemShare * plotWidth,
+    y: padding.top + (1 - point.valueShare) * plotHeight,
   });
-  const piecesCoordinates = displayPoints.map((point) => ({
-    x: padding.left + ((point.timestamp - firstTimestamp) / timeRange) * plotWidth,
-    y: padding.top + (1 - point.pieces / maxPieces) * plotHeight,
-  }));
-  const valueCoordinates = displayPoints.map((point) => position(point, maxValue));
-  const path = (coordinates: { x: number; y: number }[]) => coordinates
+  const coordinates = points.map(position);
+  const path = coordinates
     .map((coordinate, index) => `${index === 0 ? "M" : "L"}${coordinate.x.toFixed(1)} ${coordinate.y.toFixed(1)}`)
     .join(" ");
-  const lastPoint = displayPoints[displayPoints.length - 1];
 
   return (
-    <figure className="stats-timeline__figure" aria-label="Closet cataloging timeline">
+    <figure className="stats-timeline__figure" aria-label="Closet value distribution curve">
       <div className="stats-timeline__legend" aria-hidden="true">
-        <span><i className="stats-timeline__key stats-timeline__key--value" />Recorded value</span>
-        <span><i className="stats-timeline__key stats-timeline__key--pieces" />Pieces indexed</span>
+        <span><i className="stats-timeline__key stats-timeline__key--value" />Your closet value</span>
+        <span><i className="stats-timeline__key stats-timeline__key--benchmark" />Evenly spread value</span>
       </div>
-      <svg className="stats-timeline__chart" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`A timeline from ${startLabel.toLowerCase()} to ${formatChartDate(lastPoint.timestamp)} showing recorded closet value and pieces indexed.`}>
-        <title>Closet cataloging timeline</title>
-        {[.2, .5, .8].map((line) => (
+      <svg className="stats-timeline__chart" viewBox={`0 0 ${width} ${height}`} role="img" aria-label="A cumulative curve showing how your recorded closet value is distributed across priced pieces, from least to most expensive.">
+        <title>Closet value distribution</title>
+        {[.25, .5, .75].map((line) => (
           <line key={line} className="stats-timeline__grid-line" x1={padding.left} x2={width - padding.right} y1={padding.top + plotHeight * line} y2={padding.top + plotHeight * line} />
         ))}
-        <path className="stats-timeline__line stats-timeline__line--value" d={path(valueCoordinates)} />
-        <path className="stats-timeline__line stats-timeline__line--pieces" d={path(piecesCoordinates)} />
-        {displayPoints.length > 2 && valueCoordinates.map((coordinate, index) => (
-          <circle className="stats-timeline__point stats-timeline__point--value" key={`value-${index}`} cx={coordinate.x} cy={coordinate.y} r="3.5" />
+        <path className="stats-timeline__line stats-timeline__line--benchmark" d={`M${padding.left} ${padding.top + plotHeight} L${width - padding.right} ${padding.top}`} />
+        <path className="stats-timeline__line stats-timeline__line--value" d={path} />
+        {coordinates.slice(1).map((coordinate, index) => (
+          <circle className="stats-timeline__point stats-timeline__point--value" key={index} cx={coordinate.x} cy={coordinate.y} r="3.5" />
         ))}
-        <circle className="stats-timeline__point stats-timeline__point--pieces" cx={piecesCoordinates[piecesCoordinates.length - 1].x} cy={piecesCoordinates[piecesCoordinates.length - 1].y} r="4" />
-        <circle className="stats-timeline__point stats-timeline__point--value" cx={valueCoordinates[valueCoordinates.length - 1].x} cy={valueCoordinates[valueCoordinates.length - 1].y} r="4" />
+        <text className="stats-timeline__axis-label" x={padding.left} y={height - 6}>0%</text>
+        <text className="stats-timeline__axis-label" x={width / 2} y={height - 6} textAnchor="middle">50% of pieces</text>
+        <text className="stats-timeline__axis-label" x={width - padding.right} y={height - 6} textAnchor="end">100%</text>
       </svg>
       <figcaption>
-        <span><b>{startLabel}</b> · {formatChartDate(firstTimestamp)}</span>
-        <span><b>{isSinglePoint ? "Today" : "Latest entry"}</b> · {formatChartDate(lastPoint.timestamp)}</span>
+        <span><b>Least expensive</b> pieces first</span>
+        <span><b>Highest-priced</b> pieces finish the curve</span>
       </figcaption>
     </figure>
   );
@@ -237,7 +203,7 @@ function StatsContents() {
       topCategory: categoryRows[0]?.label ?? "—",
       topStore: storeRows[0]?.label ?? "—",
       mostPlanned: getPlanItems(plans, allItems),
-      growthPoints: getGrowthPoints(items),
+      valueCurvePoints: getValueCurvePoints(items),
       concentration: priced.length && totalValue > 0
         ? {
           pieces: concentrationCount,
@@ -277,13 +243,13 @@ function StatsContents() {
         <section className="stats-panel stats-timeline" aria-labelledby="closet-timeline-title">
           <header>
             <div>
-              <p className="stats-timeline__eyebrow">Your closet’s trajectory</p>
-              <h3 id="closet-timeline-title">Cataloging momentum</h3>
+              <p className="stats-timeline__eyebrow">Value perspective</p>
+              <h3 id="closet-timeline-title">Where your closet value lives</h3>
             </div>
-            <span className="stats-panel__total">{period === "all" ? "All time" : `Last ${period} days`}</span>
+            <span className="stats-panel__total">{stats.priced.length} priced</span>
           </header>
-          <p className="stats-timeline__description">Track how your recorded value and number of pieces grow together. This reflects when pieces were added to Ellie’s Closet, not when they were originally purchased.</p>
-          <ClosetGrowthChart points={stats.growthPoints} now={now} startLabel={period === "all" ? "Index start" : "Period start"} />
+          <p className="stats-timeline__description">See whether your closet’s worth is shared across many pieces or carried by a small set of higher-value ones. The closer the blue line is to the diagonal, the more evenly your value is spread.</p>
+          <ClosetValueCurve points={stats.valueCurvePoints} />
           <div className="stats-timeline__insight">
             <span>Value concentration</span>
             {stats.concentration ? (
