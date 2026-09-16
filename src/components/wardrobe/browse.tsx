@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
-import { FloppyDisk, PencilSimple, SlidersHorizontal, SortAscending, SortDescending } from "@phosphor-icons/react";
+import { ArrowsDownUp, BookmarkSimple, FadersHorizontal, FloppyDisk, PencilSimple, SlidersHorizontal, SortAscending, SortDescending } from "@phosphor-icons/react";
 import type { SavedBuild, WardrobeItem } from "@/lib/wardrobe";
 import { useWardrobe, DataGate } from "./provider";
 import { Drawer, Empty, Heart, ItemPhoto, PageShell } from "./ui";
@@ -137,9 +137,9 @@ export function ItemGrid({ items, builds = [], choose, selected = [], compact = 
   return <section className={`closet-browser${compact ? " closet-browser--compact" : ""}`}>
     <div className="closet-browser__controls">
       <div className="mobile-closet-toolbar" aria-label="Closet controls">
-        <button type="button" aria-label="Filters" title="Filters" className={sheet === "filters" || appliedTopic !== "All" || appliedTag !== "All" ? "is-active" : ""} onClick={() => { setDraftTopic(appliedTopic); setDraftTag(appliedTag); setSheet("filters"); }}><SlidersHorizontal weight="regular" aria-hidden="true"/><span>Filters</span></button>
-        <button type="button" aria-label="Sort" title="Sort" className={sheet === "sort" ? "is-active" : ""} onClick={() => { setDraftSort(sortOrder ?? "newest"); setSheet("sort"); }}><SortDescending weight="regular" aria-hidden="true"/><span>Sort</span></button>
-        <button type="button" aria-label="Saved" title="Saved" className={sheet === "saved" || savedView ? "is-active" : ""} onClick={() => { setDraftSaved(savedView ?? "favorites"); setSheet("saved"); }}><FloppyDisk weight="regular" aria-hidden="true"/><span>Saved</span></button>
+        <button type="button" aria-label="Filters" title="Filters" className={sheet === "filters" || appliedTopic !== "All" || appliedTag !== "All" ? "is-active" : ""} onClick={() => { setDraftTopic(appliedTopic); setDraftTag(appliedTag); setSheet("filters"); }}><span className="closet-toolbar__desktop-icon"><FadersHorizontal weight="thin" aria-hidden="true"/></span><span className="closet-toolbar__mobile-icon"><SlidersHorizontal weight="regular" aria-hidden="true"/></span><span>Filters</span></button>
+        <button type="button" aria-label="Sort" title="Sort" className={sheet === "sort" ? "is-active" : ""} onClick={() => { setDraftSort(sortOrder ?? "newest"); setSheet("sort"); }}><span className="closet-toolbar__desktop-icon"><ArrowsDownUp weight="thin" aria-hidden="true"/></span><span className="closet-toolbar__mobile-icon"><SortDescending weight="regular" aria-hidden="true"/></span><span>Sort</span></button>
+        <button type="button" aria-label="Saved" title="Saved" className={sheet === "saved" || savedView ? "is-active" : ""} onClick={() => { setDraftSaved(savedView ?? "favorites"); setSheet("saved"); }}><span className="closet-toolbar__desktop-icon"><BookmarkSimple weight="thin" aria-hidden="true"/></span><span className="closet-toolbar__mobile-icon"><FloppyDisk weight="regular" aria-hidden="true"/></span><span>Saved</span></button>
       </div>
       <div className="closet-browser__filters" aria-label={mode === "topics" ? "Categories" : "Tags"}>{(mode === "topics" ? topics : tags).map(value => <button key={value} className={filter === value ? "is-active" : ""} aria-pressed={filter === value} onClick={() => setFilter(value)}>{value}</button>)}</div>
     </div>
