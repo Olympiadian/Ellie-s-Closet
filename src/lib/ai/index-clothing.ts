@@ -3,23 +3,11 @@ import "server-only";
 import OpenAI from "openai";
 import { zodTextFormat } from "openai/helpers/zod";
 import { z } from "zod";
+import { closetTopics, clothingTags } from "@/lib/types";
 
 const clothingIndexSchema = z.object({
   name: z.string().min(2).max(80),
-  category: z.enum([
-    "tops",
-    "bottoms",
-    "dresses",
-    "outerwear",
-    "shoes",
-    "bags",
-    "accessories",
-    "jewelry",
-    "activewear",
-    "swimwear",
-    "loungewear",
-    "other",
-  ]),
+  category: z.enum(closetTopics),
   subcategory: z.string().min(2).max(60),
   primary_color: z.string().min(2).max(40),
   secondary_color: z.string().max(40).nullable(),
@@ -27,7 +15,7 @@ const clothingIndexSchema = z.object({
   material_guess: z.string().max(60).nullable(),
   seasons: z.array(z.enum(["spring", "summer", "fall", "winter"])).min(1),
   occasions: z.array(z.string().min(2).max(40)).max(8),
-  style_tags: z.array(z.string().min(2).max(40)).max(12),
+  style_tags: z.array(z.enum(clothingTags)).max(12),
   confidence: z.number().min(0).max(1),
   review_reason: z.string().max(180).nullable(),
 });
@@ -46,7 +34,7 @@ export async function indexClothingImage(imageUrl: string): Promise<ClothingInde
   const response = await openai.responses.parse({
     model,
     instructions:
-      "Index one photographed wardrobe item. Describe only visible evidence, use concise human labels, and lower confidence when the image is unclear or shows multiple pieces.",
+      "Index one photographed wardrobe item. Use only the allowed categories and contextual style tags from the response schema. Describe only visible evidence, use concise human labels, and lower confidence when the image is unclear or shows multiple pieces.",
     input: [
       {
         role: "user",

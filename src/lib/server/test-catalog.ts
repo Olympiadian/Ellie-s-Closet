@@ -1,8 +1,21 @@
 import "server-only";
 
+import { clothingTags } from "@/lib/types";
 import type { ItemFields } from "@/lib/wardrobe";
 
 export type TestCatalogItem = ItemFields & { id: string; asset: string };
+
+const contextualTags: Record<string, typeof clothingTags[number]> = {
+  everyday: "Everyday", work: "Work", "going out": "Going Out", "night out": "Going Out", club: "Club",
+  dinner: "Dinner", formal: "Formal", church: "Church", "date night": "Date Night", comfy: "Comfy",
+  comfortable: "Comfy", cozy: "Comfy", lounge: "Comfy", sleepwear: "Comfy", basic: "Basic",
+  layering: "Layering", layers: "Layering", casual: "Casual", dressy: "Dressy", summer: "Summer",
+  winter: "Winter", gym: "Casual", active: "Casual",
+};
+function contextTags(values: string[]) {
+  const tags = values.map(value => contextualTags[value.toLowerCase()]).filter((tag): tag is typeof clothingTags[number] => Boolean(tag));
+  return tags.length ? [...new Set(tags)] : ["Casual"];
+}
 
 const item = (
   number: number,
@@ -19,17 +32,17 @@ const item = (
   fit: fields.fit,
   store: fields.store,
   cost: fields.cost,
-  tags: fields.tags,
+  tags: contextTags([...fields.tags, ...fields.occasions]),
   occasions: fields.occasions,
   details: `TEST-CLOTHES — ${fields.description}`,
   issues: [],
 });
 
 export const testCatalog: TestCatalogItem[] = [
-  item(1, "01-blue-pajamas.png", { name: "Blue Piped Cotton Pajama Set", category: "loungewear", subcategory: "Pajama set", color: "Pale blue", size: "S", fit: "Relaxed", store: "Eberjey", cost: 138, tags: ["pajamas", "cotton", "cozy", "matching set"], occasions: ["sleepwear", "lounge"], description: "Soft cotton button-up pajama shirt and matching shorts with white contrast piping." }),
-  item(2, "02-pink-satin-pajamas.png", { name: "Blush Satin Pajama Set", category: "loungewear", subcategory: "Pajama set", color: "Blush pink", size: "M", fit: "Relaxed", store: "Nordstrom", cost: 79, tags: ["pajamas", "satin", "pink", "matching set"], occasions: ["sleepwear", "lounge", "travel"], description: "Silky blush button-up pajama top and shorts with a softly draped finish." }),
-  item(3, "03-ivory-ribbed-pajamas.png", { name: "Ivory Ribbed Lounge Set", category: "loungewear", subcategory: "Pajama set", color: "Warm ivory", size: "S", fit: "Fitted top, relaxed bottom", store: "SKIMS", cost: 118, tags: ["pajamas", "ribbed", "neutral", "soft"], occasions: ["sleepwear", "lounge"], description: "Warm ivory ribbed sleep set with a fitted tank and comfortable drawstring pants." }),
-  item(4, "04-sage-modal-pajamas.png", { name: "Sage Modal Pajama Set", category: "loungewear", subcategory: "Pajama set", color: "Sage green", size: "M", fit: "Easy relaxed", store: "Aerie", cost: 64.95, tags: ["pajamas", "modal", "green", "matching set"], occasions: ["sleepwear", "lounge", "weekend"], description: "Breathable sage modal long-sleeve pajama top and matching pants for year-round lounging." }),
+  item(1, "01-blue-pajamas.png", { name: "Blue Piped Cotton Pajama Set", category: "sleep", subcategory: "Pajama set", color: "Pale blue", size: "S", fit: "Relaxed", store: "Eberjey", cost: 138, tags: ["Comfy", "Casual", "Winter"], occasions: ["sleepwear", "lounge"], description: "Soft cotton button-up pajama shirt and matching shorts with white contrast piping." }),
+  item(2, "02-pink-satin-pajamas.png", { name: "Blush Satin Pajama Set", category: "sleep", subcategory: "Pajama set", color: "Blush pink", size: "M", fit: "Relaxed", store: "Nordstrom", cost: 79, tags: ["Comfy", "Casual", "Winter"], occasions: ["sleepwear", "lounge", "travel"], description: "Silky blush button-up pajama top and shorts with a softly draped finish." }),
+  item(3, "03-ivory-ribbed-pajamas.png", { name: "Ivory Ribbed Lounge Set", category: "sleep", subcategory: "Pajama set", color: "Warm ivory", size: "S", fit: "Fitted top, relaxed bottom", store: "SKIMS", cost: 118, tags: ["Comfy", "Casual", "Winter"], occasions: ["sleepwear", "lounge"], description: "Warm ivory ribbed sleep set with a fitted tank and comfortable drawstring pants." }),
+  item(4, "04-sage-modal-pajamas.png", { name: "Sage Modal Pajama Set", category: "sleep", subcategory: "Pajama set", color: "Sage green", size: "M", fit: "Easy relaxed", store: "Aerie", cost: 64.95, tags: ["Comfy", "Casual", "Winter"], occasions: ["sleepwear", "lounge", "weekend"], description: "Breathable sage modal long-sleeve pajama top and matching pants for year-round lounging." }),
 
   item(5, "05-black-tube-top.png", { name: "Black Essential Tube Top", category: "tops", subcategory: "Tube top", color: "Black", size: "S", fit: "Fitted", store: "Aritzia", cost: 38, tags: ["tube top", "black", "minimal", "going out"], occasions: ["going out", "date night", "concert"], description: "Clean strapless black tube top with a close, supportive fit." }),
   item(6, "06-ivory-square-neck-tank.png", { name: "Ivory Square-Neck Tank", category: "tops", subcategory: "Tank top", color: "Ivory", size: "S", fit: "Slim", store: "Abercrombie & Fitch", cost: 45, tags: ["tank top", "square neck", "neutral", "basic"], occasions: ["everyday", "brunch", "casual"], description: "Polished ivory square-neck tank with wide straps and a smooth fitted silhouette." }),
@@ -53,6 +66,6 @@ export const testCatalog: TestCatalogItem[] = [
   item(22, "22-denim-mini-skirt.png", { name: "Classic Denim Mini Skirt", category: "bottoms", subcategory: "Mini skirt", color: "Medium wash blue", size: "26", fit: "A-line", store: "Reformation", cost: 128, tags: ["skirt", "denim", "mini", "casual"], occasions: ["brunch", "concert", "weekend"], description: "Medium-wash denim mini skirt with a clean A-line shape and five-pocket styling." }),
   item(23, "23-ivory-tennis-skirt.png", { name: "Ivory Pleated Tennis Skirt", category: "bottoms", subcategory: "Mini skirt", color: "Ivory", size: "S", fit: "High-rise pleated", store: "Alo Yoga", cost: 78, tags: ["skirt", "pleated", "ivory", "preppy"], occasions: ["casual", "brunch", "weekend"], description: "Crisp ivory tennis skirt with even pleats and a smooth high-rise waistband." }),
 
-  item(24, "24-forest-workout-set.png", { name: "Forest Green Legging Workout Set", category: "activewear", subcategory: "Workout set", color: "Forest green", size: "S", fit: "Supportive compression", store: "Lululemon", cost: 166, tags: ["workout set", "leggings", "sports bra", "green"], occasions: ["gym", "active", "errands"], description: "Matching forest-green sports bra and high-rise full-length performance leggings." }),
-  item(25, "25-navy-black-workout-set.png", { name: "Navy and Black Short Workout Set", category: "activewear", subcategory: "Workout set", color: "Deep navy and black", size: "M", fit: "Fitted performance", store: "Alo Yoga", cost: 196, tags: ["workout set", "shorts", "jacket", "navy"], occasions: ["gym", "active", "travel"], description: "Coordinated zip-front cropped athletic jacket and high-rise fitted workout shorts." }),
+  item(24, "24-forest-workout-set.png", { name: "Forest Green Legging Workout Set", category: "active", subcategory: "Workout set", color: "Forest green", size: "S", fit: "Supportive compression", store: "Lululemon", cost: 166, tags: ["Casual", "Comfy"], occasions: ["gym", "active", "errands"], description: "Matching forest-green sports bra and high-rise full-length performance leggings." }),
+  item(25, "25-navy-black-workout-set.png", { name: "Navy and Black Short Workout Set", category: "active", subcategory: "Workout set", color: "Deep navy and black", size: "M", fit: "Fitted performance", store: "Alo Yoga", cost: 196, tags: ["Casual", "Summer"], occasions: ["gym", "active", "travel"], description: "Coordinated zip-front cropped athletic jacket and high-rise fitted workout shorts." }),
 ];
