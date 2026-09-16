@@ -146,9 +146,9 @@
 .calendar-closet-picker__save { position: sticky; z-index: 4; bottom: 0; width: 100%; margin-top: 16px; }
 
 .closet-browser--compact .mobile-closet-toolbar { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 9px; margin: 0; }
-.closet-browser--compact .mobile-closet-toolbar button { display: flex; min-width: 0; min-height: 36px; align-items: center; justify-content: center; gap: 8px; padding: 4px 10px; border: 1px solid #dedede; border-radius: 999px; color: #3d3d3d; background: #fff; font: 500 14px var(--font-inclusive-sans),Arial,sans-serif; letter-spacing: -.03em; }
-.closet-browser--compact .mobile-closet-toolbar button.is-active { background: #d8d8d8; }
-.closet-browser--compact .mobile-closet-toolbar svg { width: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.closet-browser--compact .mobile-closet-toolbar button { display: flex; min-width: 0; min-height: 36px; align-items: center; justify-content: center; gap: 8px; padding: 4px 10px; border: 1px solid #c9c9c9; border-radius: 999px; color: #3d3d3d; background: #dedede; font: 500 14px var(--font-inclusive-sans),Arial,sans-serif; letter-spacing: -.03em; }
+.closet-browser--compact .mobile-closet-toolbar button.is-active { background: #bcbcbc; }
+.closet-browser--compact .mobile-closet-toolbar svg { width: 16px; fill: currentColor; stroke: none; }
 .closet-browser--compact .mobile-closet-count { display: block; margin: 12px 3px 0; color: #7d7d7d; font-size: 12px; }
 .closet-browser--compact :is(.closet-browser__mode,.closet-browser__filters) { display: none; }
 .closet-browser--compact .closet-browser__grid { width: 100%; height: min(52vh,520px); grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; margin: 18px 0 0; padding: 3px 6px 3px 3px; overflow-y: auto; scrollbar-width: thin; }
@@ -262,9 +262,6 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
 .mobile-calendar-drawer__backdrop {
   display: none;
 }
-
-.closet-toolbar__desktop-icon { display: none; }
-.closet-toolbar__mobile-icon { display: contents; }
 
 @media (min-width: 601px) {
   .closet-browser:not(.closet-browser--compact) .mobile-closet-toolbar button {
@@ -663,13 +660,13 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
     border: 0;
     border-radius: 999px;
     color: #3d3d3d;
-    background: rgba(255,255,255,.92);
+    background: #dedede;
     font: 500 14px var(--font-inclusive-sans), Arial, sans-serif;
     letter-spacing: -.03em;
   }
 
   .mobile-closet-toolbar button.is-active {
-    background: #c5c5c5;
+    background: #bcbcbc;
   }
 
   .mobile-closet-count {
@@ -682,11 +679,8 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
 
   .mobile-closet-toolbar svg {
     width: 17px;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.8;
-    stroke-linecap: round;
-    stroke-linejoin: round;
+    fill: currentColor;
+    stroke: none;
   }
 
   .wc-saved-tabs {
@@ -1674,7 +1668,7 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
   }
 
   .mobile-calendar-picker .mobile-closet-toolbar button {
-    border: 1px solid #dedede;
+    border: 1px solid #c9c9c9;
   }
 
   .mobile-calendar-picker .mobile-closet-count {
@@ -1941,11 +1935,8 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
 }
 
 @media (min-width: 601px) {
-  .closet-browser:not(.closet-browser--compact) .mobile-closet-toolbar button { width: 56px; min-width: 56px; height: 56px; aspect-ratio: 1 / 1; flex: 0 0 56px; border-radius: 6px; color: #3d3d3d; background: #fff; }
-  .closet-browser:not(.closet-browser--compact) .mobile-closet-toolbar button.is-active { color: #303030; background: #c7c7c7; }
-  .closet-browser:not(.closet-browser--compact) .mobile-closet-toolbar button > span:not(.closet-toolbar__desktop-icon):not(.closet-toolbar__mobile-icon) { display: none; }
-  .closet-browser:not(.closet-browser--compact) .mobile-closet-toolbar button > .closet-toolbar__desktop-icon { display: grid; place-items: center; }
-  .closet-browser:not(.closet-browser--compact) .mobile-closet-toolbar button > .closet-toolbar__mobile-icon { display: none; }
+  .closet-browser:not(.closet-browser--compact) .mobile-closet-toolbar button { width: 56px; min-width: 56px; height: 56px; aspect-ratio: 1 / 1; flex: 0 0 56px; border-radius: 6px; color: #3d3d3d; background: #dedede; }
+  .closet-browser:not(.closet-browser--compact) .mobile-closet-toolbar button.is-active { color: #303030; background: #bcbcbc; }
   .closet-browser:not(.closet-browser--compact) .mobile-closet-toolbar svg { width: 22px; height: 22px; color: #3d3d3d !important; opacity: 1; }
   .closet-browser:not(.closet-browser--compact) .closet-browser__display-count { display: block; width: min(76.8vw, 1520px); margin: 17px auto 0; color: rgba(48,48,48,.6); font-size: 13px; letter-spacing: .01em; }
 }
