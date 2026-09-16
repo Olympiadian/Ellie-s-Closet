@@ -23,7 +23,7 @@ type ClothingSlot = {
   back?: SlotPhoto;
 };
 
-const slotCount = 10;
+const slotCount = 20;
 
 function emptySlots(): ClothingSlot[] {
   return Array.from({ length: slotCount }, () => ({}));
