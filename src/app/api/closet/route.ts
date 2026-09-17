@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { defaultSettings, itemFields, type Preferences, type WardrobeItem, type SavedBuild } from "@/lib/wardrobe";
-import { activity, AppError, limit, patch, put, record, records, remove } from "@/lib/server/records";
+import { activity, AppError, limit, patch, put, record, records, remove, removeWardrobeItem } from "@/lib/server/records";
 import { requireSession, sameOrigin } from "@/lib/server/session";
 import { apiError, json } from "@/lib/server/http";
 import { wardrobeData } from "@/lib/server/wardrobe-data";
@@ -12,6 +12,7 @@ const day = text.regex(/^\d{4}-\d{2}-\d{2}$/).refine(v => { const d = new Date(v
 const actions = z.discriminatedUnion("action", [
   z.object({ action: z.literal("mark"), id: uuid, field: z.enum(["favorite", "saved"]), value: z.boolean() }),
   z.object({ action: z.literal("editItem"), id: uuid, fields: itemFields }),
+  z.object({ action: z.literal("removeItem"), id: uuid }),
   z.object({ action: z.literal("publish"), id: uuid, published: z.boolean() }),
   z.object({ action: z.literal("saveBuild"), id: uuid, name: text.min(1).max(100), occasion: text.max(100), kind: z.enum(["outfit", "collection"]), itemIds: z.array(uuid).min(1).max(50) }),
   z.object({ action: z.literal("removeBuild"), id: uuid }),
@@ -40,7 +41,7 @@ export async function POST(request: Request) {
     if (needsAdmin && current.role !== "admin") throw new AppError("Admin access is required.", 403);
     await limit("mutations:" + current.role, 120, 60);
     const now = new Date().toISOString();
-    if (body.action === "mark" || body.action === "editItem" || body.action === "publish") {
+    if (body.action === "mark" || body.action === "editItem" || body.action === "removeItem" || body.action === "publish") {
       const item = await record<WardrobeItem>("item", body.id);
       if (!item || (current.role !== "admin" && item.status !== "published")) throw new AppError("Item not found.", 404);
       if (body.action === "mark") {
@@ -49,8 +50,11 @@ export async function POST(request: Request) {
       } else if (body.action === "editItem") {
         await patch("item", body.id, body.fields);
         await activity("Updated details for " + body.fields.name);
+      } else if (body.action === "removeItem") {
+        await removeWardrobeItem(body.id);
+        await activity("Removed clothing item: " + item.name);
       } else {
-        if (body.published && (!item.frontPath || !item.backPath || !item.name.trim())) throw new AppError("Add both photos and a name before publishing.");
+        if (body.published && (!(item.frontPath || item.backPath) || !item.name.trim())) throw new AppError("Add a photo and a name before publishing.");
         await patch("item", body.id, { status: body.published ? "published" : "archived", ...(body.published ? { publishedAt: item.publishedAt ?? now } : {}) });
         await activity((body.published ? "Published " : "Archived ") + item.name);
       }

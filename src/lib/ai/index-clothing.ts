@@ -8,13 +8,11 @@ import { closetTopics, clothingTags } from "@/lib/types";
 const clothingIndexSchema = z.object({
   name: z.string().min(2).max(80),
   category: z.enum(closetTopics),
-  subcategory: z.string().min(2).max(60),
   primary_color: z.string().min(2).max(40),
   secondary_color: z.string().max(40).nullable(),
   pattern: z.string().min(2).max(40),
   material_guess: z.string().max(60).nullable(),
   seasons: z.array(z.enum(["spring", "summer", "fall", "winter"])).min(1),
-  occasions: z.array(z.string().min(2).max(40)).max(8),
   style_tags: z.array(z.enum(clothingTags)).max(12),
   confidence: z.number().min(0).max(1),
   review_reason: z.string().max(180).nullable(),

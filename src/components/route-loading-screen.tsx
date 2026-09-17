@@ -25,8 +25,8 @@ const loadingMessages = [
 ] as const;
 
 const loadingPaths = new Set(["/closet", "/build"]);
-const transitionDuration = 2600;
-const exitDuration = 280;
+const transitionDuration = 360;
+const exitDuration = 160;
 const lastMessageKey = "ellies-closet-last-loading-message";
 
 function chooseMessage(lastMessage: string | null) {

@@ -25,6 +25,7 @@
   letter-spacing: -.03em; cursor: pointer;
 }
 .wc-button--accent { background: #d2e1f6; }
+.wc-button--danger { border-color: rgba(143,45,45,.2); color: #8f2d2d; background: #fff3f3; }
 .wc-icon-button { min-width: 48px; min-height: 48px; padding: 8px; font-size: 28px; }
 .wc-text-link { display: inline-block; margin-block: 18px; border: 0; padding: 0; background: none; text-decoration: underline; text-underline-offset: 4px; font: inherit; cursor: pointer; }
 .wc-page button:disabled, .wc-drawer button:disabled { opacity: .5; cursor: wait; }
@@ -144,6 +145,15 @@
 .calendar-closet-picker__note { display: grid; gap: 8px; margin-top: 22px; color: #606060; font-size: 13px; }
 .calendar-closet-picker__note textarea { width: 100%; min-height: 72px; resize: vertical; padding: 12px 14px; border: 0; border-radius: 12px; background: #f5f5f5; color: #303030; font: 400 15px var(--font-manrope),Arial,sans-serif; }
 .calendar-closet-picker__save { position: sticky; z-index: 4; bottom: 0; width: 100%; margin-top: 16px; }
+.calendar-plan-preview { display: grid; gap: 12px; margin: 0 0 24px; padding: 16px; border-radius: 14px; background: #f5f7fb; }
+.calendar-plan-preview h3 { margin: 0; color: #555; font: 500 13px var(--font-manrope),Arial,sans-serif; text-transform: uppercase; letter-spacing: .06em; }
+.calendar-plan-preview article { display: flex; align-items: center; gap: 14px; }
+.calendar-plan-preview article > div:last-child { display: grid; min-width: 0; gap: 3px; }
+.calendar-plan-preview article strong, .calendar-plan-preview article small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.calendar-plan-preview article small { color: #777; }
+.calendar-plan-preview__photos { display: grid; width: 92px; height: 72px; flex: 0 0 92px; grid-template-columns: repeat(2,1fr); overflow: hidden; border-radius: 10px; background: #fff; }
+.calendar-plan-preview__photos .wc-photo { min-height: 0; height: 36px; aspect-ratio: auto; border-radius: 0; }
+.calendar-plan-preview__photos .wc-photo img { padding: 3px; }
 
 .closet-browser--compact .mobile-closet-toolbar { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 9px; margin: 0; }
 .closet-browser--compact .mobile-closet-toolbar button { display: flex; min-width: 0; min-height: 36px; align-items: center; justify-content: center; gap: 8px; padding: 4px 10px; border: 1px solid #c9c9c9; border-radius: 999px; color: #303030; background: #fff; font: 500 14px var(--font-inclusive-sans),Arial,sans-serif; letter-spacing: -.03em; }
@@ -230,6 +240,24 @@
 @keyframes wc-slide-in { from { transform: translateX(calc(100% + 24px)); } to { transform: translateX(0); } }
 @keyframes wc-dot { 0%,80%,100% { opacity: .3; } 40% { opacity: 1; } }
 @media (max-width: 1050px) {
+  .closet-browser__delete {
+    position: absolute;
+    z-index: 4;
+    top: 13px;
+    right: 13px;
+    display: grid;
+    width: 30px;
+    height: 30px;
+    place-items: center;
+    padding: 0 0 2px;
+    border: 1px solid rgba(48,48,48,.24);
+    border-radius: 50%;
+    color: #303030;
+    background: #fff;
+    box-shadow: 0 3px 10px rgba(0,0,0,.13);
+    font: 400 22px/1 Arial,sans-serif;
+  }
+  .closet-browser__item.is-delete-ready { outline: 2px solid rgba(143,45,45,.28); outline-offset: -2px; }
   .wc-content { width: 82vw; }
   .wc-narrow { width: min(650px,82vw); }
   .wc-builder.is-building { padding-left: 29vw; }
@@ -561,6 +589,22 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
 @media (min-width: 1051px) {
   .closet-browser:not(.closet-browser--compact) .closet-browser__filters {
     display: none;
+  }
+}
+
+@media (min-width: 601px) {
+  .wc-builder .closet-browser__controls { position: relative; }
+  .wc-builder .closet-browser:not(.closet-browser--compact) .mobile-closet-sheet__backdrop {
+    position: absolute;
+    inset: auto auto auto 0;
+    top: calc(100% + 16px);
+    width: min(720px, 100%);
+    height: auto;
+  }
+  .wc-builder .closet-browser:not(.closet-browser--compact) .mobile-closet-sheet {
+    position: static;
+    top: auto;
+    left: auto;
   }
 }
 
@@ -976,6 +1020,13 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
   .home-dashboard__secondary-nav {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+}
+
+.home-primary-label--tablet { display: none; }
+
+@media (min-width: 601px) and (max-width: 1050px) {
+  .home-primary-label--default { display: none; }
+  .home-primary-label--tablet { display: inline; }
 }
 
 /* Desktop and tablet STATS */

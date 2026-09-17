@@ -71,20 +71,19 @@ export function ItemDetails({ item, close }: { item: WardrobeItem; close: () => 
     finally { setBusy(false); }
   }
   return <Drawer title={current.name} close={close}>
-    {editing ? <><ItemEditor item={current} onSaved={() => setEditing(false)}/><button type="button" className="wc-text-link" onClick={() => setEditing(false)}>Back to item details</button></> : <>
+    {editing ? <><ItemEditor item={current} onSaved={() => setEditing(false)} onDeleted={close}/><button type="button" className="wc-text-link" onClick={() => setEditing(false)}>Back to item details</button></> : <>
     <div className="wc-item-photos"><ItemPhoto item={current}/><ItemPhoto item={current} side="back"/></div>
     <div className="wc-item-actions"><button className="wc-button" aria-pressed={current.saved} disabled={busy} onClick={() => void mark("saved")}>{current.saved ? "Saved" : "Save item"}</button><button className="wc-heart-button" disabled={busy} aria-label={current.favorite ? "Remove from favorites" : "Add to favorites"} aria-pressed={current.favorite} onClick={() => void mark("favorite")}><Heart filled={current.favorite}/></button></div>
     {error && <p role="alert">{error}</p>}
     <dl className="closet-item-drawer__details">
-      {Object.entries({ Category: [itemTopic(current), current.subcategory].filter(Boolean).join(" · "), Tags: current.tags.join(" · "), Color: current.color, Details: [current.details, current.size && "Size " + current.size, current.fit, current.store, current.cost !== null && "$" + current.cost.toFixed(2), current.occasions.join(" · ")].filter(Boolean).join(" · ") }).map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value || "Not added yet"}</dd></div>)}
+      {Object.entries({ Category: itemTopic(current), Tags: current.tags.join(" · "), Color: current.color, Details: [current.details, current.size && "Size " + current.size, current.store, current.cost !== null && "$" + current.cost.toFixed(2)].filter(Boolean).join(" · ") }).map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value || "Not added yet"}</dd></div>)}
     </dl>
     <button type="button" className="wc-text-link" onClick={() => setEditing(true)}>Edit item information</button>
     </>}
   </Drawer>;
 }
-export function ItemGrid({ items, builds = [], choose, selected = [], compact = false, showDesktopCount = false }: { items: WardrobeItem[]; builds?: SavedBuild[]; choose?: (item: WardrobeItem) => void; selected?: string[]; compact?: boolean; showDesktopCount?: boolean }) {
+export function ItemGrid({ items, builds = [], choose, selected = [], compact = false, showDesktopCount = false, allowDelete = false }: { items: WardrobeItem[]; builds?: SavedBuild[]; choose?: (item: WardrobeItem) => void; selected?: string[]; compact?: boolean; showDesktopCount?: boolean; allowDelete?: boolean }) {
   const { mutate } = useWardrobe();
-  const [mode, setMode] = useState<"topics" | "tags">("topics");
   const [filter, setFilter] = useState("All");
   const [sheet, setSheet] = useState<SheetName | null>(null);
   const [draftTopic, setDraftTopic] = useState("All");
@@ -98,6 +97,13 @@ export function ItemGrid({ items, builds = [], choose, selected = [], compact = 
   const [item, setItem] = useState<WardrobeItem | null>(null);
   const [favoriteBusy, setFavoriteBusy] = useState<string | null>(null);
   const [favoriteError, setFavoriteError] = useState("");
+  const [deleteReady, setDeleteReady] = useState<string | null>(null);
+  const [deleteBusy, setDeleteBusy] = useState<string | null>(null);
+  const longPressTimer = useRef<number | null>(null);
+  const suppressOpen = useRef<string | null>(null);
+  useEffect(() => () => {
+    if (longPressTimer.current !== null) window.clearTimeout(longPressTimer.current);
+  }, []);
   const visible = items.filter(item => {
     if (appliedTopic !== "All" && itemTopic(item) !== appliedTopic) return false;
     if (appliedTag !== "All") {
@@ -107,7 +113,6 @@ export function ItemGrid({ items, builds = [], choose, selected = [], compact = 
     if (savedView === "outfits" && !builds.some(build => build.kind === "outfit" && build.itemIds.includes(item.id))) return false;
     if (savedView === "collections" && !builds.some(build => build.kind === "collection" && build.itemIds.includes(item.id))) return false;
     if (filter === "All") return true;
-    if (mode === "tags") return [...item.tags, ...item.occasions].some(t => t.toLowerCase() === filter.toLowerCase());
     return itemTopic(item) === filter;
   }).sort((a, b) => {
     if (!sortOrder) return 0;
@@ -134,6 +139,40 @@ export function ItemGrid({ items, builds = [], choose, selected = [], compact = 
       setFavoriteError(error instanceof Error ? error.message : "Could not update this favorite.");
     } finally {
       setFavoriteBusy(null);
+    }
+  }
+  function cancelLongPress() {
+    if (longPressTimer.current !== null) window.clearTimeout(longPressTimer.current);
+    longPressTimer.current = null;
+  }
+  function startLongPress(current: WardrobeItem) {
+    if (!allowDelete || choose || !window.matchMedia("(max-width: 1050px)").matches) return;
+    cancelLongPress();
+    longPressTimer.current = window.setTimeout(() => {
+      suppressOpen.current = current.id;
+      setDeleteReady(current.id);
+      longPressTimer.current = null;
+    }, 550);
+  }
+  function openItem(current: WardrobeItem) {
+    if (suppressOpen.current === current.id) {
+      suppressOpen.current = null;
+      return;
+    }
+    if (choose) choose(current);
+    else setItem(current);
+  }
+  async function deleteItem(current: WardrobeItem) {
+    if (!window.confirm("Confirm delete?")) return;
+    setDeleteBusy(current.id); setFavoriteError("");
+    try {
+      await mutate({ action: "removeItem", id: current.id });
+      if (item?.id === current.id) setItem(null);
+      setDeleteReady(null);
+    } catch (error) {
+      setFavoriteError(error instanceof Error ? error.message : "Could not delete this item.");
+    } finally {
+      setDeleteBusy(null);
     }
   }
   const sheets = <>
@@ -164,19 +203,19 @@ export function ItemGrid({ items, builds = [], choose, selected = [], compact = 
         <button type="button" aria-label="Sort" title="Sort" className={sheet === "sort" ? "is-active" : ""} onClick={() => { setDraftSort(sortOrder ?? "newest"); setSheet("sort"); }}><ArrowsDownUp weight="thin" aria-hidden="true"/><span>Sort</span></button>
         <button type="button" aria-label="Saved" title="Saved" className={sheet === "saved" || savedView ? "is-active" : ""} onClick={() => { setDraftSaved(savedView ?? "favorites"); setSheet("saved"); }}><BookmarkSimple weight="thin" aria-hidden="true"/><span>Saved</span></button>
       </div>
-      <div className="closet-browser__filters" aria-label={mode === "topics" ? "Categories" : "Tags"}>{(mode === "topics" ? topics : tags).map(value => <button key={value} className={filter === value ? "is-active" : ""} aria-pressed={filter === value} onClick={() => setFilter(value)}>{value}</button>)}</div>
+      <div className="closet-browser__filters" aria-label="Categories">{topics.map(value => <button key={value} className={filter === value ? "is-active" : ""} aria-pressed={filter === value} onClick={() => setFilter(value)}>{value}</button>)}</div>
       {showDesktopCount && <p className="mobile-closet-count wc-builder-count" aria-live="polite"><span className="wc-builder-count__desktop">Displaying {visible.length} {visible.length === 1 ? "item" : "items"}</span><span className="wc-builder-count__mobile">({visible.length}) {visible.length === 1 ? "item" : "items"}</span></p>}
       {showDesktopCount && sheets}
     </div>
     {!showDesktopCount && <p className="mobile-closet-count" aria-live="polite">({visible.length}) {visible.length === 1 ? "item" : "items"}</p>}
     {!showDesktopCount && <p className="closet-browser__display-count" aria-live="polite">Displaying {visible.length} {visible.length === 1 ? "item" : "items"}</p>}
     {favoriteError && <p className="wc-notice" role="alert">{favoriteError}</p>}
-    {visible.length ? <div className="closet-browser__grid">{visible.map(current => <article className={"closet-browser__item" + (selected.includes(current.id) ? " wc-selected" : "")} key={current.id}>
-      <button type="button" className="closet-browser__item-open" aria-label={(choose ? (selected.includes(current.id) ? "Remove " : "Add ") : "Open details for ") + current.name} aria-pressed={choose ? selected.includes(current.id) : undefined} onClick={() => choose ? choose(current) : setItem(current)}>
+    {visible.length ? <div className="closet-browser__grid">{visible.map(current => <article className={"closet-browser__item" + (selected.includes(current.id) ? " wc-selected" : "") + (deleteReady === current.id ? " is-delete-ready" : "")} key={current.id}>
+      <button type="button" className="closet-browser__item-open" aria-label={(choose ? (selected.includes(current.id) ? "Remove " : "Add ") : "Open details for ") + current.name} aria-pressed={choose ? selected.includes(current.id) : undefined} onPointerDown={() => startLongPress(current)} onPointerUp={cancelLongPress} onPointerCancel={cancelLongPress} onPointerLeave={cancelLongPress} onContextMenu={(event) => { if (allowDelete) event.preventDefault(); }} onClick={() => openItem(current)}>
         <div className="closet-browser__visual"><ItemPhoto item={current} thumbnail/></div>
         <span className="closet-browser__item-meta"><small>{itemTopic(current)}</small><strong>{current.name}</strong></span>
       </button>
-      <button type="button" className="closet-browser__favorite" disabled={favoriteBusy === current.id} aria-label={current.favorite ? `Remove ${current.name} from favorites` : `Add ${current.name} to favorites`} aria-pressed={current.favorite} onClick={() => void toggleFavorite(current)}><Heart filled={current.favorite}/></button>
+      {deleteReady === current.id ? <button type="button" className="closet-browser__delete" disabled={deleteBusy === current.id} aria-label={`Delete ${current.name}`} onClick={() => void deleteItem(current)}>×</button> : <button type="button" className="closet-browser__favorite" disabled={favoriteBusy === current.id} aria-label={current.favorite ? `Remove ${current.name} from favorites` : `Add ${current.name} to favorites`} aria-pressed={current.favorite} onClick={() => void toggleFavorite(current)}><Heart filled={current.favorite}/></button>}
     </article>)}</div> : <Empty>{items.length ? "No items in this category yet." : "Your clothes will appear here once they have been reviewed and published."}</Empty>}
     {item && <ItemDetails item={item} close={() => setItem(null)}/>}
     {!showDesktopCount && sheets}
@@ -225,7 +264,7 @@ function RecentList({ items }: { items: WardrobeItem[] }) {
         </div>
       </article>)}
     </div> : <Empty>Your clothes will appear here once they have been reviewed and published.</Empty>}
-    {editingItem && <Drawer title={editingItem.name} close={() => setEditingItem(null)}><ItemEditor item={editingItem} onSaved={() => setEditingItem(null)}/></Drawer>}
+    {editingItem && <Drawer title={editingItem.name} close={() => setEditingItem(null)}><ItemEditor item={editingItem} onSaved={() => setEditingItem(null)} onDeleted={() => setEditingItem(null)}/></Drawer>}
   </section>;
 }
 
@@ -235,6 +274,6 @@ export function BrowsePage({ view }: { view: "closet" | "favorites" | "recent" }
   if (view === "recent") items.sort((a,b) => (b.publishedAt ?? b.createdAt).localeCompare(a.publishedAt ?? a.createdAt));
   return <PageShell title={view === "closet" ? "The Closet" : view === "favorites" ? "Favorites" : "Recent"}><DataGate>{view === "recent" ? <>
     <RecentList items={items}/>
-    <div className="recent-mobile-grid"><ItemGrid items={items} builds={data?.builds ?? []}/></div>
-  </> : <ItemGrid items={items} builds={data?.builds ?? []}/>}</DataGate></PageShell>;
+    <div className="recent-mobile-grid"><ItemGrid items={items} builds={data?.builds ?? []} allowDelete/></div>
+  </> : <ItemGrid items={items} builds={data?.builds ?? []} allowDelete/>}</DataGate></PageShell>;
 }

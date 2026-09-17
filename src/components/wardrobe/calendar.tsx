@@ -1,13 +1,25 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { localDate, type CalendarPlan } from "@/lib/wardrobe";
+import { localDate, type CalendarPlan, type SavedBuild, type WardrobeItem } from "@/lib/wardrobe";
 import { ItemGrid } from "./browse";
 import { DataGate, useWardrobe } from "./provider";
-import { Drawer, PageShell } from "./ui";
+import { Drawer, ItemPhoto, PageShell } from "./ui";
 
 const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 type DesktopCalendarView = "month" | "week";
+
+function ExistingOutfits({ plan, builds, items }: { plan?: CalendarPlan; builds: SavedBuild[]; items: WardrobeItem[] }) {
+  const planned = plan?.buildIds.map(id => builds.find(build => build.id === id)).filter((build): build is SavedBuild => Boolean(build)) ?? [];
+  if (!planned.length) return null;
+  return <section className="calendar-plan-preview" aria-label="Saved outfits already planned for this day">
+    <h3>{planned.length === 1 ? "Saved outfit" : "Saved outfits"}</h3>
+    {planned.map(build => <article key={build.id}>
+      <div className="calendar-plan-preview__photos">{build.itemIds.slice(0, 4).map(id => { const item = items.find(candidate => candidate.id === id); return item ? <ItemPhoto key={id} item={item} thumbnail/> : null; })}</div>
+      <div><strong>{build.name}</strong><small>{build.occasion || `${build.itemIds.length} items`}</small></div>
+    </article>)}
+  </section>;
+}
 
 function dateFromKey(value: string) {
   return new Date(`${value}T12:00:00`);
@@ -221,6 +233,7 @@ export function CalendarPage() {
           close={() => { if (!busy) setSelected(null); }}
         >
           <section className="calendar-closet-picker" aria-label="Choose clothes for this day">
+            <ExistingOutfits plan={plan} builds={data?.builds ?? []} items={data?.items ?? []}/>
             <p className="calendar-closet-picker__intro">Choose pieces from the closet. Use the filters, sort, or saved views to narrow things down.</p>
             <ItemGrid
               items={data?.items ?? []}
@@ -260,6 +273,7 @@ export function CalendarPage() {
               <button type="button" className="wc-icon-button" onClick={() => { if (!busy) setSelected(null); }} aria-label="Close panel">×</button>
             </header>
             <section className="mobile-calendar-picker" aria-label="Choose clothes for this day">
+            <ExistingOutfits plan={plan} builds={data?.builds ?? []} items={data?.items ?? []}/>
             <p className="mobile-calendar-picker__intro">Choose any pieces you want to wear. Tap an item again to remove it.</p>
             <ItemGrid
               items={data?.items ?? []}

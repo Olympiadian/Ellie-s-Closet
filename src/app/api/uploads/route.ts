@@ -25,12 +25,11 @@ export async function POST(request: Request) {
       item = { ...emptyItem, id: body.itemId, status: "uploading", favorite: false, saved: false, createdAt: new Date().toISOString() };
       await put("item", item.id, item, true);
     }
-    if (current.role !== "admin" && item.status !== "uploading") {
-      // A completed request may lose its response on a mobile connection.
-      // Retrying the same slot must not create a duplicate or overwrite a review.
-      if (item.status === "pending" && item.frontPath && item.backPath && item.frontProcessedPath && item.backProcessedPath) return json({ alreadySubmitted: true });
+    if (current.role !== "admin" && !["uploading", "pending"].includes(item.status)) {
       throw new AppError("This item has already been submitted.", 403);
     }
+    const completedField = body.side + (body.processed ? "ProcessedPath" : "Path") as keyof WardrobeItem;
+    if (item.status === "pending" && item[completedField]) return json({ alreadySubmitted: true });
     const prefix = body.itemId + "/" + (body.processed ? "processed-" : "original-") + body.side + "-";
     if (body.action === "prepare") {
       if (!body.contentType || !body.size) throw new AppError("Choose a photo first.");
@@ -54,9 +53,10 @@ export async function POST(request: Request) {
         throw error;
       }
     }
-    if (item.status === "uploading" && item.frontPath && item.backPath && item.frontProcessedPath && item.backProcessedPath) {
+    const hasOriginal = item.frontPath || item.backPath;
+    if (item.status === "uploading" && hasOriginal) {
       await patch("item", item.id, { status: "pending" });
-      await activity("New front and back cutouts received for review");
+      await activity("New clothing photo received for review");
     }
     return json({ ok: true });
   } catch (error) { return apiError(error); }
