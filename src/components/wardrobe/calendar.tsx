@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { localDate, type CalendarPlan } from "@/lib/wardrobe";
+import { localDate, type CalendarPlan, type SavedBuild, type WardrobeItem } from "@/lib/wardrobe";
 import { ItemGrid } from "./browse";
 import { DataGate, useWardrobe } from "./provider";
-import { Drawer, PageShell } from "./ui";
+import { Drawer, ItemPhoto, PageShell } from "./ui";
 
 const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 type DesktopCalendarView = "month" | "week";
@@ -19,6 +19,22 @@ function weekStartFor(value: string) {
   return localDate(date);
 }
 
+function ScheduledOutfits({ builds, items, edit }: { builds: SavedBuild[]; items: WardrobeItem[]; edit: () => void }) {
+  return <section className="calendar-scheduled-outfits" aria-label="Scheduled outfits">
+    <p className="calendar-scheduled-outfits__eyebrow">Scheduled outfit{builds.length === 1 ? "" : "s"}</p>
+    {builds.map(build => <article className="calendar-scheduled-outfit" key={build.id}>
+      <div className="calendar-scheduled-outfit__photos">
+        {build.itemIds.map(id => {
+          const item = items.find(candidate => candidate.id === id);
+          return item ? <ItemPhoto key={id} item={item} thumbnail/> : null;
+        })}
+      </div>
+      <div><h3>{build.name}</h3><p>{build.occasion || `${build.itemIds.length} ${build.itemIds.length === 1 ? "piece" : "pieces"}`}</p></div>
+    </article>)}
+    <button type="button" className="wc-button" onClick={edit}>Edit day</button>
+  </section>;
+}
+
 export function CalendarPage() {
   const { data, mutate } = useWardrobe();
   const today = localDate();
@@ -26,6 +42,7 @@ export function CalendarPage() {
   const [weekStart, setWeekStart] = useState(() => weekStartFor(today));
   const [desktopView, setDesktopView] = useState<DesktopCalendarView>("month");
   const [selected, setSelected] = useState<string | null>(null);
+  const [editing, setEditing] = useState(false);
   const [draftItemIds, setDraftItemIds] = useState<string[]>([]);
   const [draftNote, setDraftNote] = useState("");
   const [message, setMessage] = useState("");
@@ -64,6 +81,7 @@ export function CalendarPage() {
     setSelected(date);
     setDraftItemIds(existing?.itemIds ?? []);
     setDraftNote(existing?.note ?? "");
+    setEditing(!existing?.buildIds.length);
     setMessage("");
   }
 
@@ -111,6 +129,7 @@ export function CalendarPage() {
         note,
       });
       setSelected(null);
+      setEditing(false);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Could not save.");
     } finally {
@@ -220,7 +239,7 @@ export function CalendarPage() {
           title={dateFromKey(selected).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
           close={() => { if (!busy) setSelected(null); }}
         >
-          <section className="calendar-closet-picker" aria-label="Choose clothes for this day">
+          {plan?.buildIds.length && !editing ? <ScheduledOutfits builds={plan.buildIds.map(id => data?.builds.find(build => build.id === id)).filter((build): build is SavedBuild => Boolean(build))} items={data?.items ?? []} edit={() => setEditing(true)}/> : <section className="calendar-closet-picker" aria-label="Choose clothes for this day">
             <p className="calendar-closet-picker__intro">Choose pieces from the closet. Use the filters, sort, or saved views to narrow things down.</p>
             <ItemGrid
               items={data?.items ?? []}
@@ -242,7 +261,7 @@ export function CalendarPage() {
               {busy ? "Saving…" : `Save ${draftItemIds.length ? `${draftItemIds.length} ${draftItemIds.length === 1 ? "item" : "items"}` : "day"}`}
             </button>
             {message && <p role="alert">{message}</p>}
-          </section>
+          </section>}
         </Drawer>
       )}
 
@@ -259,7 +278,7 @@ export function CalendarPage() {
               <h2 id="mobile-calendar-drawer-title">{dateFromKey(selected).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}</h2>
               <button type="button" className="wc-icon-button" onClick={() => { if (!busy) setSelected(null); }} aria-label="Close panel">×</button>
             </header>
-            <section className="mobile-calendar-picker" aria-label="Choose clothes for this day">
+            {plan?.buildIds.length && !editing ? <ScheduledOutfits builds={plan.buildIds.map(id => data?.builds.find(build => build.id === id)).filter((build): build is SavedBuild => Boolean(build))} items={data?.items ?? []} edit={() => setEditing(true)}/> : <section className="mobile-calendar-picker" aria-label="Choose clothes for this day">
             <p className="mobile-calendar-picker__intro">Choose any pieces you want to wear. Tap an item again to remove it.</p>
             <ItemGrid
               items={data?.items ?? []}
@@ -280,7 +299,7 @@ export function CalendarPage() {
               {busy ? "Saving…" : `Save ${draftItemIds.length ? `${draftItemIds.length} ${draftItemIds.length === 1 ? "item" : "items"}` : "day"}`}
             </button>
             {message && <p role="alert">{message}</p>}
-            </section>
+            </section>}
           </section>
         </div>
       )}

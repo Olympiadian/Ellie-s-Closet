@@ -8,7 +8,7 @@ import { standardizeUploadedCutout } from "@/lib/server/remove-bg";
 export const maxDuration = 120;
 
 const schema = z.object({
-  action: z.enum(["prepare", "complete"]), itemId: z.string().uuid(),
+  action: z.enum(["prepare", "complete", "finalize"]), itemId: z.string().uuid(),
   side: z.enum(["front", "back"]), processed: z.boolean(),
   contentType: z.enum(["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"]).optional(),
   size: z.number().int().min(1).max(20971520).optional(), path: z.string().max(250).optional(),
@@ -25,11 +25,22 @@ export async function POST(request: Request) {
       item = { ...emptyItem, id: body.itemId, status: "uploading", favorite: false, saved: false, createdAt: new Date().toISOString() };
       await put("item", item.id, item, true);
     }
+    const hasReadyPhoto = Boolean(
+      (item.frontPath && item.frontProcessedPath) || (item.backPath && item.backProcessedPath),
+    );
     if (current.role !== "admin" && item.status !== "uploading") {
       // A completed request may lose its response on a mobile connection.
       // Retrying the same slot must not create a duplicate or overwrite a review.
-      if (item.status === "pending" && item.frontPath && item.backPath && item.frontProcessedPath && item.backProcessedPath) return json({ alreadySubmitted: true });
+      if (item.status === "pending" && hasReadyPhoto) return json({ alreadySubmitted: true });
       throw new AppError("This item has already been submitted.", 403);
+    }
+    if (body.action === "finalize") {
+      if (!hasReadyPhoto) throw new AppError("Add at least one finished photo before submitting.");
+      if (item.status === "uploading") {
+        await patch("item", item.id, { status: "pending" });
+        await activity("New clothing photo received for review");
+      }
+      return json({ ok: true });
     }
     const prefix = body.itemId + "/" + (body.processed ? "processed-" : "original-") + body.side + "-";
     if (body.action === "prepare") {
@@ -54,10 +65,9 @@ export async function POST(request: Request) {
         throw error;
       }
     }
-    if (item.status === "uploading" && item.frontPath && item.backPath && item.frontProcessedPath && item.backProcessedPath) {
-      await patch("item", item.id, { status: "pending" });
-      await activity("New front and back cutouts received for review");
-    }
     return json({ ok: true });
-  } catch (error) { return apiError(error); }
+  } catch (error) {
+    console.error("Clothing upload request failed", error);
+    return apiError(error);
+  }
 }

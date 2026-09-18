@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
-import { FloppyDisk, PencilSimple, SlidersHorizontal, SortAscending, SortDescending } from "@phosphor-icons/react";
+import { ArrowsDownUp, BookmarkSimple, FadersHorizontal, PencilSimple, SortAscending, SortDescending } from "@phosphor-icons/react";
 import type { SavedBuild, WardrobeItem } from "@/lib/wardrobe";
 import { useWardrobe, DataGate } from "./provider";
 import { Drawer, Empty, Heart, ItemPhoto, PageShell } from "./ui";
@@ -13,7 +13,7 @@ type SheetName = "filters" | "sort" | "saved";
 type SortOrder = "newest" | "oldest";
 type SavedView = "favorites" | "outfits" | "collections";
 
-function MobileClosetSheet({ title, close, children }: { title: string; close: () => void; children: ReactNode }) {
+function MobileClosetSheet({ title, kind, close, children }: { title: string; kind: SheetName; close: () => void; children: ReactNode }) {
   const titleId = useId();
   const panelRef = useRef<HTMLElement>(null);
   useEffect(() => {
@@ -26,7 +26,7 @@ function MobileClosetSheet({ title, close, children }: { title: string; close: (
   }, []);
 
   return <div
-    className="mobile-closet-sheet__backdrop"
+    className={`mobile-closet-sheet__backdrop mobile-closet-sheet__backdrop--${kind}`}
     role="presentation"
     onKeyDown={(event) => { if (event.key === "Escape") close(); }}
     onPointerDown={(event) => { event.stopPropagation(); }}
@@ -37,7 +37,7 @@ function MobileClosetSheet({ title, close, children }: { title: string; close: (
       close();
     }}
   >
-    <section ref={panelRef} className="mobile-closet-sheet" role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1}>
+    <section ref={panelRef} className={`mobile-closet-sheet mobile-closet-sheet--${kind}`} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1}>
       <span className="mobile-closet-sheet__handle" aria-hidden="true" />
       <h2 id={titleId}>{title}</h2>
       {children}
@@ -67,7 +67,7 @@ export function ItemDetails({ item, close }: { item: WardrobeItem; close: () => 
     finally { setBusy(false); }
   }
   return <Drawer title={current.name} close={close}>
-    <div className="wc-item-photos"><ItemPhoto item={current}/><ItemPhoto item={current} side="back"/></div>
+    <div className="wc-item-photos"><ItemPhoto item={current}/>{current.backUrl && <ItemPhoto item={current} side="back"/>}</div>
     <div className="wc-item-actions"><button className="wc-button" aria-pressed={current.saved} disabled={busy} onClick={() => void mark("saved")}>{current.saved ? "Saved" : "Save item"}</button><button className="wc-heart-button" disabled={busy} aria-label={current.favorite ? "Remove from favorites" : "Add to favorites"} aria-pressed={current.favorite} onClick={() => void mark("favorite")}><Heart filled={current.favorite}/></button></div>
     {error && <p role="alert">{error}</p>}
     <dl className="closet-item-drawer__details">
@@ -137,9 +137,9 @@ export function ItemGrid({ items, builds = [], choose, selected = [], compact = 
   return <section className={`closet-browser${compact ? " closet-browser--compact" : ""}`}>
     <div className="closet-browser__controls">
       <div className="mobile-closet-toolbar" aria-label="Closet controls">
-        <button type="button" aria-label="Filters" title="Filters" className={sheet === "filters" || appliedTopic !== "All" || appliedTag !== "All" ? "is-active" : ""} onClick={() => setSheet("filters")}><SlidersHorizontal color="#3d3d3d" weight="fill" aria-hidden="true"/><span>Filters</span></button>
-        <button type="button" aria-label="Sort" title="Sort" className={sheet === "sort" ? "is-active" : ""} onClick={() => setSheet("sort")}><SortDescending color="#3d3d3d" weight="fill" aria-hidden="true"/><span>Sort</span></button>
-        <button type="button" aria-label="Saved" title="Saved" className={sheet === "saved" || savedView ? "is-active" : ""} onClick={() => setSheet("saved")}><FloppyDisk color="#3d3d3d" weight="fill" aria-hidden="true"/><span>Saved</span></button>
+        <button type="button" aria-label="Filters" title="Filters" className={sheet === "filters" || appliedTopic !== "All" || appliedTag !== "All" ? "is-active" : ""} onClick={() => { setDraftTopic(appliedTopic); setDraftTag(appliedTag); setSheet("filters"); }}><FadersHorizontal weight="thin" aria-hidden="true"/><span>Filters</span></button>
+        <button type="button" aria-label="Sort" title="Sort" className={sheet === "sort" ? "is-active" : ""} onClick={() => { setDraftSort(sortOrder ?? "newest"); setSheet("sort"); }}><ArrowsDownUp weight="thin" aria-hidden="true"/><span>Sort</span></button>
+        <button type="button" aria-label="Saved" title="Saved" className={sheet === "saved" || savedView ? "is-active" : ""} onClick={() => { setDraftSaved(savedView ?? "favorites"); setSheet("saved"); }}><BookmarkSimple weight="thin" aria-hidden="true"/><span>Saved</span></button>
       </div>
       <div className="closet-browser__filters" aria-label={mode === "topics" ? "Categories" : "Tags"}>{(mode === "topics" ? topics : tags).map(value => <button key={value} className={filter === value ? "is-active" : ""} aria-pressed={filter === value} onClick={() => setFilter(value)}>{value}</button>)}</div>
     </div>
@@ -154,16 +154,24 @@ export function ItemGrid({ items, builds = [], choose, selected = [], compact = 
       <button type="button" className="closet-browser__favorite" disabled={favoriteBusy === current.id} aria-label={current.favorite ? `Remove ${current.name} from favorites` : `Add ${current.name} to favorites`} aria-pressed={current.favorite} onClick={() => void toggleFavorite(current)}><Heart filled={current.favorite}/></button>
     </article>)}</div> : <Empty>{items.length ? "No items in this category yet." : "Your clothes will appear here once they have been reviewed and published."}</Empty>}
     {item && <ItemDetails item={item} close={() => setItem(null)}/>}
-    {sheet === "filters" && <MobileClosetSheet title="Filters" close={() => setSheet(null)}>
-      <div className="closet-sheet-tabs" aria-label="Filter type">
-        {(["topics", "tags"] as const).map(value => <button type="button" key={value} className={mode === value ? "is-selected" : ""} aria-pressed={mode === value} onClick={() => { setMode(value); setFilter("All"); setAppliedTopic("All"); setAppliedTag("All"); setSavedView(null); setSheet(null); }}>{value}</button>)}
+    {sheet === "filters" && <MobileClosetSheet title="Filters" kind="filters" close={() => setSheet(null)}>
+      <div className="mobile-filter-group">
+        <h3>Topics</h3>
+        <div>{topics.map(value => <button type="button" key={value} className={draftTopic === value ? "is-selected" : ""} aria-pressed={draftTopic === value} onClick={() => setDraftTopic(value)}>{value}</button>)}</div>
       </div>
+      <div className="mobile-filter-group">
+        <h3>Tags</h3>
+        <div>{tags.map(value => <button type="button" key={value} className={draftTag === value ? "is-selected" : ""} aria-pressed={draftTag === value} onClick={() => setDraftTag(value)}>{value}</button>)}</div>
+      </div>
+      <button type="button" className="mobile-closet-sheet__confirm" onClick={() => { setAppliedTopic(draftTopic); setAppliedTag(draftTag); setFilter("All"); setSavedView(null); setSheet(null); }}>Show {filterPreviewCount} {filterPreviewCount === 1 ? "item" : "items"}</button>
     </MobileClosetSheet>}
-    {sheet === "sort" && <MobileClosetSheet title="Sort" close={() => setSheet(null)}>
-      <div className="mobile-radio-list">{(["newest", "oldest"] as SortOrder[]).map(value => <label key={value}><input type="radio" name="closet-sort" value={value} checked={draftSort === value} onChange={() => { setDraftSort(value); setSortOrder(value); setSheet(null); }}/><span>{value}</span></label>)}</div>
+    {sheet === "sort" && <MobileClosetSheet title="Sort" kind="sort" close={() => setSheet(null)}>
+      <div className="mobile-radio-list">{(["newest", "oldest"] as SortOrder[]).map(value => <label key={value}><input type="radio" name="closet-sort" value={value} checked={draftSort === value} onChange={() => setDraftSort(value)}/><span>{value}</span></label>)}</div>
+      <button type="button" className="mobile-closet-sheet__confirm" onClick={() => { setSortOrder(draftSort); setSheet(null); }}>Apply sort</button>
     </MobileClosetSheet>}
-    {sheet === "saved" && <MobileClosetSheet title="Saved" close={() => setSheet(null)}>
-      <div className="mobile-radio-list">{([['favorites', 'Favorites'], ['outfits', 'Saved Outfits'], ['collections', 'Collections']] as [SavedView, string][]).map(([value, label]) => <label key={value}><input type="radio" name="closet-saved" value={value} checked={draftSaved === value} onChange={() => { setDraftSaved(value); setSavedView(value); setAppliedTopic("All"); setAppliedTag("All"); setSheet(null); }}/><span>{label}</span></label>)}</div>
+    {sheet === "saved" && <MobileClosetSheet title="Saved" kind="saved" close={() => setSheet(null)}>
+      <div className="mobile-radio-list">{([['favorites', 'Favorites'], ['outfits', 'Saved Outfits'], ['collections', 'Collections']] as [SavedView, string][]).map(([value, label]) => <label key={value}><input type="radio" name="closet-saved" value={value} checked={draftSaved === value} onChange={() => setDraftSaved(value)}/><span>{label}</span></label>)}</div>
+      <button type="button" className="mobile-closet-sheet__confirm" onClick={() => { setSavedView(draftSaved); setAppliedTopic("All"); setAppliedTag("All"); setFilter("All"); setSheet(null); }}>Show {savedPreviewCount} {savedPreviewCount === 1 ? "item" : "items"}</button>
     </MobileClosetSheet>}
   </section>;
 }

@@ -36,7 +36,7 @@ const primaryNavigation = [
 ];
 
 const secondaryNavigation = [
-  { label: "Deals", description: "Today’s finds", href: "/deals", icon: DealsIcon },
+  { label: "Stores", description: "Shop favorites", href: "/deals", icon: DealsIcon },
   { label: "Favorites", description: "Loved pieces", href: "/favorites", icon: FavoritesIcon },
   { label: "Recent", description: "Just added", href: "/recent", icon: RecentIcon },
   { label: "Stats", description: "Closet insights", href: "/stats", icon: StatsIcon },

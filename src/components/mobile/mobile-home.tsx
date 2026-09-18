@@ -54,7 +54,7 @@ export function MobileHome({ dateLabel, weather }: { dateLabel: string; weather:
         })}
 
         <div className="mobile-home__quick-actions">
-          <Link href="/deals"><span>Deals</span><DealsIcon className="mobile-home__quick-icon" /></Link>
+          <Link href="/deals"><span>Stores</span><DealsIcon className="mobile-home__quick-icon" /></Link>
           <MessagesButton mobile />
           <Link href="/calendar"><span>Calendar</span><CalendarIcon className="mobile-home__quick-icon" /></Link>
           <Link href="/help"><span>Support</span><SupportIcon className="mobile-home__quick-icon" /></Link>

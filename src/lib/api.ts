@@ -19,8 +19,8 @@ export async function uploadPhoto(itemId: string, side: "front" | "back", file: 
   const upload = await requestJson<{ path: string; signedUrl: string; alreadySubmitted?: boolean }>("/api/uploads", { action: "prepare", itemId, side, processed, contentType, size: uploadFile.size });
   if (upload.alreadySubmitted) return;
   const form = new FormData();
-  form.append("cacheControl", "3600");
-  // The private original must be the file the person selected. Derivatives are created server-side.
+  // Every object path is unique, so immutable cache metadata is safe and avoids repeat downloads.
+  form.append("cacheControl", "31536000");
   form.append("", uploadFile, file.name);
   const response = await fetch(upload.signedUrl, { method: "PUT", headers: { "x-upsert": "false" }, body: form });
   if (!response.ok) throw new Error("The photo did not upload. Check your connection and try again.");
@@ -34,11 +34,22 @@ export async function uploadClothingPhoto(
   file: File,
   onProgress?: (progress: ClothingPhotoProgress) => void,
 ) {
+  const { compressImage } = await import("@/lib/images/compress");
+  let source: File;
+  try {
+    source = await compressImage(file, { maxDimension: 1600, quality: 0.8 });
+  } catch {
+    throw new Error("This photo could not be optimized on this device. Please choose a JPEG, PNG, or WebP photo.");
+  }
   onProgress?.({ stage: "uploading-original" });
-  await uploadPhoto(itemId, side, file);
+  await uploadPhoto(itemId, side, source);
 
   const { removeBackgroundInBrowser } = await import("@/lib/images/remove-background-browser");
-  const cutout = await removeBackgroundInBrowser(file, onProgress);
+  const cutout = await removeBackgroundInBrowser(source, onProgress);
   onProgress?.({ stage: "uploading-cutout" });
-  await uploadPhoto(itemId, side, cutout, true);
+  const optimizedCutout = await compressImage(
+    new File([cutout], `${source.name.replace(/\.webp$/, "")}-cutout.png`, { type: cutout.type || "image/png" }),
+    { maxDimension: 1600, quality: 0.8 },
+  );
+  await uploadPhoto(itemId, side, optimizedCutout, true);
 }

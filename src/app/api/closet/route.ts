@@ -50,7 +50,7 @@ export async function POST(request: Request) {
         await patch("item", body.id, body.fields);
         await activity("Updated details for " + body.fields.name);
       } else {
-        if (body.published && (!item.frontPath || !item.backPath || !item.name.trim())) throw new AppError("Add both photos and a name before publishing.");
+        if (body.published && (!(item.frontPath || item.backPath) || !item.name.trim())) throw new AppError("Add a photo and a name before publishing.");
         await patch("item", body.id, { status: body.published ? "published" : "archived", ...(body.published ? { publishedAt: item.publishedAt ?? now } : {}) });
         await activity((body.published ? "Published " : "Archived ") + item.name);
       }

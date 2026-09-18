@@ -48,8 +48,8 @@ async function uploadDerivatives(itemId: string, side: PhotoSide, images: Standa
   const masterPath = `${itemId}/processed-${side}-${randomUUID()}.webp`;
   const thumbnailPath = `${itemId}/thumbnail-${side}-${randomUUID()}.webp`;
   const uploads = await Promise.all([
-    db().storage.from(bucket).upload(masterPath, images.master, { contentType: "image/webp", cacheControl: "3600", upsert: false }),
-    db().storage.from(bucket).upload(thumbnailPath, images.thumbnail, { contentType: "image/webp", cacheControl: "3600", upsert: false }),
+    db().storage.from(bucket).upload(masterPath, images.master, { contentType: "image/webp", cacheControl: "31536000", upsert: false }),
+    db().storage.from(bucket).upload(thumbnailPath, images.thumbnail, { contentType: "image/webp", cacheControl: "31536000", upsert: false }),
   ]);
   if (uploads.some(({ error }) => error)) throw new Error("Could not save the standardized clothing images.");
   return { masterPath, thumbnailPath };
