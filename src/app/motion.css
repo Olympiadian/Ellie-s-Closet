@@ -21,6 +21,10 @@ html {
   animation: ec-page-appear var(--motion-base) var(--motion-ease-out) both;
 }
 
+.site-motion-stage.is-instant {
+  animation: none;
+}
+
 .site-motion-stage :is(button, a, input, select, textarea) {
   -webkit-tap-highlight-color: transparent;
 }

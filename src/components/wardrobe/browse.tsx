@@ -1,14 +1,13 @@
 "use client";
+import Link from "next/link";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { ArrowsDownUp, BookmarkSimple, FadersHorizontal, PencilSimple, SortAscending, SortDescending } from "@phosphor-icons/react";
-import { closetTopics, clothingCategoryLabels, clothingTags } from "@/lib/types";
 import type { SavedBuild, WardrobeItem } from "@/lib/wardrobe";
 import { useWardrobe, DataGate } from "./provider";
-import { ItemEditor } from "./item-editor";
 import { Drawer, Empty, Heart, ItemPhoto, PageShell } from "./ui";
 
-const topics = ["All", ...closetTopics.map(topic => clothingCategoryLabels[topic])];
-const tags = ["All", ...clothingTags];
+const topics = ["All", "Tops", "Jackets", "Dresses", "Sleep", "Bottoms", "Under", "Shoes", "Misc."];
+const tags = ["All", "Everyday", "Work", "Club", "Church", "Comfy", "Basic", "Layers", "Formal", "Active"];
 
 type SheetName = "filters" | "sort" | "saved";
 type SortOrder = "newest" | "oldest";
@@ -46,24 +45,21 @@ function MobileClosetSheet({ title, kind, close, children }: { title: string; ki
   </div>;
 }
 
-const tagAliases: Record<string, string[]> = {
-  "Going Out": ["going out", "night out"],
-  Comfy: ["comfy", "comfortable", "cozy"],
-  Layering: ["layering", "layers"],
-};
 function itemTopic(item: WardrobeItem) {
-  return clothingCategoryLabels[item.category] ?? item.category;
-}
-function hasTag(item: WardrobeItem, tag: string) {
-  const wanted = tagAliases[tag] ?? [tag.toLowerCase()];
-  return [...item.tags, ...item.occasions].some(value => wanted.includes(value.toLowerCase()));
+  if (item.category === "outerwear") return "Jackets";
+  if (item.category === "loungewear") return "Sleep";
+  if (item.category === "dresses") return "Dresses";
+  if (item.category === "tops") return "Tops";
+  if (item.category === "bottoms") return "Bottoms";
+  if (item.category === "shoes") return "Shoes";
+  if (item.tags.some(tag => /^(underwear|undergarment|lingerie|bra|bralette|underwear set)$/i.test(tag))) return "Under";
+  return "Misc.";
 }
 export function ItemDetails({ item, close }: { item: WardrobeItem; close: () => void }) {
   const { mutate, data } = useWardrobe();
   const current = data?.items.find(i => i.id === item.id) ?? item;
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const [editing, setEditing] = useState(false);
   async function mark(field: "favorite" | "saved") {
     setBusy(true); setError("");
     try { await mutate({ action: "mark", id: current.id, field, value: !current[field] }); }
@@ -71,19 +67,18 @@ export function ItemDetails({ item, close }: { item: WardrobeItem; close: () => 
     finally { setBusy(false); }
   }
   return <Drawer title={current.name} close={close}>
-    {editing ? <><ItemEditor item={current} onSaved={() => setEditing(false)} onDeleted={close}/><button type="button" className="wc-text-link" onClick={() => setEditing(false)}>Back to item details</button></> : <>
-    <div className="wc-item-photos"><ItemPhoto item={current}/><ItemPhoto item={current} side="back"/></div>
+    <div className="wc-item-photos"><ItemPhoto item={current}/>{current.backUrl && <ItemPhoto item={current} side="back"/>}</div>
     <div className="wc-item-actions"><button className="wc-button" aria-pressed={current.saved} disabled={busy} onClick={() => void mark("saved")}>{current.saved ? "Saved" : "Save item"}</button><button className="wc-heart-button" disabled={busy} aria-label={current.favorite ? "Remove from favorites" : "Add to favorites"} aria-pressed={current.favorite} onClick={() => void mark("favorite")}><Heart filled={current.favorite}/></button></div>
     {error && <p role="alert">{error}</p>}
     <dl className="closet-item-drawer__details">
       {Object.entries({ Category: itemTopic(current), Tags: current.tags.join(" · "), Color: current.color, Details: [current.details, current.size && "Size " + current.size, current.store, current.cost !== null && "$" + current.cost.toFixed(2)].filter(Boolean).join(" · ") }).map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value || "Not added yet"}</dd></div>)}
     </dl>
-    <button type="button" className="wc-text-link" onClick={() => setEditing(true)}>Edit item information</button>
-    </>}
+    <Link className="wc-text-link" href={"/mobile/database?item=" + current.id}>Edit item information</Link>
   </Drawer>;
 }
 export function ItemGrid({ items, builds = [], choose, selected = [], compact = false, showDesktopCount = false, allowDelete = false }: { items: WardrobeItem[]; builds?: SavedBuild[]; choose?: (item: WardrobeItem) => void; selected?: string[]; compact?: boolean; showDesktopCount?: boolean; allowDelete?: boolean }) {
   const { mutate } = useWardrobe();
+  const [mode, setMode] = useState<"topics" | "tags">("topics");
   const [filter, setFilter] = useState("All");
   const [sheet, setSheet] = useState<SheetName | null>(null);
   const [draftTopic, setDraftTopic] = useState("All");
@@ -107,12 +102,15 @@ export function ItemGrid({ items, builds = [], choose, selected = [], compact = 
   const visible = items.filter(item => {
     if (appliedTopic !== "All" && itemTopic(item) !== appliedTopic) return false;
     if (appliedTag !== "All") {
-      if (!hasTag(item, appliedTag)) return false;
+      const aliases: Record<string, string[]> = { Club: ["club", "going out", "night out"], Comfy: ["comfy", "comfortable", "cozy"], Layers: ["layers", "layering"] };
+      const wanted = aliases[appliedTag] ?? [appliedTag.toLowerCase()];
+      if (![...item.tags, ...item.occasions].some(value => wanted.includes(value.toLowerCase()))) return false;
     }
     if (savedView === "favorites" && !item.favorite) return false;
     if (savedView === "outfits" && !builds.some(build => build.kind === "outfit" && build.itemIds.includes(item.id))) return false;
     if (savedView === "collections" && !builds.some(build => build.kind === "collection" && build.itemIds.includes(item.id))) return false;
     if (filter === "All") return true;
+    if (mode === "tags") return [...item.tags, ...item.occasions].some(t => t.toLowerCase() === filter.toLowerCase());
     return itemTopic(item) === filter;
   }).sort((a, b) => {
     if (!sortOrder) return 0;
@@ -123,7 +121,9 @@ export function ItemGrid({ items, builds = [], choose, selected = [], compact = 
   const filterPreviewCount = items.filter(current => {
     if (draftTopic !== "All" && itemTopic(current) !== draftTopic) return false;
     if (draftTag === "All") return true;
-    return hasTag(current, draftTag);
+    const aliases: Record<string, string[]> = { Club: ["club", "going out", "night out"], Comfy: ["comfy", "comfortable", "cozy"], Layers: ["layers", "layering"] };
+    const wanted = aliases[draftTag] ?? [draftTag.toLowerCase()];
+    return [...current.tags, ...current.occasions].some(value => wanted.includes(value.toLowerCase()));
   }).length;
   const savedPreviewCount = items.filter(current => {
     if (draftSaved === "favorites") return current.favorite;
@@ -203,7 +203,7 @@ export function ItemGrid({ items, builds = [], choose, selected = [], compact = 
         <button type="button" aria-label="Sort" title="Sort" className={sheet === "sort" ? "is-active" : ""} onClick={() => { setDraftSort(sortOrder ?? "newest"); setSheet("sort"); }}><ArrowsDownUp weight="thin" aria-hidden="true"/><span>Sort</span></button>
         <button type="button" aria-label="Saved" title="Saved" className={sheet === "saved" || savedView ? "is-active" : ""} onClick={() => { setDraftSaved(savedView ?? "favorites"); setSheet("saved"); }}><BookmarkSimple weight="thin" aria-hidden="true"/><span>Saved</span></button>
       </div>
-      <div className="closet-browser__filters" aria-label="Categories">{topics.map(value => <button key={value} className={filter === value ? "is-active" : ""} aria-pressed={filter === value} onClick={() => setFilter(value)}>{value}</button>)}</div>
+      <div className="closet-browser__filters" aria-label={mode === "topics" ? "Categories" : "Tags"}>{(mode === "topics" ? topics : tags).map(value => <button key={value} className={filter === value ? "is-active" : ""} aria-pressed={filter === value} onClick={() => setFilter(value)}>{value}</button>)}</div>
       {showDesktopCount && <p className="mobile-closet-count wc-builder-count" aria-live="polite"><span className="wc-builder-count__desktop">Displaying {visible.length} {visible.length === 1 ? "item" : "items"}</span><span className="wc-builder-count__mobile">({visible.length}) {visible.length === 1 ? "item" : "items"}</span></p>}
       {showDesktopCount && sheets}
     </div>
@@ -227,7 +227,6 @@ function RecentList({ items }: { items: WardrobeItem[] }) {
   const [sortOrder, setSortOrder] = useState<SortOrder>("newest");
   const [favoriteBusy, setFavoriteBusy] = useState<string | null>(null);
   const [favoriteError, setFavoriteError] = useState("");
-  const [editingItem, setEditingItem] = useState<WardrobeItem | null>(null);
   const sortedItems = [...items].sort((a, b) => {
     const left = a.publishedAt ?? a.createdAt;
     const right = b.publishedAt ?? b.createdAt;
@@ -260,11 +259,10 @@ function RecentList({ items }: { items: WardrobeItem[] }) {
         <div className="recent-card__meta"><strong>{item.name}</strong><small>{itemTopic(item)}</small></div>
         <div className="recent-card__actions">
           <button type="button" disabled={favoriteBusy === item.id} aria-pressed={item.favorite} onClick={() => void toggleFavorite(item)}><span>{item.favorite ? "Favorited" : "Favorite"}</span><Heart filled={item.favorite}/></button>
-          <button type="button" onClick={() => setEditingItem(item)}><span>Edit Info</span><PencilSimple aria-hidden="true"/></button>
+          <Link href={`/mobile/database?item=${item.id}`}><span>Edit Info</span><PencilSimple aria-hidden="true"/></Link>
         </div>
       </article>)}
     </div> : <Empty>Your clothes will appear here once they have been reviewed and published.</Empty>}
-    {editingItem && <Drawer title={editingItem.name} close={() => setEditingItem(null)}><ItemEditor item={editingItem} onSaved={() => setEditingItem(null)} onDeleted={() => setEditingItem(null)}/></Drawer>}
   </section>;
 }
 

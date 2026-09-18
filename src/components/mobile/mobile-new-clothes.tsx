@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { CameraIcon, CloseIcon } from "@/components/mobile/mobile-icons";
 import { useAnimatedClose } from "@/components/use-animated-close";
-import { uploadClothingPhoto, type ClothingPhotoProgress } from "@/lib/api";
+import { requestJson, uploadClothingPhoto, type ClothingPhotoProgress } from "@/lib/api";
 import { DataGate, useWardrobe } from "@/components/wardrobe/provider";
 
 type PhotoSide = "front" | "back";
@@ -17,14 +17,13 @@ type SlotPhoto = {
 type ClothingSlot = {
   id?: string;
   sent?: boolean;
-  error?: string;
   uploadedFront?: boolean;
   uploadedBack?: boolean;
   front?: SlotPhoto;
   back?: SlotPhoto;
 };
 
-const slotCount = 20;
+const slotCount = 10;
 
 function emptySlots(): ClothingSlot[] {
   return Array.from({ length: slotCount }, () => ({}));
@@ -101,8 +100,9 @@ export function MobileNewClothes() {
   }, [slots]);
 
   const counts = useMemo(() => {
-    const ready = slots.filter((slot) => slot.front || slot.back).length;
-    return { ready };
+    const started = slots.filter((slot) => slot.front || slot.back).length;
+    const complete = slots.filter((slot) => slot.front || slot.back).length;
+    return { started, complete };
   }, [slots]);
 
   const selected = activeSlot === null ? null : slots[activeSlot];
@@ -130,50 +130,50 @@ export function MobileNewClothes() {
   }
 
   async function submitPhotos() {
-    if (!counts.ready) return;
+    if (!counts.complete) return;
 
     setBusy(true);
     const next = slots.map(slot => ({ ...slot, id: slot.id ?? crypto.randomUUID() }));
     setSlots(next);
-    let submitted = 0;
-    let failed = 0;
-    for (let index = 0; index < next.length; index++) {
-      const slot = next[index];
-      if ((!slot.front && !slot.back) || slot.sent) continue;
-      try {
-        slot.error = undefined;
-        const progress = (update: ClothingPhotoProgress) => {
-          const label = "item " + (index + 1);
-          if (update.stage === "uploading-original") setConfirmation("Saving the original photo for " + label + "… Keep this page open.");
-          if (update.stage === "loading-model") setConfirmation("Preparing on-device background removal for " + label + "…");
-          if (update.stage === "downloading-model") setConfirmation("Downloading the on-device background-removal model" + (update.percent === undefined ? "" : " (" + update.percent + "%)") + "…");
-          if (update.stage === "removing-background") setConfirmation("Removing the background on this device for " + label + "…");
-          if (update.stage === "uploading-cutout") setConfirmation("Saving the transparent cutout for " + label + "…");
-        };
-        if (slot.front && !slot.uploadedFront) { await uploadClothingPhoto(slot.id, "front", slot.front.file, progress); slot.uploadedFront = true; setSlots(next.map(s => ({ ...s }))); }
-        if (slot.back && !slot.uploadedBack) { await uploadClothingPhoto(slot.id, "back", slot.back.file, progress); slot.uploadedBack = true; setSlots(next.map(s => ({ ...s }))); }
-        slot.sent = true;
-        submitted += 1;
-      } catch (error) {
-        slot.error = error instanceof Error ? error.message : "Upload interrupted. Tap Submit to retry this item.";
-        failed += 1;
-      } finally {
-        setSlots(next.map(s => ({ ...s })));
+    const failed: number[] = [];
+    try {
+      for (let index = 0; index < next.length; index++) {
+        const slot = next[index];
+        if ((!slot.front && !slot.back) || slot.sent) continue;
+        try {
+          const progress = (update: ClothingPhotoProgress) => {
+            const label = "item " + (index + 1);
+            if (update.stage === "uploading-original") setConfirmation("Saving the original photo for " + label + "… Keep this page open.");
+            if (update.stage === "loading-model") setConfirmation("Preparing on-device background removal for " + label + "…");
+            if (update.stage === "downloading-model") setConfirmation("Downloading the on-device background-removal model" + (update.percent === undefined ? "" : " (" + update.percent + "%)") + "…");
+            if (update.stage === "removing-background") setConfirmation("Removing the background on this device for " + label + "…");
+            if (update.stage === "uploading-cutout") setConfirmation("Saving the transparent cutout for " + label + "…");
+          };
+          if (slot.front && !slot.uploadedFront) { await uploadClothingPhoto(slot.id, "front", slot.front.file, progress); slot.uploadedFront = true; setSlots(next.map(s => ({ ...s }))); }
+          if (slot.back && !slot.uploadedBack) { await uploadClothingPhoto(slot.id, "back", slot.back.file, progress); slot.uploadedBack = true; setSlots(next.map(s => ({ ...s }))); }
+          await requestJson("/api/uploads", { action: "finalize", itemId: slot.id, side: "front", processed: false });
+          slot.sent = true;
+          setSlots(next.map(s => ({ ...s })));
+        } catch {
+          failed.push(index + 1);
+        }
       }
-    }
-    setConfirmation(failed ? `${submitted} submitted. ${failed} ${failed === 1 ? "item needs" : "items need"} another try.` : `${submitted} ${submitted === 1 ? "item" : "items"} submitted for review.`);
-    await refresh();
-    setBusy(false);
+      setConfirmation(failed.length
+        ? `Item${failed.length === 1 ? "" : "s"} ${failed.join(", ")} could not finish. Their photos are still here; tap Submit to retry while the other items continue.`
+        : "Photos submitted for review. They will appear in your closet once published.");
+      await refresh();
+    } catch (error) { setConfirmation(error instanceof Error ? error.message : "Upload interrupted. Your photos are still here; tap Submit to retry."); }
+    finally { setBusy(false); }
   }
 
   return (
     <DataGate>
       <section className="mobile-upload-summary" aria-live="polite">
         <div>
-          <strong>{counts.ready}</strong>
-          <span>of {slotCount} ready</span>
+          <strong>{counts.complete}</strong>
+          <span>of {slotCount} complete</span>
         </div>
-        <p>Each item needs one photo. Add a second side when you want to.</p>
+        <p>Each item needs at least one photo. Add both sides whenever you have them.</p>
       </section>
 
       <section className="mobile-slot-grid" aria-label="New clothing photo slots">
@@ -203,7 +203,7 @@ export function MobileNewClothes() {
               )}
               {hasStarted ? (
                 <span className="mobile-slot-grid__status">
-                  {slot.sent ? "Submitted" : slot.error ? "Retry upload" : slot.front && slot.back ? "Ready · two photos" : "Ready · one photo"}
+                  {slot.sent ? "Submitted" : isComplete ? "Ready" : "Add a photo"}
                 </span>
               ) : null}
             </button>
@@ -214,10 +214,10 @@ export function MobileNewClothes() {
       <button
         type="button"
         className="mobile-primary-action"
-        disabled={busy || !counts.ready || slots.every(slot => (!slot.front && !slot.back) || slot.sent)}
+        disabled={busy || !counts.complete || slots.every(slot => (!slot.front && !slot.back) || slot.sent)}
         onClick={submitPhotos}
       >
-        Submit {counts.ready ? `${slots.filter(slot => (slot.front || slot.back) && !slot.sent).length} ${slots.filter(slot => (slot.front || slot.back) && !slot.sent).length === 1 ? "item" : "items"}` : "photos"}
+        Submit {counts.complete ? `${counts.complete} ${counts.complete === 1 ? "item" : "items"}` : "photos"}
       </button>
 
       {confirmation ? <p className="mobile-form-message" role="status">{confirmation}</p> : null}
@@ -234,7 +234,7 @@ export function MobileNewClothes() {
               <header>
                 <div>
                   <p>Slot {String(activeSlot + 1).padStart(2, "0")}</p>
-                  <h2 id="mobile-photo-sheet-title">Add item photos</h2>
+                  <h2 id="mobile-photo-sheet-title">Add front &amp; back</h2>
                 </div>
                 <button type="button" onClick={closeSheet} aria-label="Close photo sheet">
                   <CloseIcon />

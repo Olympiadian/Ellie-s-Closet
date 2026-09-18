@@ -8,7 +8,7 @@ import { standardizeUploadedCutout } from "@/lib/server/remove-bg";
 export const maxDuration = 120;
 
 const schema = z.object({
-  action: z.enum(["prepare", "complete"]), itemId: z.string().uuid(),
+  action: z.enum(["prepare", "complete", "finalize"]), itemId: z.string().uuid(),
   side: z.enum(["front", "back"]), processed: z.boolean(),
   contentType: z.enum(["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"]).optional(),
   size: z.number().int().min(1).max(20971520).optional(), path: z.string().max(250).optional(),
@@ -25,11 +25,19 @@ export async function POST(request: Request) {
       item = { ...emptyItem, id: body.itemId, status: "uploading", favorite: false, saved: false, createdAt: new Date().toISOString() };
       await put("item", item.id, item, true);
     }
+    const completedField = body.side + (body.processed ? "ProcessedPath" : "Path") as keyof WardrobeItem;
     if (current.role !== "admin" && !["uploading", "pending"].includes(item.status)) {
       throw new AppError("This item has already been submitted.", 403);
     }
-    const completedField = body.side + (body.processed ? "ProcessedPath" : "Path") as keyof WardrobeItem;
     if (item.status === "pending" && item[completedField]) return json({ alreadySubmitted: true });
+    if (body.action === "finalize") {
+      if (!(item.frontPath || item.backPath)) throw new AppError("Add at least one photo before submitting.");
+      if (item.status === "uploading") {
+        await patch("item", item.id, { status: "pending" });
+        await activity("New clothing photo received for review");
+      }
+      return json({ ok: true });
+    }
     const prefix = body.itemId + "/" + (body.processed ? "processed-" : "original-") + body.side + "-";
     if (body.action === "prepare") {
       if (!body.contentType || !body.size) throw new AppError("Choose a photo first.");
@@ -53,11 +61,13 @@ export async function POST(request: Request) {
         throw error;
       }
     }
-    const hasOriginal = item.frontPath || item.backPath;
-    if (item.status === "uploading" && hasOriginal) {
+    if (item.status === "uploading" && (item.frontPath || item.backPath)) {
       await patch("item", item.id, { status: "pending" });
       await activity("New clothing photo received for review");
     }
     return json({ ok: true });
-  } catch (error) { return apiError(error); }
+  } catch (error) {
+    console.error("Clothing upload request failed", error);
+    return apiError(error);
+  }
 }

@@ -82,7 +82,7 @@ test("support inbox, future message privacy, item editing and settings", async (
   await call("/api/closet", { action: "resolveRequest", id: admin.requests[0].id, resolved: true }, adminCookie);
 });
 test("all pages respond, legacy routes redirect, logout revokes access", async () => {
-  for (const route of ["/", "/closet", "/build", "/saved", "/calendar", "/favorites", "/recent", "/stats", "/deals", "/help", "/settings", "/admin", "/mobile/new-clothes", "/mobile/request"]) assert.equal((await fetch(origin + route)).status, 200, route);
+  for (const route of ["/", "/closet", "/build", "/saved", "/calendar", "/favorites", "/recent", "/stats", "/deals", "/help", "/settings", "/admin", "/mobile/new-clothes", "/mobile/request", "/mobile/database"]) assert.equal((await fetch(origin + route)).status, 200, route);
   assert.equal((await fetch(origin + "/log")).status, 404);
   assert.equal((await fetch(origin + "/hub", { redirect: "manual" })).status, 307);
   await call("/api/session", { action: "logout" }, viewerCookie);

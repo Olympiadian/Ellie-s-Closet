@@ -33,6 +33,7 @@ export function MobileHome({ dateLabel, weather }: { dateLabel: string; weather:
   return (
     <div className="mobile-home">
       <header className="mobile-home__header">
+        <p className="mobile-home__eyebrow">Mobile</p>
         <h1>Ellie&apos;s Closet</h1>
         <p className="mobile-home__date">{dateLabel}</p>
       </header>
@@ -53,7 +54,7 @@ export function MobileHome({ dateLabel, weather }: { dateLabel: string; weather:
         })}
 
         <div className="mobile-home__quick-actions">
-          <Link href="/deals"><span>Deals</span><DealsIcon className="mobile-home__quick-icon" /></Link>
+          <Link href="/deals"><span>Stores</span><DealsIcon className="mobile-home__quick-icon" /></Link>
           <MessagesButton mobile />
           <Link href="/calendar"><span>Calendar</span><CalendarIcon className="mobile-home__quick-icon" /></Link>
           <Link href="/help"><span>Support</span><SupportIcon className="mobile-home__quick-icon" /></Link>
@@ -66,7 +67,11 @@ export function MobileHome({ dateLabel, weather }: { dateLabel: string; weather:
       >
         <div>
           <span className="mobile-home__weather-item"><WeatherIcon kind={weather?.kind ?? "cloudy"} />{weather?.condition ?? "Weather unavailable"}</span>
-          <span className="mobile-home__weather-details"><span>High {weather ? weather.high + "°" : "—"}</span><span>Low {weather ? weather.low + "°" : "—"}</span><span><strong>UV</strong> {weather ? weather.uv + " · " + weather.uvPeak : "—"}</span></span>
+          <i aria-hidden="true" />
+          <span>High {weather ? weather.high + "°" : "—"}</span>
+          <span>Low {weather ? weather.low + "°" : "—"}</span>
+          <i aria-hidden="true" />
+          <span><strong>UV</strong> {weather ? weather.uv + " · " + weather.uvPeak : "—"}</span>
         </div>
       </section>
     </div>

@@ -52,6 +52,42 @@ passed
 
 ---
 
+# Design QA — Stores Pass
+
+## Evidence
+
+- Source visual truth: `C:/Users/elico/AppData/Local/Temp/codex-clipboard-816c6bd1-b066-4cb0-aff0-2659193a1a20.png` (1600 × 1000 desktop reference).
+- Rendered implementation: `http://localhost:4318/deals` in the Codex in-app browser.
+- Implementation capture: in-app browser screenshot at the mobile responsive breakpoint (476 px-wide viewport); the browser surface does not expose a local screenshot filepath.
+- State: Stores route, all cards visible after scrolling.
+
+## Full-view comparison evidence
+
+- Desktop styling uses the reference's three-column white-card grid with 12 px gaps, soft shadows, rounded corners, back control, and uppercase `STORES` heading. The responsive view intentionally changes to the requested smaller two-column cards on mobile.
+- The cards retain the source ordering: Aritzia, Cotton On, Sephora, Altar'd State, Vuori, Brandy Melville, Alo, Garage, SKIMS, Princess Polly, Victoria's Secret, and Steve Madden.
+
+## Focused region comparison evidence
+
+- The browser accessibility tree confirms all 12 cards are semantic links and point to each brand's main home URL.
+- The mobile capture confirms the supplied assets are used directly on white cards with no clipping or text substitutes. Altar'd State's supplied square asset receives a scoped scale adjustment to offset its transparent margins and visually match the other logos.
+
+## Findings
+
+- No remaining P0, P1, or P2 fidelity issues.
+- P3: the reference only supplies a desktop frame, so the smaller mobile card proportions are an intentional responsive implementation of the user's stated mobile requirement rather than a 1:1 source comparison.
+
+## Verification
+
+- TypeScript: passed (`npm run typecheck`).
+- Route render: `/deals` returned HTTP 200 and the in-app browser confirmed all links and heading.
+- Existing local Supabase configuration is absent, causing unrelated `/api/closet` provider errors during development; the Stores route has no data dependency and rendered correctly.
+
+## Final result
+
+passed
+
+---
+
 # Design QA — Tablet Closet, Builder, and Recent Pass
 
 ## Evidence

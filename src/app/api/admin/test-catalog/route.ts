@@ -1,5 +1,4 @@
-import { z } from "zod";
-import { activity, AppError, db, limit, put, records, removeWardrobeItem } from "@/lib/server/records";
+import { activity, db, limit, put } from "@/lib/server/records";
 import { apiError, json } from "@/lib/server/http";
 import { requireSession, sameOrigin } from "@/lib/server/session";
 import { testCatalog } from "@/lib/server/test-catalog";
@@ -11,26 +10,6 @@ export async function POST(request: Request) {
   try {
     sameOrigin(request);
     await requireSession(true);
-    const { action } = z.object({ action: z.enum(["load", "remove"]).default("load") }).parse(await request.json());
-
-    if (action === "remove") {
-      await limit("admin:test-catalog-remove", 2, 300);
-      const items = await records<WardrobeItem>("item");
-      const catalogIds = new Set(testCatalog.map(item => item.id));
-      const testItems = items.filter(item => catalogIds.has(item.id) && item.details.startsWith("TEST-CLOTHES"));
-      const catalogPublishedAt = [...new Set(testItems.map(item => item.publishedAt).filter((value): value is string => Boolean(value)))];
-      const originalTestUploads = catalogPublishedAt.length === 1
-        ? items.filter(item => !catalogIds.has(item.id) && item.createdAt < catalogPublishedAt[0])
-        : [];
-      if (testItems.length !== 25 || originalTestUploads.length !== 1) {
-        throw new AppError("Delete stopped because the original 26 test items could not be separated safely from newer real clothes.", 409);
-      }
-      const confirmedItems = [...testItems, ...originalTestUploads];
-      for (const item of confirmedItems) await removeWardrobeItem(item.id);
-      await activity("Removed the confirmed 26 test closet items");
-      return json({ ok: true, deletedItems: confirmedItems.length, deletedTestItems: testItems.length, deletedManualItems: originalTestUploads.length });
-    }
-
     await limit("admin:test-catalog", 3, 300);
 
     const publishedAt = new Date().toISOString();

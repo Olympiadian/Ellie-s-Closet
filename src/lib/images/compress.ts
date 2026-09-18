@@ -1,18 +1,19 @@
 type CompressOptions = {
   maxDimension?: number;
   quality?: number;
-  mimeType?: "image/jpeg" | "image/webp";
+  mimeType?: "image/webp";
 };
 
 export async function compressImage(
   file: File,
   {
-    maxDimension = 1800,
-    quality = 0.82,
+    maxDimension = 1600,
+    quality = 0.8,
     mimeType = "image/webp",
   }: CompressOptions = {},
-): Promise<Blob> {
-  const bitmap = await createImageBitmap(file);
+): Promise<File> {
+  // createImageBitmap applies the photo's EXIF orientation before it reaches the canvas.
+  const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
   const scale = Math.min(1, maxDimension / Math.max(bitmap.width, bitmap.height));
   const width = Math.max(1, Math.round(bitmap.width * scale));
   const height = Math.max(1, Math.round(bitmap.height * scale));
@@ -29,11 +30,13 @@ export async function compressImage(
   context.drawImage(bitmap, 0, 0, width, height);
   bitmap.close();
 
-  return new Promise((resolve, reject) => {
+  const blob = await new Promise<Blob>((resolve, reject) => {
     canvas.toBlob(
       (blob) => (blob ? resolve(blob) : reject(new Error("Image compression failed."))),
       mimeType,
       quality,
     );
   });
+  const stem = file.name.replace(/\.[^.]+$/, "") || "clothing-photo";
+  return new File([blob], `${stem}.webp`, { type: mimeType, lastModified: file.lastModified });
 }

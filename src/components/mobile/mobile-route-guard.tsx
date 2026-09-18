@@ -11,6 +11,7 @@ const allowedPhoneRoutes = new Set([
   "/deals",
   "/mobile/new-clothes",
   "/mobile/request",
+  "/mobile/database",
   "/admin",
   "/connect",
   "/help",

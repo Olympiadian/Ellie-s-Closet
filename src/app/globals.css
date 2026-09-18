@@ -756,7 +756,7 @@ a {
 .closet-browser__item-meta strong {
   overflow: hidden;
   font-family: var(--font-inclusive-sans), "Helvetica Neue", Arial, sans-serif;
-  font-size: clamp(17px, 1.25vw, 23px);
+  font-size: clamp(18px, 1.35vw, 25px);
   font-weight: 500;
   letter-spacing: -0.03em;
   line-height: 1.08;
