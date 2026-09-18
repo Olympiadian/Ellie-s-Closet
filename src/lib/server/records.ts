@@ -35,6 +35,17 @@ export async function remove(kind: string, id: string) {
   const { error } = await db().from("closet_records").delete().eq("kind", kind).eq("id", id);
   if (error) throw new AppError("Could not remove the record.", 503);
 }
+export async function removeWardrobeItem(id: string) {
+  const client = db();
+  const { data: files, error: listError } = await client.storage.from("closet-private").list(id, { limit: 1000 });
+  if (listError) throw new AppError("Could not verify the item photos.", 503);
+  if (files?.length) {
+    const { error: storageError } = await client.storage.from("closet-private").remove(files.map(file => `${id}/${file.name}`));
+    if (storageError) throw new AppError("Could not remove the item photos.", 503);
+  }
+  const { error } = await client.from("closet_records").delete().eq("kind", "item").eq("id", id);
+  if (error) throw new AppError("Could not remove the clothing item.", 503);
+}
 export async function activity(text: string) {
   const id = randomUUID();
   await put("activity", id, { id, text, createdAt: new Date().toISOString() });

@@ -55,10 +55,10 @@ export function Drawer({ title, close, children, small = false }: { title: strin
 }
 export function ItemPhoto({ item, side = "front", original = false, thumbnail = false }: { item: WardrobeItem; side?: "front" | "back"; original?: boolean; thumbnail?: boolean }) {
   const src = original
-    ? (side === "front" ? item.originalFrontUrl : item.originalBackUrl)
+    ? (side === "front" ? item.originalFrontUrl ?? item.originalBackUrl : item.originalBackUrl ?? item.originalFrontUrl)
     : thumbnail
-      ? (side === "front" ? item.frontThumbnailUrl : item.backThumbnailUrl)
-      : side === "front" ? item.frontUrl : item.backUrl;
+      ? (side === "front" ? item.frontThumbnailUrl ?? item.backThumbnailUrl : item.backThumbnailUrl ?? item.frontThumbnailUrl)
+      : side === "front" ? item.frontUrl ?? item.backUrl : item.backUrl ?? item.frontUrl;
   return <div className="wc-photo">{src ? <Image src={src} alt={item.name + " · " + side} fill loading="lazy" sizes={thumbnail ? "(max-width: 600px) 40vw, 220px" : "(max-width: 600px) 85vw, 50vw"} unoptimized /> : <span className="sr-only">{side} photo not yet available</span>}</div>;
 }
 export function Heart({ filled }: { filled: boolean }) {

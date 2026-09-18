@@ -41,6 +41,7 @@ function applyMutation(data: WardrobeData, body: unknown): WardrobeData {
   switch (mutation.action) {
     case "mark": return updateItem(item => ({ ...item, [mutation.field as "favorite" | "saved"]: Boolean(mutation.value) }));
     case "editItem": return updateItem(item => ({ ...item, ...(mutation.fields as object) }));
+    case "removeItem": return { ...data, items: data.items.filter(item => item.id !== id) };
     case "publish": return updateItem(item => ({ ...item, status: mutation.published ? "published" : "archived", ...(mutation.published && !item.publishedAt ? { publishedAt: new Date().toISOString() } : {}) }));
     case "saveBuild": {
       const build = { id, name: String(mutation.name), occasion: String(mutation.occasion), kind: mutation.kind === "collection" ? "collection" as const : "outfit" as const, itemIds: Array.isArray(mutation.itemIds) ? mutation.itemIds.filter((value): value is string => typeof value === "string") : [], createdAt: new Date().toISOString() };

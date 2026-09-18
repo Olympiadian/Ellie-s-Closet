@@ -25,17 +25,13 @@ export async function POST(request: Request) {
       item = { ...emptyItem, id: body.itemId, status: "uploading", favorite: false, saved: false, createdAt: new Date().toISOString() };
       await put("item", item.id, item, true);
     }
-    const hasReadyPhoto = Boolean(
-      (item.frontPath && item.frontProcessedPath) || (item.backPath && item.backProcessedPath),
-    );
-    if (current.role !== "admin" && item.status !== "uploading") {
-      // A completed request may lose its response on a mobile connection.
-      // Retrying the same slot must not create a duplicate or overwrite a review.
-      if (item.status === "pending" && hasReadyPhoto) return json({ alreadySubmitted: true });
+    const completedField = body.side + (body.processed ? "ProcessedPath" : "Path") as keyof WardrobeItem;
+    if (current.role !== "admin" && !["uploading", "pending"].includes(item.status)) {
       throw new AppError("This item has already been submitted.", 403);
     }
+    if (item.status === "pending" && item[completedField]) return json({ alreadySubmitted: true });
     if (body.action === "finalize") {
-      if (!hasReadyPhoto) throw new AppError("Add at least one finished photo before submitting.");
+      if (!(item.frontPath || item.backPath)) throw new AppError("Add at least one photo before submitting.");
       if (item.status === "uploading") {
         await patch("item", item.id, { status: "pending" });
         await activity("New clothing photo received for review");
@@ -64,6 +60,10 @@ export async function POST(request: Request) {
         console.error("Clothing cutout standardization failed", error);
         throw error;
       }
+    }
+    if (item.status === "uploading" && (item.frontPath || item.backPath)) {
+      await patch("item", item.id, { status: "pending" });
+      await activity("New clothing photo received for review");
     }
     return json({ ok: true });
   } catch (error) {

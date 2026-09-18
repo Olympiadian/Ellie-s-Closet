@@ -20,10 +20,8 @@ export async function POST(request: Request) {
     await patch("item", id, {
       name: item.name === "New clothing item" ? result.name : item.name,
       category: item.category === "other" ? result.category : item.category,
-      subcategory: item.subcategory || result.subcategory,
       color: item.color || result.primary_color,
       tags: item.tags.length ? item.tags : result.style_tags,
-      occasions: item.occasions.length ? item.occasions : result.occasions,
       issues: [...new Set([...item.issues, ...(result.review_reason ? ["A.I. review: " + result.review_reason.slice(0, 45)] : []), ...(result.confidence < .8 ? ["A.I. unsure — verify suggested details"] : [])])].slice(0, 20),
     });
     await activity("AI suggested details for " + item.name);
