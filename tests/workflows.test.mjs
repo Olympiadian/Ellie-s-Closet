@@ -46,6 +46,8 @@ test("one clothing image stays private until admin publishes", async () => {
   const uploaded = await fetch(upload.result.signedUrl, { method: "PUT", body: Buffer.alloc(64) });
   assert.equal(uploaded.status, 200);
   await call("/api/uploads", { action: "complete", itemId, side: "front", processed: false, path: upload.result.path }, viewerCookie);
+  assert.equal((await call("/api/closet?admin=1", undefined, adminCookie)).result.items[0].status, "uploading");
+  await call("/api/uploads", { action: "finalize", itemId, side: "front", processed: false }, viewerCookie);
   assert.equal((await call("/api/closet", undefined, viewerCookie)).result.items.length, 0);
   const review = (await call("/api/closet?admin=1", undefined, adminCookie)).result;
   assert.equal(review.items[0].status, "pending");

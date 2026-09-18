@@ -84,22 +84,29 @@ export function WardrobeProvider({ children, admin = false }: { children: ReactN
   }, [admin]);
   useEffect(() => {
     const cached = admin ? null : readCache();
+    let cacheTimer: number | undefined;
     if (cached) {
-      setData(cached.data);
-      setLoading(false);
       lastRemoteLoad.current = cached.savedAt;
       document.documentElement.dataset.reduceMotion = String(cached.data.settings.reduceMotion);
-      if (Date.now() - cached.savedAt >= CACHE_TTL) void refresh();
+      cacheTimer = window.setTimeout(() => {
+        setData(cached.data);
+        setLoading(false);
+        if (Date.now() - cached.savedAt >= CACHE_TTL) void refresh();
+      }, 0);
     } else {
-      void refresh();
+      cacheTimer = window.setTimeout(() => void refresh(), 0);
     }
     const update = () => {
       if (document.visibilityState === "visible" && Date.now() - lastRemoteLoad.current >= CACHE_TTL) void refresh();
     };
     window.addEventListener("focus", update);
     const timer = window.setInterval(update, CACHE_TTL);
-    return () => { window.removeEventListener("focus", update); window.clearInterval(timer); };
-  }, [refresh]);
+    return () => {
+      window.removeEventListener("focus", update);
+      window.clearInterval(timer);
+      if (cacheTimer !== undefined) window.clearTimeout(cacheTimer);
+    };
+  }, [admin, refresh]);
   const mutate = async (body: unknown) => {
     await requestJson("/api/closet", body);
     setData(current => {

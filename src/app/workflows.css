@@ -197,6 +197,7 @@
 .wc-store-card--altar img { transform: scale(2.3); }
 .wc-store-card--minus-15 img { transform: scale(.85); }
 .wc-store-card--minus-30 img { transform: scale(.7); }
+.wc-stores-title__responsive { display: none; }
 .wc-manual { margin-top: 22px; text-align: center; font-size: 14px; }
 .route-loading-screen { background: #f9f9f9 url("/images/home-iridescent-background.webp") center / cover no-repeat; }
 .wc-loading-dots { display: flex; gap: 9px; align-items: center; height: 28px; }
@@ -261,10 +262,20 @@
   .wc-activity { flex-direction: column; gap: 6px; }
   .wc-item-photos { gap: 8px; }
   .wc-form :is(input:not([type=checkbox]),textarea,select) { font-size: 16px; }
-  .wc-stores { width: calc(100% - 48px); grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 18px; }
+  .wc-stores { width: calc(100% - 8px); grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 18px; }
   .wc-store-card { min-height: 116px; border-radius: 10px; }
-  .wc-store-card img { padding: 8%; }
+  .wc-store-card img { padding: 8%; transform: scale(.7); }
+  .wc-store-card--plus-15 img { transform: scale(.805); }
+  .wc-store-card--plus-40 img { transform: scale(.98); }
+  .wc-store-card--altar img { transform: scale(1.61); }
+  .wc-store-card--minus-15 img { transform: scale(.51); }
+  .wc-store-card--minus-30 img { transform: scale(.49); }
   .calendar-scheduled-outfit { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 1050px) {
+  .wc-stores-title__desktop { display: none; }
+  .wc-stores-title__responsive { display: inline; }
 }
 
 @media (min-width: 601px) {

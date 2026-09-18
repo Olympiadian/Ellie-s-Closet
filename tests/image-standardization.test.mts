@@ -32,16 +32,16 @@ test("standardizes an alpha cutout into centered transparent master and thumbnai
   ]);
 
   assert.equal(masterInfo.format, "webp");
-  assert.equal(masterInfo.width, 1200);
-  assert.equal(masterInfo.height, 1200);
+  assert.equal(masterInfo.width, 1600);
+  assert.equal(masterInfo.height, 1600);
   assert.equal(masterInfo.hasAlpha, true);
   assert.equal(thumbnailInfo.format, "webp");
   assert.equal(thumbnailInfo.width, 500);
   assert.equal(thumbnailInfo.height, 500);
   assert.equal(thumbnailInfo.hasAlpha, true);
-  assert.ok(masterBounds.width <= 996 && masterBounds.height <= 996, JSON.stringify(masterBounds));
-  assert.ok(Math.abs(masterBounds.left + masterBounds.width / 2 - 600) <= 1);
-  assert.ok(Math.abs(masterBounds.top + masterBounds.height / 2 - 600) <= 1);
+  assert.ok(masterBounds.width <= 1328 && masterBounds.height <= 1328, JSON.stringify(masterBounds));
+  assert.ok(Math.abs(masterBounds.left + masterBounds.width / 2 - 800) <= 1);
+  assert.ok(Math.abs(masterBounds.top + masterBounds.height / 2 - 800) <= 1);
   assert.ok(Math.abs(masterBounds.width / masterBounds.height - 300 / 660) < 0.02);
 });
 

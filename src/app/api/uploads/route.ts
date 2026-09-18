@@ -61,10 +61,6 @@ export async function POST(request: Request) {
         throw error;
       }
     }
-    if (item.status === "uploading" && (item.frontPath || item.backPath)) {
-      await patch("item", item.id, { status: "pending" });
-      await activity("New clothing photo received for review");
-    }
     return json({ ok: true });
   } catch (error) {
     console.error("Clothing upload request failed", error);

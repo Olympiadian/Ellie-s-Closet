@@ -18,7 +18,7 @@ const stores = [
 
 export function StoresPage() {
   return (
-    <PageShell title="STORES">
+    <PageShell title={<><span className="wc-stores-title__desktop">STORES</span><span className="wc-stores-title__responsive">Stores</span></>}>
       <section className="wc-content wc-stores" aria-label="Store links">
         {stores.map((store) => (
           <a className={`wc-store-card ${store.className ?? ""}`} href={store.href} key={store.name} target="_blank" rel="noreferrer" aria-label={`Open ${store.name}`}>
