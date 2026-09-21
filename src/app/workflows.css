@@ -40,6 +40,7 @@
 .wc-photo { position: relative; width: 100%; aspect-ratio: 1.1 / 1; overflow: hidden; border-radius: 12px; }
 .wc-photo img { object-fit: contain; padding: 12px; }
 .closet-browser__item .wc-photo { height: 100%; }
+.closet-browser__visual .wc-photo img { transform: scale(1.15); }
 .closet-browser__item.wc-selected { outline: 3px solid #d2e1f6; outline-offset: -3px; }
 .wc-drawer {
   position: fixed; inset: 12px 12px 12px auto; margin: 0;
@@ -737,6 +738,7 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
 
   .closet-browser__visual .wc-photo img {
     padding: clamp(20px, 8vw, 34px);
+    transform: scale(1.2);
   }
 
   .closet-browser__favorite {
