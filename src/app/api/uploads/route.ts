@@ -63,13 +63,17 @@ export async function POST(request: Request) {
     const { data: files, error } = await db().storage.from("closet-private").list(body.itemId, { search: body.path.split("/")[1], limit: 1 });
     if (error || !files?.some(file => body.itemId + "/" + file.name === body.path && Number(file.metadata?.size ?? 0) > 0)) throw new AppError("The photo upload is not complete. Please try again.");
     const field = body.side + (body.processed ? "ProcessedPath" : "Path");
-    item = await patch<WardrobeItem>("item", item.id, { [field]: body.path });
+    const thumbnailField = body.side + "ThumbnailPath";
+    item = await patch<WardrobeItem>("item", item.id, body.processed
+      ? { [field]: body.path, [thumbnailField]: null }
+      : { [field]: body.path });
     if (body.processed) {
       try {
         await standardizeUploadedCutout(item.id, body.side, body.path);
       } catch (error) {
         console.error("Clothing cutout standardization failed", error);
-        throw error;
+        // The uploaded replacement is still the canonical image. With the old
+        // thumbnail cleared above, every card falls back to this new image.
       }
     }
     return json({ ok: true });

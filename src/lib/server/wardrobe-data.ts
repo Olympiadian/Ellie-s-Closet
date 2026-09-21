@@ -11,7 +11,7 @@ export async function wardrobeData(role: "admin" | "viewer", adminView = false):
     adminView ? records<Activity>("activity") : Promise.resolve([]),
   ]);
   const items = allItems.filter(item => adminView || item.status === "published");
-  const imageUrl = (path: string | undefined) => path ? privateImageUrl(path, adminView ? "admin" : "viewer") : undefined;
+  const imageUrl = (path: string | null | undefined) => path ? privateImageUrl(path, adminView ? "admin" : "viewer") : undefined;
   return {
     items: items.map(item => ({
       ...item,

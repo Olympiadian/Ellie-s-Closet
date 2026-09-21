@@ -21,7 +21,7 @@ export type WardrobeItem = ItemFields & {
   id: string; status: "uploading" | "pending" | "published" | "archived";
   favorite: boolean; saved: boolean; createdAt: string; publishedAt?: string;
   frontPath?: string; backPath?: string; frontProcessedPath?: string; backProcessedPath?: string;
-  frontThumbnailPath?: string; backThumbnailPath?: string;
+  frontThumbnailPath?: string | null; backThumbnailPath?: string | null;
   imageProcessing?: Partial<Record<"front" | "back", ImageProcessingInfo>>;
   frontUrl?: string; backUrl?: string; frontThumbnailUrl?: string; backThumbnailUrl?: string;
   originalFrontUrl?: string; originalBackUrl?: string;
