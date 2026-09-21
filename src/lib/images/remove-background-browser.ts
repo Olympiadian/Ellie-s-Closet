@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * Browser-only image cleanup. The model is fetched and cached by the browser;
  * source photos never pass through a third-party background-removal API.
@@ -15,7 +17,8 @@ type BrowserSegmenter = (image: Blob) => Promise<{
 }>;
 
 const modelId = "onnx-community/ormbg-ONNX";
-const maxCutoutDimension = 2000;
+const maxCutoutDimension = 1600;
+const maxInferenceDimension = 768;
 let segmenterPromise: Promise<BrowserSegmenter> | undefined;
 
 function reportDownload(
@@ -48,6 +51,27 @@ async function getSegmenter(onProgress?: (progress: BackgroundRemovalProgress) =
   return segmenterPromise;
 }
 
+async function resizeForInference(source: File) {
+  const bitmap = await createImageBitmap(source);
+  const scale = Math.min(1, maxInferenceDimension / Math.max(bitmap.width, bitmap.height));
+  if (scale === 1) {
+    bitmap.close();
+    return source;
+  }
+
+  const width = Math.max(1, Math.round(bitmap.width * scale));
+  const height = Math.max(1, Math.round(bitmap.height * scale));
+  const canvas = new OffscreenCanvas(width, height);
+  const context = canvas.getContext("2d");
+  if (!context) {
+    bitmap.close();
+    throw new Error("This browser cannot prepare the photo for background removal.");
+  }
+  context.drawImage(bitmap, 0, 0, width, height);
+  bitmap.close();
+  return canvas.convertToBlob({ type: "image/jpeg", quality: 0.9 });
+}
+
 /** Produces a compact transparent PNG suitable for the private processed upload. */
 export async function removeBackgroundInBrowser(
   source: File,
@@ -59,7 +83,9 @@ export async function removeBackgroundInBrowser(
 
   const segmenter = await getSegmenter(onProgress);
   onProgress?.({ stage: "removing-background" });
-  const cutout = await segmenter(source);
+  // Phone cameras can produce 12–48MP originals. Passing those directly to
+  // the WASM model can exhaust Safari's memory and reload the app mid-upload.
+  const cutout = await segmenter(await resizeForInference(source));
   const scale = Math.min(1, maxCutoutDimension / Math.max(cutout.width, cutout.height));
   if (scale < 1) {
     await cutout.resize(Math.max(1, Math.round(cutout.width * scale)), Math.max(1, Math.round(cutout.height * scale)));

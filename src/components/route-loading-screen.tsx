@@ -24,10 +24,10 @@ const loadingMessages = [
   "Waking up the wardrobe…",
 ] as const;
 
-const loadingPaths = new Set(["/closet", "/build"]);
-const transitionDuration = 2600;
+const transitionDuration = 1900;
 const exitDuration = 280;
 const lastMessageKey = "ellies-closet-last-loading-message";
+const animatedPaths = new Set(["/closet", "/saved", "/build"]);
 
 function chooseMessage(lastMessage: string | null) {
   const choices = lastMessage
@@ -46,7 +46,7 @@ export function RouteLoadingScreen() {
 }
 
 function RouteLoadingScreenForPath({ pathname }: { pathname: string }) {
-  const isLoadingPath = loadingPaths.has(pathname);
+  const isLoadingPath = animatedPaths.has(pathname);
   const [isVisible, setIsVisible] = useState(isLoadingPath);
 
   useEffect(() => {
@@ -56,7 +56,12 @@ function RouteLoadingScreenForPath({ pathname }: { pathname: string }) {
       const anchor = event.target.closest<HTMLAnchorElement>("a[href]");
       if (!anchor || anchor.target || anchor.hasAttribute("download")) return;
       const destination = new URL(anchor.href, window.location.href);
-      if (destination.origin !== window.location.origin || !loadingPaths.has(destination.pathname)) return;
+      if (destination.origin !== window.location.origin) return;
+      if (anchor.dataset.instantHome === "true") {
+        document.documentElement.dataset.instantNavigation = "true";
+        return;
+      }
+      if (!animatedPaths.has(destination.pathname)) return;
       flushSync(() => setIsVisible(true));
     };
 

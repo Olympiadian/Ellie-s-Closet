@@ -58,6 +58,12 @@ test("front/back upload stays private until admin publishes", async () => {
   assert.equal(published.name, fields.name);
   assert.ok(published.frontUrl && published.backUrl);
   assert.equal(published.originalFrontUrl, undefined);
+  const image = await fetch(origin + published.frontUrl, { redirect: "manual" });
+  assert.equal(image.status, 302);
+  assert.equal(image.headers.get("cache-control"), "private, max-age=3600, must-revalidate");
+  assert.ok(image.headers.get("location")?.includes("/object/sign/closet-private/"));
+  const repeated = (await call("/api/closet", undefined, viewerCookie)).result.items[0];
+  assert.equal(repeated.frontUrl, published.frontUrl);
 });
 test("favorites, saved items, builds, and calendar persist across sessions", async () => {
   await call("/api/closet", { action: "mark", id: itemId, field: "favorite", value: true }, viewerCookie);

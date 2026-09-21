@@ -1,3 +1,5 @@
+"use client";
+
 export class ApiError extends Error {
   constructor(message: string, public status: number) { super(message); }
 }
@@ -19,8 +21,8 @@ export async function uploadPhoto(itemId: string, side: "front" | "back", file: 
   const upload = await requestJson<{ path: string; signedUrl: string; alreadySubmitted?: boolean }>("/api/uploads", { action: "prepare", itemId, side, processed, contentType, size: uploadFile.size });
   if (upload.alreadySubmitted) return;
   const form = new FormData();
-  form.append("cacheControl", "3600");
-  // The private original must be the file the person selected. Derivatives are created server-side.
+  // Every object path is unique, so immutable cache metadata is safe and avoids repeat downloads.
+  form.append("cacheControl", "31536000");
   form.append("", uploadFile, file.name);
   const response = await fetch(upload.signedUrl, { method: "PUT", headers: { "x-upsert": "false" }, body: form });
   if (!response.ok) throw new Error("The photo did not upload. Check your connection and try again.");
@@ -28,17 +30,3 @@ export async function uploadPhoto(itemId: string, side: "front" | "back", file: 
 }
 
 /** Keeps the original private, then creates and uploads a local transparent cutout. */
-export async function uploadClothingPhoto(
-  itemId: string,
-  side: "front" | "back",
-  file: File,
-  onProgress?: (progress: ClothingPhotoProgress) => void,
-) {
-  onProgress?.({ stage: "uploading-original" });
-  await uploadPhoto(itemId, side, file);
-
-  const { removeBackgroundInBrowser } = await import("@/lib/images/remove-background-browser");
-  const cutout = await removeBackgroundInBrowser(file, onProgress);
-  onProgress?.({ stage: "uploading-cutout" });
-  await uploadPhoto(itemId, side, cutout, true);
-}

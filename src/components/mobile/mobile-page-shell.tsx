@@ -20,7 +20,7 @@ export function MobilePageShell({
       <div className="mobile-tool-page__background" aria-hidden="true" />
       <div className="mobile-tool-page__content">
         <header className="mobile-tool-page__header">
-          <Link href="/" className="mobile-tool-page__back" aria-label="Back to mobile home">
+          <Link href="/" data-instant-home="true" className="mobile-tool-page__back" aria-label="Back to mobile home">
             <BackIcon />
           </Link>
           <h1>{title}</h1>

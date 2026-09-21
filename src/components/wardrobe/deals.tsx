@@ -1,36 +1,31 @@
-"use client";
-import { Fragment } from "react";
-import { safeExternalUrl } from "@/lib/wardrobe";
-import { DataGate, useWardrobe } from "./provider";
-import { Empty, PageShell } from "./ui";
-import type { DealScan } from "@/lib/wardrobe";
+import Image from "next/image";
+import { PageShell } from "./ui";
 
-export const demoDealScan: DealScan = {
-  id: "demo-preview", checkedAt: "2026-09-13T19:00:00.000Z", status: "complete", isDemo: true,
-  text: "Aritzia — DEMO SALE PREVIEW: Example sale-page result for a polished everyday layer. This is sample content only, not a verified current offer. [Open Aritzia sale page](https://www.aritzia.com/us/en/sale)\n\nNordstrom — DEMO NEW ARRIVAL: Example occasion-ready edit with direct browsing link. This is sample content only, not a verified current offer. [Browse Nordstrom sale](https://www.nordstrom.com/browse/sale)\n\nSephora — DEMO BEAUTY FIND: Example beauty promotion card included to show the daily scan’s retailer mix. This is sample content only, not a verified current offer. [Browse Sephora offers](https://www.sephora.com/beauty/beauty-offers)",
-  sources: [
-    { title: "Aritzia sale", url: "https://www.aritzia.com/us/en/sale" },
-    { title: "Nordstrom sale", url: "https://www.nordstrom.com/browse/sale" },
-    { title: "Sephora offers", url: "https://www.sephora.com/beauty/beauty-offers" },
-  ],
-};
-function LinkedText({ text }: { text: string }) {
-  return <>{text.split(/(\[[^\]]+\]\(https:\/\/[^\s)]+\))/g).map((part, index) => {
-    const match = part.match(/^\[([^\]]+)\]\((https:\/\/[^\s)]+)\)$/);
-    return match && safeExternalUrl(match[2]) ? <a key={index} href={match[2]} target="_blank" rel="noreferrer">{match[1]}</a> : <Fragment key={index}>{part.replace(/\*\*/g, "")}</Fragment>;
-  })}</>;
-}
-export function DealsPage() {
-  const { data } = useWardrobe();
-  const scan = data?.scans.find(s => s.status === "complete");
-  const latest = data?.scans[0];
-  return <PageShell title="A Few Good Finds"><DataGate><div className="wc-content wc-deals"><p className="wc-muted">Women’s clothing around Scottsdale & Biltmore · refreshed daily</p>
-    {scan?.isDemo && <p className="wc-notice">Demo preview · These example finds are here to show the layout and links. They are not live offers.</p>}
-    {latest?.status === "failed" && <p className="wc-notice">The latest scan didn’t finish. {scan ? "The last successful results are shown below." : "Please check back after the next scan."}</p>}
-    {scan ? <><p className="wc-muted">Checked {new Date(scan.checkedAt).toLocaleString("en-US", { timeZone: "America/Phoenix" })} Arizona time. Offers and availability can change.</p><div className="wc-deals-grid">{scan.text.split(/\n\s*\n/).filter(Boolean).map((text, index) => <article className="wc-surface wc-deal" key={index}><LinkedText text={text}/></article>)}</div><section className="wc-surface"><h2>Open retailer pages</h2><div className="wc-source-list">{scan.sources.map(source => safeExternalUrl(source.url) ? <a key={source.url} href={source.url} target="_blank" rel="noreferrer">{source.title} ↗</a> : null)}</div></section></> : <Empty>{latest?.status === "running" ? "The daily research scan is running." : "No verified finds yet. Your first scan can be started from admin."}</Empty>}
-  </div></DataGate></PageShell>;
-}
+const stores = [
+  { name: "Aritzia", href: "https://www.aritzia.com/us/en/home", logo: "/images/stores/aritzia.svg", className: "wc-store-card--plus-15" },
+  { name: "Cotton On", href: "https://cottonon.com/US/", logo: "/images/stores/cotton-on.png", className: "wc-store-card--plus-15" },
+  { name: "Sephora", href: "https://www.sephora.com/", logo: "/images/stores/sephora.png", className: "wc-store-card--plus-15" },
+  { name: "Altar'd State", href: "https://www.altardstate.com/", logo: "/images/stores/altard-state.png", className: "wc-store-card--altar" },
+  { name: "Vuori", href: "https://vuoriclothing.com/", logo: "/images/stores/vuori.png", className: "wc-store-card--plus-15" },
+  { name: "Brandy Melville", href: "https://us.brandymelville.com/", logo: "/images/stores/brandy-melville.png", className: "wc-store-card--plus-15" },
+  { name: "Alo", href: "https://www.aloyoga.com/", logo: "/images/stores/alo.webp", className: "wc-store-card--minus-15 wc-store-card--alo" },
+  { name: "Garage", href: "https://www.garageclothing.com/", logo: "/images/stores/garage.png", className: "wc-store-card--plus-40" },
+  { name: "SKIMS", href: "https://skims.com/", logo: "/images/stores/skims.png" },
+  { name: "Princess Polly", href: "https://us.princesspolly.com/", logo: "/images/stores/princess-polly.png", className: "wc-store-card--minus-30" },
+  { name: "Victoria's Secret", href: "https://www.victoriassecret.com/us/", logo: "/images/stores/victorias-secret.png" },
+  { name: "Steve Madden", href: "https://www.stevemadden.com/", logo: "/images/stores/steve-madden.png", className: "wc-store-card--plus-15" },
+];
 
-export function DemoDealsPage() {
-  return <PageShell title="A Few Good Finds"><div className="wc-content wc-deals"><p className="wc-muted">Women’s clothing around Scottsdale & Biltmore · refreshed daily</p><p className="wc-notice">Demo preview · These example finds are here to show the layout and links. They are not live offers.</p><p className="wc-muted">Checked today in Arizona time. Offers and availability can change.</p><div className="wc-deals-grid">{demoDealScan.text.split(/\n\s*\n/).map((text, index) => <article className="wc-surface wc-deal" key={index}><LinkedText text={text}/></article>)}</div><section className="wc-surface"><h2>Open retailer pages</h2><div className="wc-source-list">{demoDealScan.sources.map(source => <a key={source.url} href={source.url} target="_blank" rel="noreferrer">{source.title} ↗</a>)}</div></section></div></PageShell>;
+export function StoresPage() {
+  return (
+    <PageShell title="Stores">
+      <section className="wc-content wc-stores" aria-label="Store links">
+        {stores.map((store) => (
+          <a className={`wc-store-card ${store.className ?? ""}`} href={store.href} key={store.name} target="_blank" rel="noreferrer" aria-label={`Open ${store.name}`}>
+            <Image src={store.logo} alt={store.name} fill sizes="(max-width: 600px) 42vw, 26vw" />
+          </a>
+        ))}
+      </section>
+    </PageShell>
+  );
 }

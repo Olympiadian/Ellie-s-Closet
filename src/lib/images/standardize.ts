@@ -1,6 +1,6 @@
 import sharp from "sharp";
 
-const masterSize = 1200;
+const masterSize = 1600;
 const thumbnailSize = 500;
 const garmentLimit = 0.83;
 const alphaThreshold = 8;
@@ -153,11 +153,11 @@ export async function composeStandardImages(source: Buffer): Promise<Standardize
       right: masterSize - contained.info.width - left,
       background: { r: 0, g: 0, b: 0, alpha: 0 },
     })
-    .webp({ quality: 85, alphaQuality: 100, effort: 4 })
+    .webp({ quality: 80, alphaQuality: 100, effort: 4 })
     .toBuffer();
   const thumbnail = await sharp(master)
     .resize({ width: thumbnailSize, height: thumbnailSize, fit: "fill" })
-    .webp({ quality: 85, alphaQuality: 100, effort: 4 })
+    .webp({ quality: 75, alphaQuality: 100, effort: 4 })
     .toBuffer();
   return { master, thumbnail };
 }

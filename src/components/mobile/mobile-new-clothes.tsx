@@ -1,11 +1,17 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import dynamic from "next/dynamic";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { CameraIcon, CloseIcon } from "@/components/mobile/mobile-icons";
 import { useAnimatedClose } from "@/components/use-animated-close";
-import { uploadClothingPhoto, type ClothingPhotoProgress } from "@/lib/api";
+import { requestJson, uploadPhoto, type ClothingPhotoProgress } from "@/lib/api";
+import type { BackgroundRemovalEngineHandle } from "@/components/background-removal-engine";
 import { DataGate, useWardrobe } from "@/components/wardrobe/provider";
+
+const BackgroundRemovalEngine = dynamic(() => import("@/components/background-removal-engine"), {
+  ssr: false,
+});
 
 type PhotoSide = "front" | "back";
 
@@ -19,6 +25,7 @@ type ClothingSlot = {
   sent?: boolean;
   uploadedFront?: boolean;
   uploadedBack?: boolean;
+  cleanupWarning?: boolean;
   front?: SlotPhoto;
   back?: SlotPhoto;
 };
@@ -83,6 +90,9 @@ export function MobileNewClothes() {
   const [busy, setBusy] = useState(false);
   const { refresh } = useWardrobe();
   const objectUrls = useRef(new Set<string>());
+  const removalEngine = useRef<BackgroundRemovalEngineHandle>(null);
+  const [isRemovalEngineReady, setIsRemovalEngineReady] = useState(false);
+  const handleRemovalEngineReady = useCallback(() => setIsRemovalEngineReady(true), []);
 
   useEffect(() => {
     const urls = objectUrls.current;
@@ -101,7 +111,7 @@ export function MobileNewClothes() {
 
   const counts = useMemo(() => {
     const started = slots.filter((slot) => slot.front || slot.back).length;
-    const complete = slots.filter((slot) => slot.front && slot.back).length;
+    const complete = slots.filter((slot) => slot.front || slot.back).length;
     return { started, complete };
   }, [slots]);
 
@@ -109,6 +119,17 @@ export function MobileNewClothes() {
 
   function choosePhoto(side: PhotoSide, file?: File) {
     if (!file || activeSlot === null) return;
+
+    const supported = ["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"].includes(file.type)
+      || /\.(jpe?g|png|webp|heic|heif)$/i.test(file.name);
+    if (!supported) {
+      setConfirmation("Choose a JPEG, PNG, WebP, HEIC, or HEIF photo.");
+      return;
+    }
+    if (file.size > 20971520) {
+      setConfirmation("That photo is larger than 20 MB. Choose a smaller version and try again.");
+      return;
+    }
 
     const url = URL.createObjectURL(file);
     objectUrls.current.add(url);
@@ -123,41 +144,80 @@ export function MobileNewClothes() {
           objectUrls.current.delete(previous.url);
         }
 
-        return { ...slot, [side]: { file, url }, [side === "front" ? "uploadedFront" : "uploadedBack"]: false };
+        return { ...slot, [side]: { file, url }, [side === "front" ? "uploadedFront" : "uploadedBack"]: false, cleanupWarning: false };
       }),
     );
     setConfirmation("");
   }
 
-  async function submitPhotos() {
-    if (counts.started !== counts.complete) {
-      setConfirmation("Finish the front and back photos for every started slot first.");
-      return;
-    }
+  async function uploadClothingPhoto(
+    itemId: string,
+    side: PhotoSide,
+    file: File,
+    onProgress?: (progress: ClothingPhotoProgress) => void,
+  ) {
+    const { compressImage } = await import("@/lib/images/compress");
+    onProgress?.({ stage: "uploading-original" });
+    await uploadPhoto(itemId, side, file);
 
+    const deviceMemory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
+    if (/iPhone|iPad|iPod/i.test(navigator.userAgent) || (deviceMemory !== undefined && deviceMemory <= 4)) {
+      return false;
+    }
+    const engine = removalEngine.current;
+    if (!engine) return false;
+    try {
+      const source = await compressImage(file, { maxDimension: 1280, quality: 0.78 });
+      const cutout = await engine.remove(source, onProgress);
+      onProgress?.({ stage: "uploading-cutout" });
+      const optimizedCutout = await compressImage(
+        new File([cutout], `${source.name.replace(/\.webp$/, "")}-cutout.png`, { type: cutout.type || "image/png" }),
+        { maxDimension: 1280, quality: 0.78 },
+      );
+      await uploadPhoto(itemId, side, optimizedCutout, true);
+      return true;
+    } catch {
+      // The original is already safely stored. Low-memory phones and HEIC
+      // decoders may not support local cleanup, so let review finish it later.
+      return false;
+    }
+  }
+
+  async function submitPhotos() {
     if (!counts.complete) return;
 
     setBusy(true);
     const next = slots.map(slot => ({ ...slot, id: slot.id ?? crypto.randomUUID() }));
     setSlots(next);
+    const failed: number[] = [];
     try {
       for (let index = 0; index < next.length; index++) {
         const slot = next[index];
-        if (!slot.front || !slot.back || slot.sent) continue;
-        const progress = (update: ClothingPhotoProgress) => {
-          const label = "item " + (index + 1);
-          if (update.stage === "uploading-original") setConfirmation("Saving the original photo for " + label + "… Keep this page open.");
-          if (update.stage === "loading-model") setConfirmation("Preparing on-device background removal for " + label + "…");
-          if (update.stage === "downloading-model") setConfirmation("Downloading the on-device background-removal model" + (update.percent === undefined ? "" : " (" + update.percent + "%)") + "…");
-          if (update.stage === "removing-background") setConfirmation("Removing the background on this device for " + label + "…");
-          if (update.stage === "uploading-cutout") setConfirmation("Saving the transparent cutout for " + label + "…");
-        };
-        if (!slot.uploadedFront) { await uploadClothingPhoto(slot.id, "front", slot.front.file, progress); slot.uploadedFront = true; setSlots(next.map(s => ({ ...s }))); }
-        if (!slot.uploadedBack) { await uploadClothingPhoto(slot.id, "back", slot.back.file, progress); slot.uploadedBack = true; setSlots(next.map(s => ({ ...s }))); }
-        slot.sent = true;
-        setSlots(next.map(s => ({ ...s })));
+        if ((!slot.front && !slot.back) || slot.sent) continue;
+        try {
+          const progress = (update: ClothingPhotoProgress) => {
+            const label = "item " + (index + 1);
+            if (update.stage === "uploading-original") setConfirmation("Saving the original photo for " + label + "… Keep this page open.");
+            if (update.stage === "loading-model") setConfirmation("Preparing on-device background removal for " + label + "…");
+            if (update.stage === "downloading-model") setConfirmation("Downloading the on-device background-removal model" + (update.percent === undefined ? "" : " (" + update.percent + "%)") + "…");
+            if (update.stage === "removing-background") setConfirmation("Removing the background on this device for " + label + "…");
+            if (update.stage === "uploading-cutout") setConfirmation("Saving the transparent cutout for " + label + "…");
+          };
+          if (slot.front && !slot.uploadedFront) { const cleaned = await uploadClothingPhoto(slot.id, "front", slot.front.file, progress); slot.uploadedFront = true; slot.cleanupWarning ||= !cleaned; setSlots(next.map(s => ({ ...s }))); }
+          if (slot.back && !slot.uploadedBack) { const cleaned = await uploadClothingPhoto(slot.id, "back", slot.back.file, progress); slot.uploadedBack = true; slot.cleanupWarning ||= !cleaned; setSlots(next.map(s => ({ ...s }))); }
+          await requestJson("/api/uploads", { action: "finalize", itemId: slot.id, side: "front", processed: false });
+          slot.sent = true;
+          setSlots(next.map(s => ({ ...s })));
+        } catch {
+          failed.push(index + 1);
+        }
       }
-      setConfirmation("Photos submitted for review. They will appear in your closet once published.");
+      const cleanupCount = next.filter(slot => slot.sent && slot.cleanupWarning).length;
+      setConfirmation(failed.length
+        ? `Item${failed.length === 1 ? "" : "s"} ${failed.join(", ")} could not finish. Their photos are still here; tap Submit to retry while the other items continue.`
+        : cleanupCount
+          ? `Photos submitted for review. ${cleanupCount} ${cleanupCount === 1 ? "item needs" : "items need"} background cleanup in review, but the original photos were saved.`
+          : "Photos submitted for review. They will appear in your closet once published.");
       await refresh();
     } catch (error) { setConfirmation(error instanceof Error ? error.message : "Upload interrupted. Your photos are still here; tap Submit to retry."); }
     finally { setBusy(false); }
@@ -170,12 +230,12 @@ export function MobileNewClothes() {
           <strong>{counts.complete}</strong>
           <span>of {slotCount} complete</span>
         </div>
-        <p>Each item needs one front photo and one back photo.</p>
+        <p>Each item needs at least one photo. Add both sides whenever you have them.</p>
       </section>
 
       <section className="mobile-slot-grid" aria-label="New clothing photo slots">
         {slots.map((slot, index) => {
-          const isComplete = Boolean(slot.front && slot.back);
+          const isComplete = Boolean(slot.front || slot.back);
           const hasStarted = Boolean(slot.front || slot.back);
 
           return (
@@ -200,7 +260,7 @@ export function MobileNewClothes() {
               )}
               {hasStarted ? (
                 <span className="mobile-slot-grid__status">
-                  {slot.sent ? "Submitted" : isComplete ? "Ready" : "Add the other side"}
+                  {slot.sent ? "Submitted" : isComplete ? "Ready" : "Add a photo"}
                 </span>
               ) : null}
             </button>
@@ -211,13 +271,14 @@ export function MobileNewClothes() {
       <button
         type="button"
         className="mobile-primary-action"
-        disabled={busy || !counts.complete || slots.every(slot => !slot.front || slot.sent)}
+        disabled={busy || !counts.complete || slots.every(slot => (!slot.front && !slot.back) || slot.sent)}
         onClick={submitPhotos}
       >
         Submit {counts.complete ? `${counts.complete} ${counts.complete === 1 ? "item" : "items"}` : "photos"}
       </button>
 
       {confirmation ? <p className="mobile-form-message" role="status">{confirmation}</p> : null}
+      <BackgroundRemovalEngine ref={removalEngine} onReady={handleRemovalEngineReady} />
       {slots.some(slot => slot.sent) && !busy && <button className="mobile-primary-action" onClick={() => {
         if (slots.some(slot => (slot.front || slot.back) && !slot.sent) && !confirm("Clear the remaining unsent photos to start a new batch?")) return;
         objectUrls.current.forEach(url => URL.revokeObjectURL(url)); objectUrls.current.clear(); setSlots(emptySlots()); setConfirmation("");
@@ -261,7 +322,7 @@ export function MobileNewClothes() {
               <button
                 type="button"
                 className="mobile-primary-action"
-                disabled={!selected.front || !selected.back}
+                disabled={!selected.front && !selected.back}
                 onClick={closeSheet}
               >
                 Done

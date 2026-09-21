@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { localDate, type CalendarPlan } from "@/lib/wardrobe";
+import { localDate, type CalendarPlan, type SavedBuild, type WardrobeItem } from "@/lib/wardrobe";
 import { ItemGrid } from "./browse";
 import { DataGate, useWardrobe } from "./provider";
-import { Drawer, PageShell } from "./ui";
+import { Drawer, ItemPhoto, PageShell } from "./ui";
 
 const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 type DesktopCalendarView = "month" | "week";
@@ -19,13 +19,43 @@ function weekStartFor(value: string) {
   return localDate(date);
 }
 
+function ordinalDay(day: number) {
+  if (day % 100 >= 11 && day % 100 <= 13) return `${day}th`;
+  return `${day}${day % 10 === 1 ? "st" : day % 10 === 2 ? "nd" : day % 10 === 3 ? "rd" : "th"}`;
+}
+
+function displayDate(date: string) {
+  const value = dateFromKey(date);
+  return `${value.toLocaleDateString("en-US", { month: "long" })} ${ordinalDay(value.getDate())}, ${value.getFullYear()}`;
+}
+
+function resolvedPlanItems(plan: CalendarPlan | undefined, items: WardrobeItem[], builds: SavedBuild[]) {
+  if (!plan) return [];
+  const plannedIds = [...plan.itemIds, ...plan.buildIds.flatMap(id => builds.find(build => build.id === id)?.itemIds ?? [])];
+  return [...new Set(plannedIds)]
+    .map(id => items.find(item => item.id === id))
+    .filter((item): item is WardrobeItem => Boolean(item));
+}
+
+function ScheduledOutfits({ date, plan, builds, items, edit }: { date: string; plan: CalendarPlan; builds: SavedBuild[]; items: WardrobeItem[]; edit: () => void }) {
+  const plannedItems = resolvedPlanItems(plan, items, builds).slice(0, 6);
+
+  return <section className="calendar-scheduled-outfits" aria-label={`Outfit planned for ${displayDate(date)}`}>
+    <div className="calendar-scheduled-outfits__grid">
+      {plannedItems.map(item => <ItemPhoto key={item.id} item={item} thumbnail/>)}
+    </div>
+    <button type="button" className="wc-button wc-button--accent calendar-scheduled-outfits__edit" onClick={edit}>Edit {displayDate(date)}</button>
+  </section>;
+}
+
 export function CalendarPage() {
-  const { data, mutate } = useWardrobe();
+  const { data, mutate, refresh } = useWardrobe();
   const today = localDate();
   const [month, setMonth] = useState(today.slice(0, 7));
   const [weekStart, setWeekStart] = useState(() => weekStartFor(today));
   const [desktopView, setDesktopView] = useState<DesktopCalendarView>("month");
   const [selected, setSelected] = useState<string | null>(null);
+  const [editing, setEditing] = useState(false);
   const [draftItemIds, setDraftItemIds] = useState<string[]>([]);
   const [draftNote, setDraftNote] = useState("");
   const [message, setMessage] = useState("");
@@ -34,6 +64,8 @@ export function CalendarPage() {
   const first = new Date(`${month}-01T12:00:00`);
   const count = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
   const plan = data?.plans.find((entry) => entry.date === selected);
+  const selectedPlanItems = resolvedPlanItems(plan, data?.items ?? [], data?.builds ?? []);
+  const showingSavedOutfit = selectedPlanItems.length > 0 && !editing;
   const weekDays = Array.from({ length: 7 }, (_, index) => {
     const date = dateFromKey(weekStart);
     date.setDate(date.getDate() + index);
@@ -43,6 +75,16 @@ export function CalendarPage() {
   const calendarLabel = desktopView === "month"
     ? first.toLocaleDateString("en-US", { month: "long", year: "numeric" })
     : weekLabel;
+
+  useEffect(() => {
+    void refresh();
+  }, [refresh]);
+
+  useEffect(() => {
+    if (!selected || !data) return;
+    const available = new Set(data.items.map(item => item.id));
+    setDraftItemIds(current => current.filter(id => available.has(id)));
+  }, [data, selected]);
 
   useEffect(() => {
     const media = window.matchMedia("(max-width: 600px)");
@@ -61,9 +103,11 @@ export function CalendarPage() {
 
   function selectDate(date: string) {
     const existing = data?.plans.find((entry) => entry.date === date);
+    const existingItems = resolvedPlanItems(existing, data?.items ?? [], data?.builds ?? []);
     setSelected(date);
-    setDraftItemIds(existing?.itemIds ?? []);
+    setDraftItemIds(existingItems.map(item => item.id));
     setDraftNote(existing?.note ?? "");
+    setEditing(existingItems.length === 0);
     setMessage("");
   }
 
@@ -91,12 +135,7 @@ export function CalendarPage() {
   }
 
   function planLabels(entry?: CalendarPlan) {
-    return entry
-      ? [
-          ...entry.buildIds.map((id) => data?.builds.find((build) => build.id === id)?.name),
-          ...entry.itemIds.map((id) => data?.items.find((item) => item.id === id)?.name),
-        ].filter((label): label is string => Boolean(label))
-      : [];
+    return resolvedPlanItems(entry, data?.items ?? [], data?.builds ?? []).map(item => item.name);
   }
 
   async function savePlan(itemIds: FormDataEntryValue[] | string[], buildIds: FormDataEntryValue[] | string[], note: FormDataEntryValue | string | null) {
@@ -111,6 +150,7 @@ export function CalendarPage() {
         note,
       });
       setSelected(null);
+      setEditing(false);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Could not save.");
     } finally {
@@ -193,7 +233,7 @@ export function CalendarPage() {
                 return (
                   <button
                     key={key}
-                    className={`mobile-week-calendar__day${key === today ? " is-today" : ""}${entry ? " has-plan" : ""}`}
+                    className={`mobile-week-calendar__day${key === today ? " is-today" : ""}${labels.length ? " has-plan" : ""}`}
                     aria-label={`Plan outfit for ${date.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}`}
                     onClick={() => selectDate(key)}
                   >
@@ -217,10 +257,11 @@ export function CalendarPage() {
 
       {selected && !isMobile && (
         <Drawer
-          title={dateFromKey(selected).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
+          title={showingSavedOutfit ? displayDate(selected) : dateFromKey(selected).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
           close={() => { if (!busy) setSelected(null); }}
+          small={showingSavedOutfit}
         >
-          <section className="calendar-closet-picker" aria-label="Choose clothes for this day">
+          {plan && showingSavedOutfit ? <ScheduledOutfits date={selected} plan={plan} builds={data?.builds ?? []} items={data?.items ?? []} edit={() => setEditing(true)}/> : <section className="calendar-closet-picker" aria-label="Choose clothes for this day">
             <p className="calendar-closet-picker__intro">Choose pieces from the closet. Use the filters, sort, or saved views to narrow things down.</p>
             <ItemGrid
               items={data?.items ?? []}
@@ -237,29 +278,29 @@ export function CalendarPage() {
               type="button"
               className="wc-button wc-button--accent calendar-closet-picker__save"
               disabled={busy}
-              onClick={() => void savePlan(draftItemIds, plan?.buildIds ?? [], draftNote)}
+              onClick={() => void savePlan(draftItemIds, [], draftNote)}
             >
               {busy ? "Saving…" : `Save ${draftItemIds.length ? `${draftItemIds.length} ${draftItemIds.length === 1 ? "item" : "items"}` : "day"}`}
             </button>
             {message && <p role="alert">{message}</p>}
-          </section>
+          </section>}
         </Drawer>
       )}
 
       {selected && isMobile && (
         <div
-          className="mobile-calendar-drawer__backdrop"
+          className={`mobile-calendar-drawer__backdrop${showingSavedOutfit ? " is-preview" : ""}`}
           role="presentation"
           onClick={(event) => {
             if (event.target === event.currentTarget && !busy) setSelected(null);
           }}
         >
-          <section className="mobile-calendar-drawer" role="dialog" aria-modal="true" aria-labelledby="mobile-calendar-drawer-title">
+          <section className={`mobile-calendar-drawer${showingSavedOutfit ? " is-preview" : ""}`} role="dialog" aria-modal="true" aria-labelledby="mobile-calendar-drawer-title">
             <header className="mobile-calendar-drawer__header">
-              <h2 id="mobile-calendar-drawer-title">{dateFromKey(selected).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}</h2>
+              <h2 id="mobile-calendar-drawer-title">{showingSavedOutfit ? displayDate(selected) : dateFromKey(selected).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}</h2>
               <button type="button" className="wc-icon-button" onClick={() => { if (!busy) setSelected(null); }} aria-label="Close panel">×</button>
             </header>
-            <section className="mobile-calendar-picker" aria-label="Choose clothes for this day">
+            {plan && showingSavedOutfit ? <ScheduledOutfits date={selected} plan={plan} builds={data?.builds ?? []} items={data?.items ?? []} edit={() => setEditing(true)}/> : <section className="mobile-calendar-picker" aria-label="Choose clothes for this day">
             <p className="mobile-calendar-picker__intro">Choose any pieces you want to wear. Tap an item again to remove it.</p>
             <ItemGrid
               items={data?.items ?? []}
@@ -275,12 +316,12 @@ export function CalendarPage() {
               type="button"
               className="wc-button wc-button--accent mobile-calendar-picker__save"
               disabled={busy}
-              onClick={() => void savePlan(draftItemIds, plan?.buildIds ?? [], draftNote)}
+              onClick={() => void savePlan(draftItemIds, [], draftNote)}
             >
               {busy ? "Saving…" : `Save ${draftItemIds.length ? `${draftItemIds.length} ${draftItemIds.length === 1 ? "item" : "items"}` : "day"}`}
             </button>
             {message && <p role="alert">{message}</p>}
-            </section>
+            </section>}
           </section>
         </div>
       )}

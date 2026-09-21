@@ -1,10 +1,10 @@
 "use client";
-import Link from "next/link";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { ArrowsDownUp, BookmarkSimple, FadersHorizontal, PencilSimple, SortAscending, SortDescending } from "@phosphor-icons/react";
 import type { SavedBuild, WardrobeItem } from "@/lib/wardrobe";
 import { useWardrobe, DataGate } from "./provider";
 import { Drawer, Empty, Heart, ItemPhoto, PageShell } from "./ui";
+import { ItemEditor } from "./item-editor";
 
 const topics = ["All", "Tops", "Jackets", "Dresses", "Sleep", "Bottoms", "Under", "Shoes", "Misc."];
 const tags = ["All", "Everyday", "Work", "Club", "Church", "Comfy", "Basic", "Layers", "Formal", "Active"];
@@ -60,20 +60,29 @@ export function ItemDetails({ item, close }: { item: WardrobeItem; close: () => 
   const current = data?.items.find(i => i.id === item.id) ?? item;
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [editing, setEditing] = useState(false);
   async function mark(field: "favorite" | "saved") {
     setBusy(true); setError("");
     try { await mutate({ action: "mark", id: current.id, field, value: !current[field] }); }
     catch (error) { setError(error instanceof Error ? error.message : "Could not save."); }
     finally { setBusy(false); }
   }
+  async function removeItem() {
+    if (!confirm(`Delete ${current.name}? This cannot be undone.`)) return;
+    setBusy(true); setError("");
+    try { await mutate({ action: "removeItem", id: current.id }); close(); }
+    catch (error) { setError(error instanceof Error ? error.message : "Could not delete this item."); }
+    finally { setBusy(false); }
+  }
   return <Drawer title={current.name} close={close}>
-    <div className="wc-item-photos"><ItemPhoto item={current}/><ItemPhoto item={current} side="back"/></div>
+    <div className="wc-item-photos"><ItemPhoto item={current}/>{current.backUrl && <ItemPhoto item={current} side="back"/>}</div>
     <div className="wc-item-actions"><button className="wc-button" aria-pressed={current.saved} disabled={busy} onClick={() => void mark("saved")}>{current.saved ? "Saved" : "Save item"}</button><button className="wc-heart-button" disabled={busy} aria-label={current.favorite ? "Remove from favorites" : "Add to favorites"} aria-pressed={current.favorite} onClick={() => void mark("favorite")}><Heart filled={current.favorite}/></button></div>
     {error && <p role="alert">{error}</p>}
     <dl className="closet-item-drawer__details">
       {Object.entries({ Category: [current.category, current.subcategory].filter(Boolean).join(" · "), Tags: current.tags.join(" · "), Color: current.color, Details: [current.details, current.size && "Size " + current.size, current.fit, current.store, current.cost !== null && "$" + current.cost.toFixed(2), current.occasions.join(" · ")].filter(Boolean).join(" · ") }).map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value || "Not added yet"}</dd></div>)}
     </dl>
-    <Link className="wc-text-link" href={"/mobile/database?item=" + current.id}>Edit item information</Link>
+    {editing ? <div className="wc-inline-editor"><ItemEditor item={current} onSaved={() => setEditing(false)}/></div> : <button type="button" className="wc-text-link" onClick={() => setEditing(true)}>Edit item information</button>}
+    <button type="button" className="wc-text-link wc-text-link--danger" disabled={busy} onClick={() => void removeItem()}>{busy ? "Deleting…" : "Delete item"}</button>
   </Drawer>;
 }
 export function ItemGrid({ items, builds = [], choose, selected = [], compact = false }: { items: WardrobeItem[]; builds?: SavedBuild[]; choose?: (item: WardrobeItem) => void; selected?: string[]; compact?: boolean }) {
@@ -86,7 +95,7 @@ export function ItemGrid({ items, builds = [], choose, selected = [], compact = 
   const [appliedTopic, setAppliedTopic] = useState("All");
   const [appliedTag, setAppliedTag] = useState("All");
   const [draftSort, setDraftSort] = useState<SortOrder>("newest");
-  const [sortOrder, setSortOrder] = useState<SortOrder | null>(null);
+  const [sortOrder, setSortOrder] = useState<SortOrder>("newest");
   const [draftSaved, setDraftSaved] = useState<SavedView>("favorites");
   const [savedView, setSavedView] = useState<SavedView | null>(null);
   const [item, setItem] = useState<WardrobeItem | null>(null);
@@ -106,7 +115,6 @@ export function ItemGrid({ items, builds = [], choose, selected = [], compact = 
     if (mode === "tags") return [...item.tags, ...item.occasions].some(t => t.toLowerCase() === filter.toLowerCase());
     return itemTopic(item) === filter;
   }).sort((a, b) => {
-    if (!sortOrder) return 0;
     const left = a.publishedAt ?? a.createdAt;
     const right = b.publishedAt ?? b.createdAt;
     return sortOrder === "newest" ? right.localeCompare(left) : left.localeCompare(right);
@@ -178,6 +186,7 @@ export function ItemGrid({ items, builds = [], choose, selected = [], compact = 
 
 function RecentList({ items }: { items: WardrobeItem[] }) {
   const { mutate } = useWardrobe();
+  const [item, setItem] = useState<WardrobeItem | null>(null);
   const [sortOrder, setSortOrder] = useState<SortOrder>("newest");
   const [favoriteBusy, setFavoriteBusy] = useState<string | null>(null);
   const [favoriteError, setFavoriteError] = useState("");
@@ -213,10 +222,11 @@ function RecentList({ items }: { items: WardrobeItem[] }) {
         <div className="recent-card__meta"><strong>{item.name}</strong><small>{itemTopic(item)}</small></div>
         <div className="recent-card__actions">
           <button type="button" disabled={favoriteBusy === item.id} aria-pressed={item.favorite} onClick={() => void toggleFavorite(item)}><span>{item.favorite ? "Favorited" : "Favorite"}</span><Heart filled={item.favorite}/></button>
-          <Link href={`/mobile/database?item=${item.id}`}><span>Edit Info</span><PencilSimple aria-hidden="true"/></Link>
+          <button type="button" onClick={() => setItem(item)}><span>Edit Info</span><PencilSimple aria-hidden="true"/></button>
         </div>
       </article>)}
     </div> : <Empty>Your clothes will appear here once they have been reviewed and published.</Empty>}
+    {item && <ItemDetails item={item} close={() => setItem(null)}/>}
   </section>;
 }
 
