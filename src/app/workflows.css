@@ -1961,6 +1961,7 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
   .closet-browser:not(.closet-browser--compact) .mobile-closet-toolbar button.is-active { color: #303030; background: #bcbcbc; }
   .closet-browser:not(.closet-browser--compact) .mobile-closet-toolbar svg { width: 22px; height: 22px; color: #303030 !important; opacity: 1; }
   .closet-browser:not(.closet-browser--compact) .closet-browser__display-count { display: block; width: min(76.8vw, 1520px); margin: 17px auto 0; color: rgba(48,48,48,.6); font-size: 13px; letter-spacing: .01em; }
+  .wc-builder.is-building .closet-browser:not(.closet-browser--compact) .closet-browser__display-count { width: calc(100% - 48px); margin: 17px 24px 0; }
 }
 
 @media (min-width: 601px) {
