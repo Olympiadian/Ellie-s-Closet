@@ -81,8 +81,8 @@ export function ItemDetails({ item, close }: { item: WardrobeItem; close: () => 
     <dl className="closet-item-drawer__details">
       {Object.entries({ Category: [current.category, current.subcategory].filter(Boolean).join(" · "), Tags: current.tags.join(" · "), Color: current.color, Details: [current.details, current.size && "Size " + current.size, current.fit, current.store, current.cost !== null && "$" + current.cost.toFixed(2), current.occasions.join(" · ")].filter(Boolean).join(" · ") }).map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value || "Not added yet"}</dd></div>)}
     </dl>
-    {editing ? <div className="wc-inline-editor"><ItemEditor item={current} onSaved={() => setEditing(false)}/></div> : <button type="button" className="wc-text-link" onClick={() => setEditing(true)}>Edit item information</button>}
-    <button type="button" className="wc-text-link wc-text-link--danger" disabled={busy} onClick={() => void removeItem()}>{busy ? "Deleting…" : "Delete item"}</button>
+    {editing ? <div className="wc-inline-editor"><ItemEditor item={current} onSaved={() => setEditing(false)}/></div> : <button type="button" className="wc-button wc-item-edit-button" onClick={() => setEditing(true)}>Edit information</button>}
+    <button type="button" className="wc-button wc-item-delete-button" disabled={busy} onClick={() => void removeItem()}>{busy ? "Deleting…" : "Delete item"}</button>
   </Drawer>;
 }
 export function ItemGrid({ items, builds = [], choose, selected = [], compact = false }: { items: WardrobeItem[]; builds?: SavedBuild[]; choose?: (item: WardrobeItem) => void; selected?: string[]; compact?: boolean }) {

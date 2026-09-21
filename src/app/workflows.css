@@ -76,8 +76,8 @@
 .wc-form .wc-check, .wc-check { display: flex; align-items: center; gap: 10px; font-size: 14px; line-height: 1.5; }
 .wc-check input { accent-color: #737373; width: 18px; height: 18px; flex: 0 0 18px; }
 .wc-checkbox-list { display: grid; gap: 14px; max-height: 290px; overflow: auto; }
-.wc-builder.is-building { padding-left: min(30vw,370px); }
-.wc-builder.is-building .closet-browser__grid, .wc-builder.is-building .closet-browser__filters, .wc-builder.is-building .closet-browser__controls, .wc-builder.is-building .closet-browser__display-count { width: 90%; margin-left: auto; margin-right: auto; }
+.wc-builder.is-building { --build-tray-offset: min(30vw,370px); padding-left: var(--build-tray-offset); }
+.wc-builder.is-building .closet-browser__grid, .wc-builder.is-building .closet-browser__filters, .wc-builder.is-building .closet-browser__controls, .wc-builder.is-building .closet-browser__display-count { width: calc(100% - 48px); margin-left: 24px; margin-right: 24px; }
 .wc-builder.is-building .closet-browser__grid { grid-template-columns: repeat(4,minmax(0,1fr)); }
 .wc-build-tray { position: fixed; top: 145px; left: 24px; width: min(27vw,340px); height: calc(100dvh - 169px); max-height: calc(100dvh - 169px); overflow: hidden; padding: 24px; background: #fff; border-radius: 12px; box-shadow: 2px 4px 12px #00000012; display: flex; flex-direction: column; gap: 20px; }
 .wc-build-tray__items { min-height: 0; overflow-y: auto; flex: 1 1 auto; }
@@ -190,6 +190,8 @@
 .wc-publish { margin-top: 38px; }
 .wc-inline-editor { margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(48,48,48,.12); }
 .wc-text-link--danger { width: fit-content; margin-top: 18px; color: #9d3434; }
+.wc-item-edit-button { width: 100%; margin-top: 28px; min-height: 50px; background: #ededed; }
+.wc-item-delete-button { width: 100%; margin-top: 44px; min-height: 50px; color: #913f3f; background: #f7dddd; }
 .wc-stores { display: grid; max-width: none; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
 .wc-store-card { position: relative; display: block; min-height: clamp(180px, 14.2vw, 230px); overflow: hidden; border-radius: 12px; background: #fff; box-shadow: 2px 4px 12px #00000012; }
 .wc-store-card img { object-fit: contain; padding: 15%; }
@@ -244,7 +246,7 @@
 @media (max-width: 1050px) {
   .wc-content { width: 82vw; }
   .wc-narrow { width: min(650px,82vw); }
-  .wc-builder.is-building { padding-left: 29vw; }
+  .wc-builder.is-building { --build-tray-offset: 29vw; padding-left: var(--build-tray-offset); }
   .wc-build-tray { left: 14px; padding: 18px; }
   .wc-build-piece { grid-template-columns: 48px 1fr 20px; gap: 8px; }
   .wc-builder.is-building .closet-browser__grid { grid-template-columns: repeat(3,minmax(0,1fr)); }
@@ -374,7 +376,7 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
   }
 
   .wc-builder.is-building .closet-browser__controls {
-    width: 90%;
+    width: calc(100% - 48px);
   }
 
   .recent-list {
@@ -1955,7 +1957,7 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
 }
 
 @media (min-width: 601px) {
-  .closet-browser:not(.closet-browser--compact) .mobile-closet-toolbar button { width: 56px; min-width: 56px; height: 56px; aspect-ratio: 1 / 1; flex: 0 0 56px; border-radius: 6px; color: #303030; background: #fff; }
+  .closet-browser:not(.closet-browser--compact) .mobile-closet-toolbar button { width: 56px; min-width: 56px; height: 50px; aspect-ratio: auto; flex: 0 0 56px; border-radius: 6px; color: #303030; background: #fff; }
   .closet-browser:not(.closet-browser--compact) .mobile-closet-toolbar button.is-active { color: #303030; background: #bcbcbc; }
   .closet-browser:not(.closet-browser--compact) .mobile-closet-toolbar svg { width: 22px; height: 22px; color: #303030 !important; opacity: 1; }
   .closet-browser:not(.closet-browser--compact) .closet-browser__display-count { display: block; width: min(76.8vw, 1520px); margin: 17px auto 0; color: rgba(48,48,48,.6); font-size: 13px; letter-spacing: .01em; }
@@ -1979,6 +1981,34 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
     border-radius: 14px;
     background: #fff;
     box-shadow: 0 14px 32px rgba(48,48,48,.14);
+  }
+
+  .wc-builder.is-building .closet-browser:not(.closet-browser--compact) .mobile-closet-sheet {
+    left: calc(var(--build-tray-offset) + 24px);
+  }
+
+  .closet-browser__item {
+    padding-bottom: clamp(11px, .78vw, 14px);
+  }
+
+  .closet-browser__visual {
+    aspect-ratio: 1.24;
+  }
+
+  .closet-browser__item-meta {
+    min-height: clamp(44px, 3.15vw, 54px);
+    gap: 5px;
+    padding-top: clamp(9px, .65vw, 12px);
+  }
+
+  .closet-browser__item-meta strong {
+    display: block;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .closet-browser__favorite {
+    color: rgba(48,48,48,.58);
   }
 
   .closet-browser:not(.closet-browser--compact) .mobile-closet-sheet--filters { width: min(420px, calc(100vw - 24px)); }
@@ -2040,7 +2070,7 @@ html[data-reduce-motion=true] .wc-drawer[open], html[data-reduce-motion=true] .w
   }
 
   .closet-browser--compact .mobile-closet-toolbar { gap: 9px; }
-  .closet-browser--compact .mobile-closet-toolbar button { min-height: 34px; gap: 9px; padding: 3px 10px; font-size: 14px; }
+  .closet-browser--compact .mobile-closet-toolbar button { min-height: 32px; height: 32px; gap: 9px; padding: 2px 10px; font-size: 14px; }
   .closet-browser--compact .mobile-closet-toolbar svg { width: 17px; height: 17px; }
   .closet-browser--compact .mobile-closet-sheet__backdrop { justify-content: center; padding: 16px; }
   .closet-browser--compact .mobile-closet-sheet { width: min(500px, calc(100vw - 32px)); padding: 22px 30px 36px; border-radius: 20px 20px 10px 10px; box-shadow: 0 -12px 32px rgba(48,48,48,.14); }
