@@ -1,127 +1,51 @@
-# Design QA — Brand and Mobile Controls Pass
+# Calendar saved-day preview design QA
 
-## Evidence
-
-- Source visual truth: `C:/Users/elico/Downloads/Frame dsadsadsa51.png`
-- Source pixels: 400 × 400 PNG at 1× density.
-- Rendered implementation: `http://127.0.0.1:4318/` with inline Codex in-app browser captures of Home, Add Clothes, Closet Sort, Closet Saved, and the mobile Calendar picker.
-- Implementation screenshot path: in-app browser capture attached to this task; the browser surface does not expose a local screenshot filepath.
-- Viewport: 380 × 820 CSS pixels at 1× browser density.
-- State: mobile home; Add Clothes header; Sort with Oldest selected; Saved with Saved Outfits selected; Calendar day picker open.
+- Source visual truth: `C:\Users\elico\AppData\Local\Temp\codex-clipboard-e630c604-a5d4-4144-9ad8-5a59b21b601c.png`
+- Implementation screenshot: Codex in-app Browser inline capture for `http://localhost:4318/calendar` (saved-day preview state)
+- Viewport: 481 × 1051 CSS pixels, device scale factor 1
+- Source pixels: 481 × 1051
+- Implementation pixels: 481 × 1051
+- Density normalization: none required
+- State: September 19th, 2026 with two saved wardrobe items
 
 ## Full-view comparison evidence
 
-- The supplied 400 × 400 artwork is used unchanged as the visible home logo. Its crop, square aspect ratio, color, softness, and white mark match the source.
-- The same source artwork was rendered into the 16/32/48 px favicon bundle, 180 px Apple icon, 192 px PWA icon, and 512 px standard and maskable icons. Focused inspection of the 180 px, 400 px, and 512 px outputs confirmed the same crop and palette without stretching or transparency artifacts.
-- Add Clothes and Closet headers use the same 30 px Inclusive Sans, weight 500, -0.9 px tracking, and 31.5 px line height. Their back buttons now share the same 44 px square, 6 px radius, shadow, icon geometry, and stroke weight.
-- The Calendar picker toolbar shows a light-gray outline around Filters, Sort, and Saved, preserving their white fill against the white drawer.
-- The home date uses Inclusive Sans at 15 px, exactly one pixel smaller than the 16 px primary home-button title.
+The populated-day view uses the same two-column item grid, light-gray image tiles, date heading, dimmed calendar backdrop, rounded white bottom sheet, and full-width dark Edit action as the reference. The sheet contracts to the two available items instead of rendering empty slots. The retained close control follows the application's existing dismissible-sheet pattern.
 
 ## Focused region comparison evidence
 
-- Brand mark: source and rendered logo retain the same centered white symbol and iridescent field.
-- Radio controls: selecting Oldest moved both the visible dark ring and accessibility checked state from Newest to Oldest before confirmation. Selecting Saved Outfits did the same from Favorites to Saved Outfits.
-- Header controls: focused captures show Add Clothes and Closet using matching title metrics and matching back-button treatment.
-- Calendar controls: the open day-picker capture clearly shows the new light-gray toolbar borders.
+The heading, two-column grid, tile spacing, #f7f7f7 image surfaces, and dark Edit action were readable at 1:1 scale. No separate crop was necessary. Fixture items have no image URLs, so the browser showed the real empty-image state; production wardrobe images use the existing `ItemPhoto` rendering path.
 
 ## Findings
 
-- No remaining P0, P1, or P2 fidelity issues.
-- P3: favicon detail naturally becomes softer at 16 px because the supplied mark contains a blurred photographic background; this is an acceptable consequence of preserving the exact artwork.
+- No actionable P0, P1, or P2 differences remain.
+- Typography uses the application's existing Inclusive Sans/Manrope system and matches the reference hierarchy.
+- Spacing, two-column rhythm, sheet radius, backdrop tone, and action placement match the intended composition.
+- Colors use the existing app tokens with the requested #f7f7f7 item surfaces and dark primary action.
+- Image handling reuses the real wardrobe image component; no substitute assets were introduced.
+- Copy uses the selected date in both the heading and Edit action.
+
+## Interaction verification
+
+- Empty day still opens the existing clothing selector.
+- Saving two items and reopening the day shows only those two tiles.
+- Edit opens the existing selector with both items still selected.
+- Desktop/tablet uses the existing right-side sliding drawer and the same preview design.
+- Browser console errors/warnings: none.
 
 ## Comparison history
 
-- Initial P2: the home date inherited uppercase monospace styling from a more-specific legacy header selector.
-- Fix: increased the date rule specificity and explicitly applied 15 px Inclusive Sans with normal casing.
-- Post-fix evidence: the final 380 × 820 home capture shows `Thursday, September 10th, 2026` in mixed-case Inclusive Sans directly below the logo.
-- Initial P1: sheet backdrop click cancellation could prevent a tapped native radio from committing its visual checked state on touch browsers.
-- Fix: backdrop cancellation now runs only for direct backdrop clicks; child radio clicks are no longer prevented. Added the WebKit appearance reset for consistent iOS rendering.
-- Post-fix evidence: Sort and Saved captures show immediate visual and accessibility-state movement before the confirmation button is pressed.
+- Initial P2: the two-item mobile preview inherited the picker's full-height panel and blue action button.
+- Fix: added a content-sized preview sheet state and a dark full-width Edit action.
+- Post-fix evidence: the 481 × 1051 mobile capture shows a bottom-anchored, content-sized sheet with two tiles and a dark Edit action; the 1440 × 1000 capture shows the matching right-side drawer.
 
-## Verification
+## Implementation checklist
 
-- Production Next.js build: passed.
-- TypeScript: passed.
-- Workflow suite: 6/6 passed.
-- ESLint: zero errors; two pre-existing warnings remain in `src/components/wardrobe/admin.tsx`.
-- Browser console: zero warnings or errors during final mobile verification.
+- [x] Show preview only for days with saved item/build content.
+- [x] Flatten direct items and saved-build items, deduplicate, and cap at six.
+- [x] Render no empty slots.
+- [x] Preserve the existing empty-day picker.
+- [x] Preserve selected items when entering Edit mode.
+- [x] Verify mobile and desktop responsive behavior.
 
-## Final result
-
-passed
-
----
-
-# Design QA — Stores Pass
-
-## Evidence
-
-- Source visual truth: `C:/Users/elico/AppData/Local/Temp/codex-clipboard-816c6bd1-b066-4cb0-aff0-2659193a1a20.png` (1600 × 1000 desktop reference).
-- Rendered implementation: `http://localhost:4318/deals` in the Codex in-app browser.
-- Implementation capture: in-app browser screenshot at the mobile responsive breakpoint (476 px-wide viewport); the browser surface does not expose a local screenshot filepath.
-- State: Stores route, all cards visible after scrolling.
-
-## Full-view comparison evidence
-
-- Desktop styling uses the reference's three-column white-card grid with 12 px gaps, soft shadows, rounded corners, back control, and uppercase `STORES` heading. The responsive view intentionally changes to the requested smaller two-column cards on mobile.
-- The cards retain the source ordering: Aritzia, Cotton On, Sephora, Altar'd State, Vuori, Brandy Melville, Alo, Garage, SKIMS, Princess Polly, Victoria's Secret, and Steve Madden.
-
-## Focused region comparison evidence
-
-- The browser accessibility tree confirms all 12 cards are semantic links and point to each brand's main home URL.
-- The mobile capture confirms the supplied assets are used directly on white cards with no clipping or text substitutes. Altar'd State's supplied square asset receives a scoped scale adjustment to offset its transparent margins and visually match the other logos.
-
-## Findings
-
-- No remaining P0, P1, or P2 fidelity issues.
-- P3: the reference only supplies a desktop frame, so the smaller mobile card proportions are an intentional responsive implementation of the user's stated mobile requirement rather than a 1:1 source comparison.
-
-## Verification
-
-- TypeScript: passed (`npm run typecheck`).
-- Route render: `/deals` returned HTTP 200 and the in-app browser confirmed all links and heading.
-- Existing local Supabase configuration is absent, causing unrelated `/api/closet` provider errors during development; the Stores route has no data dependency and rendered correctly.
-
-## Final result
-
-passed
-
----
-
-# Design QA — Tablet Closet, Builder, and Recent Pass
-
-## Evidence
-
-- Source visual truth: `C:/Users/elico/AppData/Local/Temp/codex-clipboard-8ef4efe6-13b9-4c3c-8d65-d4b3b0491617.png` (Closet) and `C:/Users/elico/AppData/Local/Temp/codex-clipboard-741178d9-02bd-40f3-886c-8b2a080dca84.png` (Recent).
-- Source pixels: 1800 × 1173 PNG for Closet; 2115 × 1344 PNG for Recent.
-- Rendered implementation: inline Codex in-app browser captures at `http://localhost:4318/closet`, `/build`, and `/recent`.
-- Viewport: 1280 × 720 CSS pixels, tablet landscape.
-- State: Closet categories rail; Build Outfit with one selected piece; Recent sorted newest to oldest.
-
-## Full-view comparison evidence
-
-- Closet and Build Outfit use three compact, square icon controls at the left edge and a single horizontal category/tag rail on the right. The controls, active gray treatment, outlined pills, wide card grid, and generous open canvas reproduce the supplied closet composition while retaining the product’s data and interactions.
-- Recent uses vertically stacked horizontal cards: thumbnail at left, item name and category in the center, and distinct Favorite and Edit Info actions stacked on the right. The sort controls and label follow the reference hierarchy.
-- The original card grids remain intact on Closet and Build Outfit; only navigation and filtering chrome changed, as requested.
-
-## Focused region comparison evidence
-
-- The three control buttons were verified to open the existing Filters, Sort, and Saved workflows, including the compact Build Outfit state.
-- Selecting a topic or tag in Filters updates the right-side rail to the appropriate set, preserving the required filtering behavior without restoring the old Topics/Tags switch.
-- Recent Favorite updates the wardrobe item and its visible label; Edit Info links to that specific item’s editing view.
-
-## Findings
-
-- No remaining P0, P1, or P2 fidelity issues.
-- P3: the local mock fixture does not include product image URLs, so verification thumbnails appear blank there. Production uses the existing item-photo data path and will display each user’s actual images.
-
-## Verification
-
-- Production Next.js build: passed.
-- TypeScript: passed.
-- Workflow suite: 6/6 passed before the final visual pass.
-- ESLint: zero errors; two pre-existing warnings remain in `src/components/wardrobe/admin.tsx`.
-
-## Final result
-
-passed
+final result: passed

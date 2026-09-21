@@ -60,6 +60,7 @@ export function itemIssues(item: ItemFields) {
     ...(!item.color ? ["Missing color"] : []),
     ...(!item.size ? ["Missing size"] : []),
     ...(!item.tags.length ? ["Missing tags"] : []),
+    ...(!item.occasions.length ? ["Missing occasion"] : []),
     ...(item.category === "other" ? ["Review category"] : []),
   ])];
 }

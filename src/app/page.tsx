@@ -17,21 +17,18 @@ export const dynamic = "force-dynamic";
 const primaryNavigation = [
   {
     label: "Closet",
-    tabletLabel: undefined,
     description: "Explore the main closet",
     badge: <HomeCount />,
     href: "/closet",
   },
   {
     label: "Saved",
-    tabletLabel: "Saved Outfits",
     description: "Explore saved outfits & items",
     badge: <HomeCount saved />,
     href: "/saved",
   },
   {
     label: "Build Outfit",
-    tabletLabel: undefined,
     description: "Build a collection or outfit",
     badge: "+",
     href: "/build",
@@ -147,7 +144,7 @@ async function HomeContent() {
               <Link href={item.href} key={item.label}>
                 <span className="home-dashboard__primary-card-copy">
                   <span className="home-dashboard__primary-card-title">
-                    <strong>{item.tabletLabel ? <><span className="home-primary-label--default">{item.label}</span><span className="home-primary-label--tablet">{item.tabletLabel}</span></> : item.label}</strong>
+                    <strong>{item.label}</strong>
                     <b>{item.badge}</b>
                   </span>
                   <small>{item.description}</small>

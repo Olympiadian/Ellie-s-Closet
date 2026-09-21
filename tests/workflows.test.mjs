@@ -41,13 +41,13 @@ test("admin login and single-use device pairing", async () => {
   await call("/api/session", { action: "pair", token }, "", 401);
   await call("/api/closet?admin=1", undefined, viewerCookie, 403);
 });
-test("one clothing image stays private until admin publishes", async () => {
-  const upload = await call("/api/uploads", { action: "prepare", itemId, side: "front", processed: false, contentType: "image/png", size: 64 }, viewerCookie);
-  const uploaded = await fetch(upload.result.signedUrl, { method: "PUT", body: Buffer.alloc(64) });
-  assert.equal(uploaded.status, 200);
-  await call("/api/uploads", { action: "complete", itemId, side: "front", processed: false, path: upload.result.path }, viewerCookie);
-  assert.equal((await call("/api/closet?admin=1", undefined, adminCookie)).result.items[0].status, "uploading");
-  await call("/api/uploads", { action: "finalize", itemId, side: "front", processed: false }, viewerCookie);
+test("front/back upload stays private until admin publishes", async () => {
+  for (const side of ["front", "back"]) {
+    const upload = await call("/api/uploads", { action: "prepare", itemId, side, processed: false, contentType: "image/png", size: 64 }, viewerCookie);
+    const uploaded = await fetch(upload.result.signedUrl, { method: "PUT", body: Buffer.alloc(64) });
+    assert.equal(uploaded.status, 200);
+    await call("/api/uploads", { action: "complete", itemId, side, processed: false, path: upload.result.path }, viewerCookie);
+  }
   assert.equal((await call("/api/closet", undefined, viewerCookie)).result.items.length, 0);
   const review = (await call("/api/closet?admin=1", undefined, adminCookie)).result;
   assert.equal(review.items[0].status, "pending");
@@ -56,8 +56,14 @@ test("one clothing image stays private until admin publishes", async () => {
   await call("/api/closet", { action: "publish", id: itemId, published: true }, adminCookie);
   const published = (await call("/api/closet", undefined, viewerCookie)).result.items[0];
   assert.equal(published.name, fields.name);
-  assert.ok(published.frontUrl);
+  assert.ok(published.frontUrl && published.backUrl);
   assert.equal(published.originalFrontUrl, undefined);
+  const image = await fetch(origin + published.frontUrl, { redirect: "manual" });
+  assert.equal(image.status, 302);
+  assert.equal(image.headers.get("cache-control"), "private, max-age=3600, must-revalidate");
+  assert.ok(image.headers.get("location")?.includes("/object/sign/closet-private/"));
+  const repeated = (await call("/api/closet", undefined, viewerCookie)).result.items[0];
+  assert.equal(repeated.frontUrl, published.frontUrl);
 });
 test("favorites, saved items, builds, and calendar persist across sessions", async () => {
   await call("/api/closet", { action: "mark", id: itemId, field: "favorite", value: true }, viewerCookie);

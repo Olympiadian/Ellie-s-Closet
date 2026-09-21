@@ -45,7 +45,11 @@ export async function startMockDatabase() {
       return send([...files].filter(([p]) => p.startsWith(body.prefix + "/") && p.includes(body.search ?? "")).map(([p, metadata]) => ({ name: p.split("/").at(-1), metadata })));
     }
     if (url.pathname === "/storage/v1/object/sign/closet-private") return send(body.paths.map(path => ({ path, signedURL: "/object/sign/closet-private/" + path + "?token=test-only" })));
-    if (url.pathname.startsWith("/storage/v1/object/sign/")) {
+    if (url.pathname.startsWith("/storage/v1/object/sign/closet-private/")) {
+      const path = decodeURIComponent(url.pathname.replace("/storage/v1/object/sign/closet-private/", ""));
+      if (req.method === "POST") return send({ signedURL: "/object/sign/closet-private/" + path + "?token=test-only" });
+    }
+    if (url.pathname.startsWith("/object/sign/closet-private/")) {
       res.writeHead(200, { "Content-Type": "image/png" });
       return res.end(Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLbtAAAAABJRU5ErkJggg==", "base64"));
     }

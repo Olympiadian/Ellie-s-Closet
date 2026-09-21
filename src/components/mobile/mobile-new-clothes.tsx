@@ -1,11 +1,17 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import dynamic from "next/dynamic";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { CameraIcon, CloseIcon } from "@/components/mobile/mobile-icons";
 import { useAnimatedClose } from "@/components/use-animated-close";
-import { requestJson, uploadClothingPhoto, type ClothingPhotoProgress } from "@/lib/api";
+import { requestJson, uploadPhoto, type ClothingPhotoProgress } from "@/lib/api";
+import type { BackgroundRemovalEngineHandle } from "@/components/background-removal-engine";
 import { DataGate, useWardrobe } from "@/components/wardrobe/provider";
+
+const BackgroundRemovalEngine = dynamic(() => import("@/components/background-removal-engine"), {
+  ssr: false,
+});
 
 type PhotoSide = "front" | "back";
 
@@ -84,6 +90,9 @@ export function MobileNewClothes() {
   const [busy, setBusy] = useState(false);
   const { refresh } = useWardrobe();
   const objectUrls = useRef(new Set<string>());
+  const removalEngine = useRef<BackgroundRemovalEngineHandle>(null);
+  const [isRemovalEngineReady, setIsRemovalEngineReady] = useState(false);
+  const handleRemovalEngineReady = useCallback(() => setIsRemovalEngineReady(true), []);
 
   useEffect(() => {
     const urls = objectUrls.current;
@@ -110,9 +119,17 @@ export function MobileNewClothes() {
 
   function choosePhoto(side: PhotoSide, file?: File) {
     if (!file || activeSlot === null) return;
-    const supported = ["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"].includes(file.type) || /\.(jpe?g|png|webp|heic|heif)$/i.test(file.name);
-    if (!supported) { setConfirmation("Choose a JPEG, PNG, WebP, HEIC, or HEIF photo."); return; }
-    if (file.size > 20971520) { setConfirmation("That photo is larger than 20 MB. Choose a smaller version and try again."); return; }
+
+    const supported = ["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"].includes(file.type)
+      || /\.(jpe?g|png|webp|heic|heif)$/i.test(file.name);
+    if (!supported) {
+      setConfirmation("Choose a JPEG, PNG, WebP, HEIC, or HEIF photo.");
+      return;
+    }
+    if (file.size > 20971520) {
+      setConfirmation("That photo is larger than 20 MB. Choose a smaller version and try again.");
+      return;
+    }
 
     const url = URL.createObjectURL(file);
     objectUrls.current.add(url);
@@ -131,6 +148,39 @@ export function MobileNewClothes() {
       }),
     );
     setConfirmation("");
+  }
+
+  async function uploadClothingPhoto(
+    itemId: string,
+    side: PhotoSide,
+    file: File,
+    onProgress?: (progress: ClothingPhotoProgress) => void,
+  ) {
+    const { compressImage } = await import("@/lib/images/compress");
+    onProgress?.({ stage: "uploading-original" });
+    await uploadPhoto(itemId, side, file);
+
+    const deviceMemory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
+    if (/iPhone|iPad|iPod/i.test(navigator.userAgent) || (deviceMemory !== undefined && deviceMemory <= 4)) {
+      return false;
+    }
+    const engine = removalEngine.current;
+    if (!engine) return false;
+    try {
+      const source = await compressImage(file, { maxDimension: 1280, quality: 0.78 });
+      const cutout = await engine.remove(source, onProgress);
+      onProgress?.({ stage: "uploading-cutout" });
+      const optimizedCutout = await compressImage(
+        new File([cutout], `${source.name.replace(/\.webp$/, "")}-cutout.png`, { type: cutout.type || "image/png" }),
+        { maxDimension: 1280, quality: 0.78 },
+      );
+      await uploadPhoto(itemId, side, optimizedCutout, true);
+      return true;
+    } catch {
+      // The original is already safely stored. Low-memory phones and HEIC
+      // decoders may not support local cleanup, so let review finish it later.
+      return false;
+    }
   }
 
   async function submitPhotos() {
@@ -228,6 +278,7 @@ export function MobileNewClothes() {
       </button>
 
       {confirmation ? <p className="mobile-form-message" role="status">{confirmation}</p> : null}
+      <BackgroundRemovalEngine ref={removalEngine} onReady={handleRemovalEngineReady} />
       {slots.some(slot => slot.sent) && !busy && <button className="mobile-primary-action" onClick={() => {
         if (slots.some(slot => (slot.front || slot.back) && !slot.sent) && !confirm("Clear the remaining unsent photos to start a new batch?")) return;
         objectUrls.current.forEach(url => URL.revokeObjectURL(url)); objectUrls.current.clear(); setSlots(emptySlots()); setConfirmation("");

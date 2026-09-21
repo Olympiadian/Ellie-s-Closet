@@ -6,8 +6,8 @@ import type { WardrobeItem } from "@/lib/wardrobe";
 import { useAnimatedClose } from "@/components/use-animated-close";
 
 function BackIcon() { return <svg className="closet-index-page__back-icon" viewBox="0 0 32 32" aria-hidden="true"><path d="m19 8-8 8 8 8"/></svg>; }
-export function PageShell({ title, children }: { title: ReactNode; children: ReactNode }) {
-  return <main className="closet-index-page wc-page"><Link href="/" data-instant-home="true" className="closet-index-page__home" aria-label="Back to home"><BackIcon/></Link><header className="closet-index-page__header"><h1>{title}</h1></header>{children}</main>;
+export function PageShell({ title, children, desktopUppercase = false }: { title: string; children: ReactNode; desktopUppercase?: boolean }) {
+  return <main className={`closet-index-page wc-page${desktopUppercase ? " wc-page--desktop-uppercase" : ""}`}><Link href="/" data-instant-home="true" className="closet-index-page__home" aria-label="Back to home"><BackIcon/></Link><header className="closet-index-page__header"><h1>{title}</h1></header>{children}</main>;
 }
 export function Drawer({ title, close, children, small = false }: { title: string; close: () => void; children: ReactNode; small?: boolean }) {
   const ref = useRef<HTMLDialogElement>(null);
@@ -55,10 +55,10 @@ export function Drawer({ title, close, children, small = false }: { title: strin
 }
 export function ItemPhoto({ item, side = "front", original = false, thumbnail = false }: { item: WardrobeItem; side?: "front" | "back"; original?: boolean; thumbnail?: boolean }) {
   const src = original
-    ? (side === "front" ? item.originalFrontUrl ?? item.originalBackUrl : item.originalBackUrl ?? item.originalFrontUrl)
+    ? (side === "front" ? item.originalFrontUrl : item.originalBackUrl)
     : thumbnail
-      ? (side === "front" ? item.frontThumbnailUrl ?? item.backThumbnailUrl : item.backThumbnailUrl ?? item.frontThumbnailUrl)
-      : side === "front" ? item.frontUrl ?? item.backUrl : item.backUrl ?? item.frontUrl;
+      ? (side === "front" ? item.frontThumbnailUrl : item.backThumbnailUrl)
+      : side === "front" ? item.frontUrl : item.backUrl;
   return <div className="wc-photo">{src ? <Image src={src} alt={item.name + " · " + side} fill loading="lazy" sizes={thumbnail ? "(max-width: 600px) 40vw, 220px" : "(max-width: 600px) 85vw, 50vw"} unoptimized /> : <span className="sr-only">{side} photo not yet available</span>}</div>;
 }
 export function Heart({ filled }: { filled: boolean }) {

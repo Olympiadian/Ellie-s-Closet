@@ -21,7 +21,7 @@ export type WeatherSummary = {
   uvPeak: string;
 };
 
-const SCOTTSDALE = { latitude: 33.4942, longitude: -111.9261 };
+const BILTMORE = { latitude: 33.5124, longitude: -112.0284 };
 
 function weatherKind(code: number): WeatherKind {
   if (code === 0) return "clear";
@@ -67,15 +67,18 @@ function peakLabel(times: string[], uvValues: number[], maxUv: number) {
 
 export async function getWeatherSummary(): Promise<WeatherSummary> {
   const query = new URLSearchParams({
-    latitude: String(SCOTTSDALE.latitude),
-    longitude: String(SCOTTSDALE.longitude),
+    latitude: String(BILTMORE.latitude),
+    longitude: String(BILTMORE.longitude),
     daily: "weather_code,temperature_2m_max,temperature_2m_min,uv_index_max",
     hourly: "uv_index",
     temperature_unit: "fahrenheit",
     timezone: "America/Phoenix",
     forecast_days: "1",
   });
-  const response = await fetch(`https://api.open-meteo.com/v1/forecast?${query}`, { cache: "no-store" });
+  const response = await fetch(`https://api.open-meteo.com/v1/forecast?${query}`, {
+    next: { revalidate: 1800 },
+    signal: AbortSignal.timeout(8000),
+  });
   if (!response.ok) throw new Error("Weather service unavailable");
   const result = (await response.json()) as OpenMeteoResponse;
   const daily = result.daily;

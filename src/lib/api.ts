@@ -1,3 +1,5 @@
+"use client";
+
 export class ApiError extends Error {
   constructor(message: string, public status: number) { super(message); }
 }
@@ -28,30 +30,3 @@ export async function uploadPhoto(itemId: string, side: "front" | "back", file: 
 }
 
 /** Keeps the original private, then creates and uploads a local transparent cutout. */
-export async function uploadClothingPhoto(
-  itemId: string,
-  side: "front" | "back",
-  file: File,
-  onProgress?: (progress: ClothingPhotoProgress) => void,
-) {
-  const { compressImage } = await import("@/lib/images/compress");
-  onProgress?.({ stage: "uploading-original" });
-  await uploadPhoto(itemId, side, file);
-
-  const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
-  if (/iPhone|iPad|iPod/i.test(navigator.userAgent) || (memory !== undefined && memory <= 4)) return false;
-  try {
-    const source = await compressImage(file, { maxDimension: 1280, quality: 0.78 });
-    const { removeBackgroundInBrowser } = await import("@/lib/images/remove-background-browser");
-    const cutout = await removeBackgroundInBrowser(source, onProgress);
-    onProgress?.({ stage: "uploading-cutout" });
-    const optimizedCutout = await compressImage(
-      new File([cutout], `${source.name.replace(/\.webp$/, "")}-cutout.png`, { type: cutout.type || "image/png" }),
-      { maxDimension: 1280, quality: 0.78 },
-    );
-    await uploadPhoto(itemId, side, optimizedCutout, true);
-    return true;
-  } catch {
-    return false;
-  }
-}

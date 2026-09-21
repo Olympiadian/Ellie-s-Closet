@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * Browser-only image cleanup. The model is fetched and cached by the browser;
  * source photos never pass through a third-party background-removal API.

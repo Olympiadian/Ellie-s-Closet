@@ -94,7 +94,7 @@ a {
 .home-dashboard__welcome h1 {
   margin: 0;
   font-family: var(--font-hurricane), cursive;
-  font-size: clamp(58px, 5.4vw, 82px);
+  font-size: clamp(46.4px, 4.32vw, 65.6px);
   font-weight: 400;
   letter-spacing: -0.02em;
   line-height: 0.88;
@@ -390,7 +390,7 @@ a {
   }
 
   .home-dashboard__welcome h1 {
-    font-size: clamp(56px, 7vw, 72px);
+    font-size: clamp(44.8px, 5.6vw, 57.6px);
   }
 
   .home-dashboard__weather {
@@ -698,10 +698,10 @@ a {
 .closet-browser__visual {
   position: relative;
   width: 100%;
-  aspect-ratio: 1;
+  aspect-ratio: 1.12;
   overflow: hidden;
   border-radius: 8px;
-  background: #fafafa;
+  background: #f7f7f7;
 }
 
 .closet-browser__visual .wc-photo {
@@ -738,15 +738,15 @@ a {
 .closet-browser__item-meta {
   display: grid;
   gap: clamp(5px, 0.45vw, 8px);
-  min-height: clamp(62px, 4.7vw, 82px);
+  min-height: clamp(52px, 3.8vw, 66px);
   align-content: end;
-  padding: clamp(14px, 1.15vw, 21px) clamp(2px, 0.25vw, 5px) 0;
+  padding: clamp(11px, 0.85vw, 16px) clamp(2px, 0.25vw, 5px) 0;
 }
 
 .closet-browser__item-meta small {
   color: rgba(48, 48, 48, 0.6);
   font-family: var(--font-inclusive-sans), "Helvetica Neue", Arial, sans-serif;
-  font-size: clamp(12px, 0.9vw, 16px);
+  font-size: clamp(11px, 0.78vw, 14px);
   font-weight: 400;
   letter-spacing: 0.04em;
   line-height: 1;
@@ -756,7 +756,7 @@ a {
 .closet-browser__item-meta strong {
   overflow: hidden;
   font-family: var(--font-inclusive-sans), "Helvetica Neue", Arial, sans-serif;
-  font-size: clamp(18px, 1.35vw, 25px);
+  font-size: clamp(16px, 1.12vw, 21px);
   font-weight: 500;
   letter-spacing: -0.03em;
   line-height: 1.08;
@@ -2728,21 +2728,19 @@ button,
   position: fixed;
   z-index: 250;
   inset: 0;
+  display: grid;
+  place-items: center;
   overflow: hidden;
   color: #54524e;
   background: #efede3 url("/images/closet-loading-background.png") center / cover no-repeat;
 }
 
 .route-loading-screen__content {
-  position: absolute;
-  top: 49%;
-  left: 50%;
   display: flex;
   width: min(620px, calc(100vw - 48px));
   align-items: center;
   flex-direction: column;
   gap: 18px;
-  transform: translate(-50%, -50%);
   animation: loading-content-arrive 180ms ease-out both;
 }
 

@@ -65,8 +65,9 @@ function AdminContents() {
       <div className="wc-form-grid wc-form">{(["front","back"] as const).map(side => <label key={side}>Replace {side} image<input type="file" accept="image/png,image/webp" disabled={busy} onChange={event => { const file = event.target.files?.[0]; event.target.value = ""; if (file) void run(() => uploadPhoto(selectedItem.id, side, file, true), "Item image replaced."); }}/></label>)}</div>
       <button className="wc-button" disabled={busy || !(selectedItem.frontPath || selectedItem.backPath)} onClick={() => void run(() => requestJson("/api/index", { id: selectedItem.id }), "AI suggestions added. Please review before publishing.")}>Suggest details with AI</button>
       {notice && <p role="status">{notice}</p>}
-      <ItemEditor key={JSON.stringify(selectedItem)} item={selectedItem} onDeleted={() => setSelected(null)}/>
+      <ItemEditor key={JSON.stringify(selectedItem)} item={selectedItem}/>
       <div className="wc-publish"><p className="wc-muted">Save your edits above before publishing. Only published items appear in Ellie’s closet.</p><button className="wc-button wc-button--accent" disabled={busy || !(selectedItem.frontPath || selectedItem.backPath)} onClick={() => void run(() => mutate({ action: "publish", id: selectedItem.id, published: selectedItem.status !== "published" }), selectedItem.status === "published" ? "Item archived." : "Item published to the closet.")}>{selectedItem.status === "published" ? "Archive item" : "Publish to closet"}</button></div>
+      <button className="wc-text-link wc-text-link--danger" disabled={busy} onClick={() => { if (confirm(`Delete ${selectedItem.name}? This cannot be undone.`)) void run(async () => { await mutate({ action: "removeItem", id: selectedItem.id }); setSelected(null); }, "Item deleted."); }}>Delete item</button>
     </Drawer>}
   </div>;
 }

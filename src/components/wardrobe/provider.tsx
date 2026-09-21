@@ -41,7 +41,6 @@ function applyMutation(data: WardrobeData, body: unknown): WardrobeData {
   switch (mutation.action) {
     case "mark": return updateItem(item => ({ ...item, [mutation.field as "favorite" | "saved"]: Boolean(mutation.value) }));
     case "editItem": return updateItem(item => ({ ...item, ...(mutation.fields as object) }));
-    case "removeItem": return { ...data, items: data.items.filter(item => item.id !== id) };
     case "publish": return updateItem(item => ({ ...item, status: mutation.published ? "published" : "archived", ...(mutation.published && !item.publishedAt ? { publishedAt: new Date().toISOString() } : {}) }));
     case "saveBuild": {
       const build = { id, name: String(mutation.name), occasion: String(mutation.occasion), kind: mutation.kind === "collection" ? "collection" as const : "outfit" as const, itemIds: Array.isArray(mutation.itemIds) ? mutation.itemIds.filter((value): value is string => typeof value === "string") : [], createdAt: new Date().toISOString() };
@@ -84,29 +83,22 @@ export function WardrobeProvider({ children, admin = false }: { children: ReactN
   }, [admin]);
   useEffect(() => {
     const cached = admin ? null : readCache();
-    let cacheTimer: number | undefined;
     if (cached) {
+      setData(cached.data);
+      setLoading(false);
       lastRemoteLoad.current = cached.savedAt;
       document.documentElement.dataset.reduceMotion = String(cached.data.settings.reduceMotion);
-      cacheTimer = window.setTimeout(() => {
-        setData(cached.data);
-        setLoading(false);
-        if (Date.now() - cached.savedAt >= CACHE_TTL) void refresh();
-      }, 0);
+      if (Date.now() - cached.savedAt >= CACHE_TTL) void refresh();
     } else {
-      cacheTimer = window.setTimeout(() => void refresh(), 0);
+      void refresh();
     }
     const update = () => {
       if (document.visibilityState === "visible" && Date.now() - lastRemoteLoad.current >= CACHE_TTL) void refresh();
     };
     window.addEventListener("focus", update);
     const timer = window.setInterval(update, CACHE_TTL);
-    return () => {
-      window.removeEventListener("focus", update);
-      window.clearInterval(timer);
-      if (cacheTimer !== undefined) window.clearTimeout(cacheTimer);
-    };
-  }, [admin, refresh]);
+    return () => { window.removeEventListener("focus", update); window.clearInterval(timer); };
+  }, [refresh]);
   const mutate = async (body: unknown) => {
     await requestJson("/api/closet", body);
     setData(current => {

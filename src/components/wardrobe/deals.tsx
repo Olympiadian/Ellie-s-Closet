@@ -8,7 +8,7 @@ const stores = [
   { name: "Altar'd State", href: "https://www.altardstate.com/", logo: "/images/stores/altard-state.png", className: "wc-store-card--altar" },
   { name: "Vuori", href: "https://vuoriclothing.com/", logo: "/images/stores/vuori.png", className: "wc-store-card--plus-15" },
   { name: "Brandy Melville", href: "https://us.brandymelville.com/", logo: "/images/stores/brandy-melville.png", className: "wc-store-card--plus-15" },
-  { name: "Alo", href: "https://www.aloyoga.com/", logo: "/images/stores/alo.webp", className: "wc-store-card--minus-15" },
+  { name: "Alo", href: "https://www.aloyoga.com/", logo: "/images/stores/alo.webp", className: "wc-store-card--minus-15 wc-store-card--alo" },
   { name: "Garage", href: "https://www.garageclothing.com/", logo: "/images/stores/garage.png", className: "wc-store-card--plus-40" },
   { name: "SKIMS", href: "https://skims.com/", logo: "/images/stores/skims.png" },
   { name: "Princess Polly", href: "https://us.princesspolly.com/", logo: "/images/stores/princess-polly.png", className: "wc-store-card--minus-30" },
