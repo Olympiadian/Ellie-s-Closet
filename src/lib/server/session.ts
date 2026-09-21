@@ -16,6 +16,10 @@ export async function session() {
   const value = await record<Session>("session", hash(token));
   return value && new Date(value.expiresAt).getTime() > Date.now() ? value : null;
 }
+export async function sessionId() {
+  const token = (await cookies()).get(sessionCookie)?.value;
+  return token && /^[a-f0-9]{64}$/.test(token) ? hash(token) : "anonymous";
+}
 export async function requireSession(admin = false) {
   const current = await session();
   if (!current && !admin) return { role: "viewer", expiresAt: "9999-12-31T23:59:59.999Z" } satisfies Session;

@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { emptyItem, type WardrobeItem } from "@/lib/wardrobe";
 import { activity, AppError, db, limit, patch, put, record } from "@/lib/server/records";
-import { requireSession, sameOrigin } from "@/lib/server/session";
+import { requireSession, sameOrigin, sessionId } from "@/lib/server/session";
 import { apiError, json } from "@/lib/server/http";
 import { standardizeUploadedCutout } from "@/lib/server/remove-bg";
 export const maxDuration = 120;
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     let item = await record<WardrobeItem>("item", body.itemId);
     if (!item) {
       if (body.action !== "prepare" || body.processed) throw new AppError("Item not found.", 404);
-      await limit("new-items:" + current.role, 50, 86400);
+      await limit("new-items:v2:" + current.role + ":" + await sessionId(), 200, 86400);
       item = { ...emptyItem, id: body.itemId, status: "uploading", favorite: false, saved: false, createdAt: new Date().toISOString() };
       await put("item", item.id, item, true);
     }
