@@ -15,8 +15,8 @@ type BrowserSegmenter = (image: Blob) => Promise<{
 }>;
 
 const modelId = "onnx-community/ormbg-ONNX";
-const maxCutoutDimension = 2000;
-const maxInferenceDimension = 1280;
+const maxCutoutDimension = 1600;
+const maxInferenceDimension = 768;
 let segmenterPromise: Promise<BrowserSegmenter> | undefined;
 
 function reportDownload(

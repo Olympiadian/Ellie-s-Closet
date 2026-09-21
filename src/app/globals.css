@@ -461,7 +461,7 @@ a {
 .closet-index-page__header h1 {
   margin: 0;
   font-family: var(--font-inclusive-sans), "Helvetica Neue", Arial, sans-serif;
-  font-size: clamp(45px, 3.5vw, 58px);
+  font-size: clamp(36px, 2.8vw, 46.4px);
   font-weight: 500;
   letter-spacing: -0.03em;
   line-height: 0.98;
@@ -475,7 +475,7 @@ a {
   }
 
   .closet-index-page__header h1 {
-    font-size: clamp(34px, 2.25vw, 44px);
+    font-size: clamp(27.2px, 1.8vw, 35.2px);
     line-height: 1;
   }
 
@@ -2876,7 +2876,7 @@ button,
 .mobile-tool-page__header h1 {
   margin: 0;
   color: var(--mobile-ink);
-  font-size: clamp(29px, 8.4vw, 38px);
+  font-size: clamp(23.2px, 6.72vw, 30.4px);
   font-weight: 500;
   letter-spacing: -0.035em;
   line-height: 1;
@@ -3127,7 +3127,7 @@ button,
 .mobile-record-sheet h2 {
   margin: 0;
   color: var(--mobile-ink);
-  font-size: 25px;
+  font-size: 20px;
   font-weight: 500;
 }
 

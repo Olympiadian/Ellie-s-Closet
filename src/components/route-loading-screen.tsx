@@ -27,6 +27,7 @@ const loadingMessages = [
 const transitionDuration = 1900;
 const exitDuration = 280;
 const lastMessageKey = "ellies-closet-last-loading-message";
+const animatedPaths = new Set(["/closet", "/saved", "/build"]);
 
 function chooseMessage(lastMessage: string | null) {
   const choices = lastMessage
@@ -45,7 +46,7 @@ export function RouteLoadingScreen() {
 }
 
 function RouteLoadingScreenForPath({ pathname }: { pathname: string }) {
-  const isLoadingPath = pathname !== "/";
+  const isLoadingPath = animatedPaths.has(pathname);
   const [isVisible, setIsVisible] = useState(isLoadingPath);
 
   useEffect(() => {
@@ -60,7 +61,7 @@ function RouteLoadingScreenForPath({ pathname }: { pathname: string }) {
         document.documentElement.dataset.instantNavigation = "true";
         return;
       }
-      if (destination.pathname === "/") return;
+      if (!animatedPaths.has(destination.pathname)) return;
       flushSync(() => setIsVisible(true));
     };
 

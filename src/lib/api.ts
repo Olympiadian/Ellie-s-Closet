@@ -35,21 +35,23 @@ export async function uploadClothingPhoto(
   onProgress?: (progress: ClothingPhotoProgress) => void,
 ) {
   const { compressImage } = await import("@/lib/images/compress");
-  let source: File;
-  try {
-    source = await compressImage(file, { maxDimension: 1600, quality: 0.8 });
-  } catch {
-    throw new Error("This photo could not be optimized on this device. Please choose a JPEG, PNG, or WebP photo.");
-  }
   onProgress?.({ stage: "uploading-original" });
-  await uploadPhoto(itemId, side, source);
+  await uploadPhoto(itemId, side, file);
 
-  const { removeBackgroundInBrowser } = await import("@/lib/images/remove-background-browser");
-  const cutout = await removeBackgroundInBrowser(source, onProgress);
-  onProgress?.({ stage: "uploading-cutout" });
-  const optimizedCutout = await compressImage(
-    new File([cutout], `${source.name.replace(/\.webp$/, "")}-cutout.png`, { type: cutout.type || "image/png" }),
-    { maxDimension: 1600, quality: 0.8 },
-  );
-  await uploadPhoto(itemId, side, optimizedCutout, true);
+  const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
+  if (/iPhone|iPad|iPod/i.test(navigator.userAgent) || (memory !== undefined && memory <= 4)) return false;
+  try {
+    const source = await compressImage(file, { maxDimension: 1280, quality: 0.78 });
+    const { removeBackgroundInBrowser } = await import("@/lib/images/remove-background-browser");
+    const cutout = await removeBackgroundInBrowser(source, onProgress);
+    onProgress?.({ stage: "uploading-cutout" });
+    const optimizedCutout = await compressImage(
+      new File([cutout], `${source.name.replace(/\.webp$/, "")}-cutout.png`, { type: cutout.type || "image/png" }),
+      { maxDimension: 1280, quality: 0.78 },
+    );
+    await uploadPhoto(itemId, side, optimizedCutout, true);
+    return true;
+  } catch {
+    return false;
+  }
 }

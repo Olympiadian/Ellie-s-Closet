@@ -19,6 +19,7 @@ type ClothingSlot = {
   sent?: boolean;
   uploadedFront?: boolean;
   uploadedBack?: boolean;
+  cleanupWarning?: boolean;
   front?: SlotPhoto;
   back?: SlotPhoto;
 };
@@ -109,6 +110,9 @@ export function MobileNewClothes() {
 
   function choosePhoto(side: PhotoSide, file?: File) {
     if (!file || activeSlot === null) return;
+    const supported = ["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"].includes(file.type) || /\.(jpe?g|png|webp|heic|heif)$/i.test(file.name);
+    if (!supported) { setConfirmation("Choose a JPEG, PNG, WebP, HEIC, or HEIF photo."); return; }
+    if (file.size > 20971520) { setConfirmation("That photo is larger than 20 MB. Choose a smaller version and try again."); return; }
 
     const url = URL.createObjectURL(file);
     objectUrls.current.add(url);
@@ -123,7 +127,7 @@ export function MobileNewClothes() {
           objectUrls.current.delete(previous.url);
         }
 
-        return { ...slot, [side]: { file, url }, [side === "front" ? "uploadedFront" : "uploadedBack"]: false };
+        return { ...slot, [side]: { file, url }, [side === "front" ? "uploadedFront" : "uploadedBack"]: false, cleanupWarning: false };
       }),
     );
     setConfirmation("");
@@ -149,8 +153,8 @@ export function MobileNewClothes() {
             if (update.stage === "removing-background") setConfirmation("Removing the background on this device for " + label + "…");
             if (update.stage === "uploading-cutout") setConfirmation("Saving the transparent cutout for " + label + "…");
           };
-          if (slot.front && !slot.uploadedFront) { await uploadClothingPhoto(slot.id, "front", slot.front.file, progress); slot.uploadedFront = true; setSlots(next.map(s => ({ ...s }))); }
-          if (slot.back && !slot.uploadedBack) { await uploadClothingPhoto(slot.id, "back", slot.back.file, progress); slot.uploadedBack = true; setSlots(next.map(s => ({ ...s }))); }
+          if (slot.front && !slot.uploadedFront) { const cleaned = await uploadClothingPhoto(slot.id, "front", slot.front.file, progress); slot.uploadedFront = true; slot.cleanupWarning ||= !cleaned; setSlots(next.map(s => ({ ...s }))); }
+          if (slot.back && !slot.uploadedBack) { const cleaned = await uploadClothingPhoto(slot.id, "back", slot.back.file, progress); slot.uploadedBack = true; slot.cleanupWarning ||= !cleaned; setSlots(next.map(s => ({ ...s }))); }
           await requestJson("/api/uploads", { action: "finalize", itemId: slot.id, side: "front", processed: false });
           slot.sent = true;
           setSlots(next.map(s => ({ ...s })));
@@ -158,9 +162,12 @@ export function MobileNewClothes() {
           failed.push(index + 1);
         }
       }
+      const cleanupCount = next.filter(slot => slot.sent && slot.cleanupWarning).length;
       setConfirmation(failed.length
         ? `Item${failed.length === 1 ? "" : "s"} ${failed.join(", ")} could not finish. Their photos are still here; tap Submit to retry while the other items continue.`
-        : "Photos submitted for review. They will appear in your closet once published.");
+        : cleanupCount
+          ? `Photos submitted for review. ${cleanupCount} ${cleanupCount === 1 ? "item needs" : "items need"} background cleanup in review, but the original photos were saved.`
+          : "Photos submitted for review. They will appear in your closet once published.");
       await refresh();
     } catch (error) { setConfirmation(error instanceof Error ? error.message : "Upload interrupted. Your photos are still here; tap Submit to retry."); }
     finally { setBusy(false); }
