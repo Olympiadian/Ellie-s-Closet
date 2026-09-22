@@ -62,7 +62,7 @@
 .wc-heart { width: 100%; fill: none; stroke: #686868; stroke-width: 1.8; }
 .wc-heart.is-filled { fill: #c84e55; stroke: #c84e55; }
 .wc-form { display: grid; gap: 22px; font-size: 14px; }
-.wc-form label, .wc-search { display: grid; gap: 8px; color: #606060; }
+.wc-form label, .wc-form .wc-field, .wc-search { display: grid; gap: 8px; color: #606060; }
 .wc-form label > span { text-transform: capitalize; }
 .wc-form :is(input:not([type=checkbox]),textarea,select), .wc-search input {
   display: block; width: 100%; min-width: 0; min-height: 46px;
@@ -76,6 +76,9 @@
 .wc-form-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 18px; }
 .wc-form .wc-check, .wc-check { display: flex; align-items: center; gap: 10px; font-size: 14px; line-height: 1.5; }
 .wc-check input { accent-color: #737373; width: 18px; height: 18px; flex: 0 0 18px; }
+.wc-tag-select { position: relative; }
+.wc-tag-select summary { min-height: 46px; padding: 12px 42px 12px 14px; overflow: hidden; border: 1px solid #e5e5e5; border-radius: 8px; background: #fafafa; color: #303030; font: 400 15px var(--font-manrope),sans-serif; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
+.wc-tag-select > div { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; margin-top: 8px; padding: 14px; border: 1px solid #e5e5e5; border-radius: 8px; background: #fff; }
 .wc-checkbox-list { display: grid; gap: 14px; max-height: 290px; overflow: auto; }
 .wc-builder.is-building { --build-tray-offset: min(30vw,370px); padding-left: var(--build-tray-offset); }
 .wc-builder.is-building .closet-browser__grid, .wc-builder.is-building .closet-browser__filters, .wc-builder.is-building .closet-browser__controls, .wc-builder.is-building .closet-browser__display-count { width: calc(100% - 48px); margin-left: 24px; margin-right: 24px; }
