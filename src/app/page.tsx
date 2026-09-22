@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BirthdayCelebration } from "@/components/birthday-celebration";
 import { MobileHome } from "@/components/mobile/mobile-home";
 import { WeatherIcon } from "@/components/weather-icon";
 import { HomeCount } from "@/components/wardrobe/home-count";
@@ -42,6 +43,9 @@ const secondaryNavigation = [
   { label: "Stats", description: "Closet insights", href: "/stats", icon: StatsIcon },
   { label: "Calendar", description: "Plan a look", href: "/calendar", icon: CalendarIcon },
 ];
+
+// September 23, 2026 at 11:59:59 PM in Arizona (UTC-7).
+const birthdayEndsAt = Date.UTC(2026, 8, 24, 6, 59, 59, 999);
 
 function getGreeting(date: Date) {
   const hour = Number(
@@ -112,6 +116,7 @@ async function HomeContent() {
 
   return (
     <main className="home-page">
+      {now.getTime() <= birthdayEndsAt && <BirthdayCelebration endsAt={birthdayEndsAt} />}
       <MobileHome dateLabel={getDateLabel(now)} weather={weather} />
 
       <div className="home-dashboard">

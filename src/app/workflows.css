@@ -37,6 +37,49 @@
 .wc-utility-button { display: grid; place-items: center; width: clamp(54px,3.9vw,68px); aspect-ratio: 1; border: 0; border-radius: 12px; background: white; color: #303030ba; box-shadow: 2px 4px 12px #0000001a; cursor: pointer; }
 .home-dashboard__secondary-nav { grid-template-columns: repeat(5,minmax(0,1fr)); }
 .home-dashboard__secondary-nav a { font-size: clamp(15px,1.2vw,21px); }
+.birthday-celebration {
+  position: fixed;
+  z-index: 10000;
+  inset: 0;
+  display: grid;
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  place-items: center;
+  background: #fff;
+  opacity: 1;
+  pointer-events: all;
+  transition: opacity 800ms ease;
+}
+.birthday-celebration.is-leaving { opacity: 0; }
+.birthday-celebration__confetti { position: absolute; inset: 0; width: 100%; height: 100%; }
+.birthday-celebration__message {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  padding: 26px 30px 30px;
+  color: #b18822;
+  text-align: center;
+  text-shadow: 0 2px 16px rgba(255,255,255,.98), 0 0 38px #fff;
+  animation: birthday-message-in 700ms cubic-bezier(.2,.75,.25,1) both;
+}
+.birthday-celebration__message span {
+  font: 400 clamp(50px,13vw,104px)/.82 var(--font-hurricane),cursive;
+  letter-spacing: .01em;
+  white-space: nowrap;
+}
+.birthday-celebration__message strong {
+  margin-top: clamp(16px,3vw,28px);
+  color: #d87f98;
+  font: 500 clamp(20px,4.8vw,36px)/1 var(--font-inclusive-sans),Arial,sans-serif;
+  letter-spacing: .34em;
+  text-transform: uppercase;
+}
+@keyframes birthday-message-in {
+  from { opacity: 0; transform: translateY(18px) scale(.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
 .wc-photo { position: relative; width: 100%; aspect-ratio: 1.1 / 1; overflow: hidden; border-radius: 12px; }
 .wc-photo img { object-fit: contain; padding: 12px; }
 .closet-browser__item .wc-photo { height: 100%; }
