@@ -59,7 +59,11 @@ export function ItemPhoto({ item, side = "front", original = false, thumbnail = 
     : thumbnail
       ? (side === "front" ? item.frontThumbnailUrl : item.backThumbnailUrl)
       : side === "front" ? item.frontUrl : item.backUrl;
-  return <div className="wc-photo">{src ? <Image src={src} alt={item.name + " · " + side} fill loading="lazy" sizes={thumbnail ? "(max-width: 600px) 40vw, 220px" : "(max-width: 600px) 85vw, 50vw"} unoptimized /> : <span className="sr-only">{side} photo not yet available</span>}</div>;
+  const previewSrc = !thumbnail && !original
+    ? (side === "front" ? item.frontThumbnailUrl : item.backThumbnailUrl)
+    : undefined;
+  const sizes = thumbnail ? "(max-width: 600px) 40vw, 220px" : "(max-width: 600px) 85vw, 50vw";
+  return <div className="wc-photo">{src ? <>{previewSrc && previewSrc !== src && <Image src={previewSrc} alt="" aria-hidden="true" fill loading="eager" sizes={sizes} unoptimized/>}<Image src={src} alt={item.name + " · " + side} fill loading={thumbnail ? "lazy" : "eager"} sizes={sizes} unoptimized /></> : <span className="sr-only">{side} photo not yet available</span>}</div>;
 }
 export function Heart({ filled }: { filled: boolean }) {
   return <svg viewBox="0 0 32 32" className={"wc-heart" + (filled ? " is-filled" : "")} aria-hidden="true"><path d="M16 27S5 20.7 5 12.7C5 8.5 7.7 6 11.2 6c2.2 0 3.9 1.2 4.8 2.8C16.9 7.2 18.6 6 20.8 6 24.3 6 27 8.5 27 12.7 27 20.7 16 27 16 27Z"/></svg>;
